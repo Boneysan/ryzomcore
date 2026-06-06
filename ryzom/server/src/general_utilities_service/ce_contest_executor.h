@@ -49,7 +49,7 @@ public:
 	virtual void addAnswer(const NLMISC::CSString& answer)=0;
 
 	// a player submits an answer
-	virtual void submitAnswer(GUS::TClientId clientId, const NLMISC::CSString& characterName, const ucstring& answer)=0;
+	virtual void submitAnswer(GUS::TClientId clientId, const NLMISC::CSString& characterName, const std::string& answer)=0;
 
 	// display the list of lucky winners
 	virtual void acknowledgeWinners(const std::vector<NLMISC::CSString>& winners)=0;

@@ -35,7 +35,7 @@ using namespace NLMISC;
 // some local constants
 //-----------------------------------------------------------------------------
 
-static const ucstring EmptyString;
+static const std::string EmptyString;
 static const char* DefaultLanguageName= "default";
 
 
@@ -59,25 +59,18 @@ namespace GUS
 		return _Code;
 	}
 
-	const ucstring& CLangText::get(const CSString& tokenName) const
+	const std::string& CLangText::get(const CSString& tokenName) const
 	{
 		TTexts::const_iterator it= _Texts.find(tokenName);
 		return (it==_Texts.end())? EmptyString: it->second;
 	}
 
-	void CLangText::set(const CSString& tokenName,const ucstring& txt)
+	void CLangText::set(const CSString& tokenName, const std::string& txt)
 	{
-		ucstring& ucs= _Texts[tokenName];
-		if (!ucs.empty() && ucs!=txt)
-			nlwarning("Language %s: Replacing text for token: %s with: %s",_Code.c_str(),tokenName.c_str(),txt.toUtf8().c_str());
-		ucs= txt;
-	}
-
-	void CLangText::set(const CSString& tokenName,const CSString& txt)
-	{
-		ucstring uct;
-		uct.fromUtf8(txt);
-		set(tokenName,uct);
+		std::string& s= _Texts[tokenName];
+		if (!s.empty() && s!=txt)
+			nlwarning("Language %s: Replacing text for token: %s with: %s",_Code.c_str(),tokenName.c_str(),txt.c_str());
+		s= txt;
 	}
 
 	void CLangText::display() const
@@ -152,16 +145,16 @@ namespace GUS
 		return ok;
 	}
 
-	const ucstring& CText::get(const CSString& tokenName) const
+	const std::string& CText::get(const CSString& tokenName) const
 	{
-		const ucstring *result;
+		const std::string *result;
 		result= &get(_ActiveLanguage,tokenName);
 		if (result->empty() && _ActiveLanguage!=DefaultLanguageName)
 			return get(DefaultLanguageName,tokenName);
 		return *result;
 	}
 
-	const ucstring& CText::get(const CSString& languageCode,const CSString& tokenName) const
+	const std::string& CText::get(const CSString& languageCode,const CSString& tokenName) const
 	{
 		for (uint32 i=0;i<_LangTexts.size();++i)
 		{
@@ -171,7 +164,7 @@ namespace GUS
 		return EmptyString;
 	}
 
-	void CText::set(const CSString& languageCode,const CSString& tokenName,const ucstring& txt)
+	void CText::set(const CSString& languageCode,const CSString& tokenName,const std::string& txt)
 	{
 		CLangText* theLangText= NULL;
 
@@ -196,7 +189,7 @@ namespace GUS
 		theLangText->set(tokenName,txt);
 	}
 
-	void CText::set(const CSString& tokenName,const ucstring& txt)
+	void CText::set(const CSString& tokenName,const std::string& txt)
 	{
 		set(DefaultLanguageName,tokenName,txt);
 	}

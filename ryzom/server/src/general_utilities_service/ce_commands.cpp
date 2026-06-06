@@ -50,7 +50,7 @@ NLMISC_CATEGORISED_COMMAND(ContestExecutor,ceAnswer,"submit an answer","<player_
 	if (args.size()!=2)
 		return false;
 
-	CContestExecutor::getInstance()->submitAnswer(TDataSetRow(), args[0], ucstring(args[1]));
+	CContestExecutor::getInstance()->submitAnswer(TDataSetRow(), args[0], args[1]);
 
 	return true;
 }

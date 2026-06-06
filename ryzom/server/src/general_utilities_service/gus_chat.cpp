@@ -367,8 +367,8 @@ namespace GUS
 
 		CEntityId eid = CGusMirror::getInstance()->getDataSet("fe_temp")->getEntityId(pif.Sender);
 
-		nldebug("Receiving input '%s' from player %s %s", 
-			pif.Content.toString().c_str(),
+		nldebug("Receiving input '%s' from player %s %s",
+			pif.Content.c_str(),
 			eid.toString().c_str(),
 			pif.Sender.toString().c_str());
 	
@@ -675,7 +675,7 @@ namespace GUS
 		}
 		else
 		{
-			ucstring text;
+			std::string text;
 			for (uint i=2; i<args.size(); ++i)
 				text += args[i] + " ";
 			channel->broadcastMessage(args[1], text);
@@ -730,7 +730,7 @@ namespace GUS
 		CChatChannelImplementation *cmi = static_cast<CChatChannelImplementation*>(static_cast<CChatChannel*>(channel));
 
 		// concatenate the message
-		ucstring txt;
+		std::string txt;
 		for (uint i=2; i<args.size(); ++i)
 		{
 			txt += args[i];

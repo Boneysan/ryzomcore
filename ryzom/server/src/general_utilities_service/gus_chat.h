@@ -52,7 +52,7 @@ namespace GUS
 		// A player has typed some text in the chat in forward mode
 		//	Overloaded only when the channel is open with 'forward player input' 
 		//	flag.
-		virtual void receiveMessage(GUS::TClientId clientId,const ucstring& txt) {}
+		virtual void receiveMessage(GUS::TClientId clientId,const std::string& txt) {}
 
 		// The chat channel ask if this player should be inserted in the channel. 
 		// Only overloaded if the channel is open in non automatiuc player insertion.

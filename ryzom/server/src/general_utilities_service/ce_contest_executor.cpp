@@ -121,7 +121,7 @@ public:
 	void displayModule() const;
 
 	// IChatCallback
-	void receiveMessage(GUS::TClientId clientId,const ucstring& txt);
+	void receiveMessage(GUS::TClientId clientId,const std::string& txt);
 	void clientReadyInChannel(CChatChannel *chatChannel, GUS::TClientId clientId) ;
 	bool isClientAllowedInChatChannel(GUS::TClientId clientId, CChatChannel *chatChannel);
 
@@ -132,7 +132,7 @@ public:
 	void setTitle(const NLMISC::CSString& txt);
 	void addText(const NLMISC::CSString& speakerName,const NLMISC::CSString& txt);
 	void addAnswer(const NLMISC::CSString& answer);
-	void submitAnswer(TClientId clientId,const NLMISC::CSString& characterName,const ucstring& answer);
+	void submitAnswer(TClientId clientId,const NLMISC::CSString& characterName,const std::string& answer);
 	void acknowledgeWinners(const vector<CSString>& winners);
 	void endContest();
 	void display();
@@ -140,7 +140,7 @@ public:
 	// deal with system messages
 	void initChatTexts();
 	bool readChatTextFile(const NLMISC::CSString& fileName);
-	const ucstring& getChatText(const CSString& msgName);
+	const std::string& getChatText(const CSString& msgName);
 
 	// send a log message to the loggers
 	void log(const IMsgCL& msg);
@@ -148,7 +148,7 @@ public:
 
 private:
 	// utility methods
-	void processAnswer(const NLMISC::CSString& characterName, const ucstring &answer);
+	void processAnswer(const NLMISC::CSString& characterName, const std::string& answer);
 
 private:
 	// module control - module parameters and flag to say whether module is active
@@ -180,17 +180,17 @@ private:
 	uint32 _MinAnswerLength, _MaxAnswerLength, _MinAnswerWordCount, _MaxAnswerWordCount;
 
 	// pending answers
-	struct CCharacterRecord { uint64 PauseEndTime; ucstring NextAnswer; CEntityId Id; CCharacterRecord() { PauseEndTime=CTime::getLocalTime(); } };
+	struct CCharacterRecord { uint64 PauseEndTime; std::string NextAnswer; CEntityId Id; CCharacterRecord() { PauseEndTime=CTime::getLocalTime(); } };
 	typedef std::map<CSString,CCharacterRecord> TCharacterRecords;
 	TCharacterRecords _CharacterRecords;
 
 	// winners
-	struct CWinnerRecord { uint64 Time; ucstring Answer; CSString Name; };
+	struct CWinnerRecord { uint64 Time; std::string Answer; CSString Name; };
 	typedef std::vector<CWinnerRecord> TWinnerRecords;
 	TWinnerRecords _WinnerRecords;
 
 	// system messages
-	typedef std::map<CSString,ucstring> TChatTexts;
+	typedef std::map<CSString,std::string> TChatTexts;
 	TChatTexts _ChatTexts;
 
 	// log channels
@@ -394,7 +394,7 @@ void CContestExecutorImplementation::displayModule() const
 // methods CContestExecutorImplementation / IChatCallback
 //-----------------------------------------------------------------------------
 
-void CContestExecutorImplementation::receiveMessage(GUS::TClientId clientId,const ucstring& txt)
+void CContestExecutorImplementation::receiveMessage(GUS::TClientId clientId,const std::string& txt)
 {
 	const CSString &charName = CClientManager::getInstance()->getCharacterName(clientId);
 	submitAnswer(clientId, charName.splitTo('$'), txt);
@@ -551,14 +551,14 @@ void CContestExecutorImplementation::acknowledgeWinners(const vector<CSString>& 
 			nlinfo("- %5u: %s: %s",
 				displayTime ,
 				_WinnerRecords[i].Name.c_str(),
-				_WinnerRecords[i].Answer.toString().c_str());
+				_WinnerRecords[i].Answer.c_str());
 		}
 		else
 		{
 			nlinfo("x %5u: %s: %s => Correct answer but too late",
 				displayTime,
 				_WinnerRecords[i].Name.c_str(),
-				_WinnerRecords[i].Answer.toString().c_str());
+				_WinnerRecords[i].Answer.c_str());
 		}
 
 		// send the declared winner to the log
@@ -600,10 +600,10 @@ void CContestExecutorImplementation::endContest()
 class CCEChatCallback: public IChatCallback
 {
 public:
-	void receiveMessage(TClientId clientId,const ucstring& txt);
+	void receiveMessage(TClientId clientId,const std::string& txt);
 };
 
-void CCEChatCallback::receiveMessage(TClientId clientId,const ucstring& txt)
+void CCEChatCallback::receiveMessage(TClientId clientId,const std::string& txt)
 {
 	// get the character name from the client id
 	const CSString& characterName= CClientManager::getInstance()->getCharacterName(clientId);
@@ -613,11 +613,11 @@ void CCEChatCallback::receiveMessage(TClientId clientId,const ucstring& txt)
 	CContestExecutorImplementation::getInstance()->submitAnswer(clientId, characterName, txt);
 }
 
-void CContestExecutorImplementation::submitAnswer(TClientId clientId, const CSString& characterName, const ucstring& answer)
+void CContestExecutorImplementation::submitAnswer(TClientId clientId, const CSString& characterName, const std::string& answer)
 {
 	DROP_IF(!_IsActive,"The CE module is not instantiated",return);
 	DROP_IF(!_IsRunning,"Operation not permitted when there is no contest running",return);
-	nldebug("Treating answer: From player: '%s'  Answer: '%s'",characterName.c_str(),answer.toString().c_str());
+	nldebug("Treating answer: From player: '%s'  Answer: '%s'",characterName.c_str(),answer.c_str());
 
 	// make sure that players are allowed to submit answers
 	if (_ValidAnswers.empty())
@@ -661,7 +661,7 @@ void CContestExecutorImplementation::submitAnswer(TClientId clientId, const CSSt
 		_ChatChannel->sendMessage(clientId,getChatText(systemName),getChatText(queuedAnswer1));
 		_ChatChannel->sendMessage(clientId,getChatText(systemName),
 								  getChatText(queuedAnswer2)+" "+
-								  ucstring(NLMISC::toString("%d",sint32(thePlayer.PauseEndTime-localTime)/1000))+" "+
+								  NLMISC::toString("%d",sint32(thePlayer.PauseEndTime-localTime)/1000)+" "+
 								  getChatText(queuedAnswer2b));
 		thePlayer.NextAnswer = answer;
 		return;
@@ -671,16 +671,16 @@ void CContestExecutorImplementation::submitAnswer(TClientId clientId, const CSSt
 	processAnswer(characterName,answer);
 }
 
-void CContestExecutorImplementation::processAnswer(const NLMISC::CSString& characterName, const ucstring &answer)
+void CContestExecutorImplementation::processAnswer(const NLMISC::CSString& characterName, const std::string& answer)
 {
 	DROP_IF(!_IsActive,"The CE module is not instantiated",return);
 	DROP_IF(!_IsRunning,"Operation not permitted when there is no contest running",return);
 
-	nlinfo("Testing answer validity : player '%s', answer '%s'", characterName.c_str(), answer.toString().c_str());
+	nlinfo("Testing answer validity : player '%s', answer '%s'", characterName.c_str(), answer.c_str());
 
 	// prepare the answer attempt
-	ucstring answerRemainder = answer;
-	CSString attempt=answer.toUtf8();
+	std::string answerRemainder = answer;
+	CSString attempt=answer;
 
 	// update the pause timer 
 	_CharacterRecords[characterName].PauseEndTime= CTime::getLocalTime()+ReplyPauseTime;
@@ -742,7 +742,7 @@ void CContestExecutorImplementation::processAnswer(const NLMISC::CSString& chara
 		InfoLog->displayNL("%u: Winner: '%s' - Answer: '%s'",
 			uint32(winnerRecord.Time/1000),
 			characterName.c_str(),
-			answerRemainder.toString().c_str());
+			answerRemainder.c_str());
 
 		// send the network message to the controler to infor of the winner
 		sendModuleMessage(CMsgCEWinner(characterName),_CtrlModuleId,this);
@@ -767,22 +767,21 @@ void CContestExecutorImplementation::display()
 
 void CContestExecutorImplementation::initChatTexts()
 {
-	ucstring ucs;
-	_ChatTexts[promptSubmitAnswers]= ucs;	// "You may now submit answers"
-	_ChatTexts[errorNoQuestion]= ucs;		// "Your answer has been ignored because no question has been asked"
-	_ChatTexts[errorTooLate]= ucs;			// "Your answer comes too late - all of the winners have now been chosen"
-	_ChatTexts[treatingPendingAnswer]= ucs;	// "Your last answer is being processed: "
-	_ChatTexts[announceWinners]= ucs;		// "The contest is over. The winners are:"
-	_ChatTexts[treatedAnswer0]= ucs;		// "You have submitted an answer: <answer>"
-	_ChatTexts[treatedAnswer1]= ucs;		// "The winners will be announced within the next few minutes"
-	_ChatTexts[treatedAnswer2]= ucs;		// "Please stay on line"
-	_ChatTexts[treatedAnswer3]= ucs;		// "You will not be allowed to submit another answer for the next 60 seconds"
-	_ChatTexts[queuedAnswer0]= ucs;			// "You have submitted another answer: "
-	_ChatTexts[queuedAnswer1]= ucs;			// "You are only allowed to submit one answer every 60 seconds."
-	_ChatTexts[queuedAnswer2]= ucs;			// "This answer will be treated in."
-	_ChatTexts[queuedAnswer2b]= ucs;		// "seconds time."
+	_ChatTexts[promptSubmitAnswers]= "";	// "You may now submit answers"
+	_ChatTexts[errorNoQuestion]= "";		// "Your answer has been ignored because no question has been asked"
+	_ChatTexts[errorTooLate]= "";			// "Your answer comes too late - all of the winners have now been chosen"
+	_ChatTexts[treatingPendingAnswer]= "";	// "Your last answer is being processed: "
+	_ChatTexts[announceWinners]= "";		// "The contest is over. The winners are:"
+	_ChatTexts[treatedAnswer0]= "";		// "You have submitted an answer: <answer>"
+	_ChatTexts[treatedAnswer1]= "";		// "The winners will be announced within the next few minutes"
+	_ChatTexts[treatedAnswer2]= "";		// "Please stay on line"
+	_ChatTexts[treatedAnswer3]= "";		// "You will not be allowed to submit another answer for the next 60 seconds"
+	_ChatTexts[queuedAnswer0]= "";			// "You have submitted another answer: "
+	_ChatTexts[queuedAnswer1]= "";			// "You are only allowed to submit one answer every 60 seconds."
+	_ChatTexts[queuedAnswer2]= "";			// "This answer will be treated in."
+	_ChatTexts[queuedAnswer2b]= "";		// "seconds time."
 
-	_ChatTexts[systemName]= ucs;			// The name of the "speaken" in the chat for sys info type messages
+	_ChatTexts[systemName]= "";			// The name of the "speaken" in the chat for sys info type messages
 }
 
 bool CContestExecutorImplementation::readChatTextFile(const CSString& fileName)
@@ -812,7 +811,7 @@ bool CContestExecutorImplementation::readChatTextFile(const CSString& fileName)
 		CSString keyword= line.firstWord(true);
 		DROP_IF (line.empty(),"Invalid line: "+lines[i],ok=false;continue);
 		DROP_IF (_ChatTexts.find(keyword)==_ChatTexts.end(),"Skipping unknown keyword: "+lines[i],continue);
-		_ChatTexts[keyword].fromUtf8(line.leftStrip());
+		_ChatTexts[keyword] = line.leftStrip();
 	}
 
 	// ensure that all of the keywords have been dealt with
@@ -827,7 +826,7 @@ bool CContestExecutorImplementation::readChatTextFile(const CSString& fileName)
 	return ok;
 }
 
-const ucstring& CContestExecutorImplementation::getChatText(const CSString& msgName)
+const std::string& CContestExecutorImplementation::getChatText(const CSString& msgName)
 {
 	nlassert(_ChatTexts.find(msgName)!=_ChatTexts.end());
 	return _ChatTexts[msgName];

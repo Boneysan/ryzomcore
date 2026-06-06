@@ -42,9 +42,8 @@ namespace GUS
 		CLangText(const NLMISC::CSString& languageCode);
 		const NLMISC::CSString& getLanguageCode() const;
 
-		const ucstring& get(const NLMISC::CSString& tokenName) const;
-		void set(const NLMISC::CSString& tokenName,const ucstring& txt);
-		void set(const NLMISC::CSString& tokenName,const NLMISC::CSString& txt);
+		const std::string& get(const NLMISC::CSString& tokenName) const;
+		void set(const NLMISC::CSString& tokenName, const std::string& txt);
 
 		void display() const;
 
@@ -52,7 +51,7 @@ namespace GUS
 
 	private:
 		NLMISC::CSString _Code;
-		typedef std::map<NLMISC::CSString,ucstring> TTexts;
+		typedef std::map<NLMISC::CSString,std::string> TTexts;
 		TTexts _Texts;
 	};
 
@@ -70,14 +69,14 @@ namespace GUS
 		// set the active language
 		void setLanguage(const NLMISC::CSString& languageCode);
 		// lookup a string trying the active lagugage first, and otherwise the default string set
-		const ucstring& get(const NLMISC::CSString& tokenName) const;
-		
+		const std::string& get(const NLMISC::CSString& tokenName) const;
+
 		// lookup a string for a given language
-		const ucstring& get(const NLMISC::CSString& languageCode,const NLMISC::CSString& tokenName) const;
+		const std::string& get(const NLMISC::CSString& languageCode,const NLMISC::CSString& tokenName) const;
 		// set a string for a given language
-		void set(const NLMISC::CSString& languageCode,const NLMISC::CSString& tokenName,const ucstring& txt);
+		void set(const NLMISC::CSString& languageCode,const NLMISC::CSString& tokenName,const std::string& txt);
 		// set a string for the default string set
-		void set(const NLMISC::CSString& tokenName,const ucstring& txt);
+		void set(const NLMISC::CSString& tokenName,const std::string& txt);
 
 		// display a little info on the set of languages loaded
 		void display() const;

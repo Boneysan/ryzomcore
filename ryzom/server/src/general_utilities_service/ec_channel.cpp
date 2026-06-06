@@ -280,11 +280,11 @@ namespace EC
 		return *_Chat;
 	}
 
-	void IChannel::receiveMessage(GUS::TClientId clientId,const ucstring& txt)
+	void IChannel::receiveMessage(GUS::TClientId clientId,const std::string& txt)
 	{
 		// call the cbChatText callback
 		TCharacterId id= CClientManager::getInstance()->getCharacterName(clientId);
-		cbChatText(getRank(id),id,clientId,txt.toUtf8());
+		cbChatText(getRank(id),id,clientId,txt);
 
 		// perform additions or removals to/from chat provoked by processing of the received message
 		_chatUpdate();

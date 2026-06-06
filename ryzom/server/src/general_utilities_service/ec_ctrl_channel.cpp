@@ -310,7 +310,7 @@ namespace EC
 
 		// lookup the string in the localised string container
 		GUS::CText& prepTxt= context.Module->getPreparedText();
-		ucstring txt= prepTxt.get(args[0]);
+		std::string txt= prepTxt.get(args[0]);
 		if (txt.empty()) return CTxtCommandResult(CTxtCommandResult::EXECUTION_ERROR,"string not found in string table: "+args[2]);
 
 		// lookup the channel
@@ -326,7 +326,7 @@ namespace EC
 
 		// send the message
 		CSString pseudo= args[1];
-		channel->broadcastMessage(pseudo,txt.toUtf8());
+		channel->broadcastMessage(pseudo,txt);
 
 		return true;
 	}
@@ -407,13 +407,13 @@ namespace EC
 
 		// lookup the string in the localised string container
 		GUS::CText& prepTxt= context.Module->getPreparedText();
-		ucstring txt= prepTxt.get(args[0]);
+		std::string txt= prepTxt.get(args[0]);
 		if (txt.empty()) return CTxtCommandResult(CTxtCommandResult::EXECUTION_ERROR,"string not found in string table: "+args[2]);
 
 		// send the message
 		CEventChatModule::TTextFlags& txtFlags= context.Module->getPreparedTextFlags();
 		CSString speakerName= (txtFlags.find(args[0])==txtFlags.end())? args[0]: "#"+args[0];
-		context.Channel->sendMessage(context.ClientId,speakerName,txt.toUtf8());
+		context.Channel->sendMessage(context.ClientId,speakerName,txt);
 
 		return true;
 	}
