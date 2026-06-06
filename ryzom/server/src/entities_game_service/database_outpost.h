@@ -73,10 +73,6 @@ inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const std::stri
 {
 	db.x_setPropString(node, value, forceSending);
 }
-inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const ucstring &value, bool forceSending = false)
-{
-	_setProp(db, node, value.toUtf8(), forceSending);
-}
 inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const NLMISC::CSheetId &value, bool forceSending = false)
 {
 	db.x_setProp(node, uint64(value.asInt()), forceSending);
@@ -123,12 +119,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, std::stri
 {
 	value = db.x_getPropString(node);
 }
-inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, ucstring &value)
-{
-	std::string s;
-	_getProp(db, node, s);
-	value.fromUtf8(s);
-}
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::CSheetId &value)
 {
 	value = uint32(db.x_getProp(node));
@@ -174,12 +164,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 		void setNAME(CCDBGroup &dbGroup, const std::string &value, bool forceSending = false)
 		{
 			_setProp(dbGroup.Database, _NAME, value, forceSending);
-		}
-
-		// legacy bridge
-		void setNAME(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME, value.toUtf8(), forceSending);
 		}
 
 		std::string getNAME(const CCDBGroup &dbGroup)
@@ -251,12 +235,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			_setProp(dbGroup.Database, _NAME_ATT, value, forceSending);
 		}
 
-		// legacy bridge
-		void setNAME_ATT(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME_ATT, value.toUtf8(), forceSending);
-		}
-
 		std::string getNAME_ATT(const CCDBGroup &dbGroup)
 		{
 			std::string value;
@@ -264,15 +242,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			return value;
 		}
 
-		// legacy bridge
-		ucstring getNAME_ATT_ucstring(const CCDBGroup &dbGroup)  // temp name to avoid conflict during migration
-		{
-			std::string s;
-			_getProp(dbGroup.Database, _NAME_ATT, s);
-			ucstring value; value.fromUtf8(s);
-			return value;
-		}
-		
 		void setNAME_ATT(CCDBGroup &dbGroup, uint32 stringId, bool forceSending = false)
 		{
 			_setProp(dbGroup.Database, _NAME_ATT, stringId, forceSending);

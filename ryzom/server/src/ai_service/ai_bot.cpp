@@ -64,7 +64,7 @@ CAIInstance* CSpawnBot::getAIInstance() const
 void CSpawnBot::setVisualPropertiesName()
 {
 	CBot& botRef = CSpawnBot::getPersistent();
-	ucstring name = botRef.getName();
+	std::string name = botRef.getName();
 	
 	if (CVisualPropertiesInterface::UseIdForName)
 	{

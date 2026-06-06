@@ -100,7 +100,7 @@ public:
 	/// return dynamic user channel TChanId subscribed by character, DYN_CHAT_INVALID_CHAN if character have no user channel
 	std::vector<TChanID> getCharacterUserChannels(CCharacter * user);
 	// brodcast message to channel
-	void broadcastMessage(TChanID channel, const ucstring& speakerName ,const ucstring& txt);
+	void broadcastMessage(TChanID channel, const std::string& speakerName, const std::string& txt);
 	// send list of users to player
 	void sendChannelUsers(TChanID channel, CCharacter * user, bool outputToSys = false);
 	// add faction channel to character if needed

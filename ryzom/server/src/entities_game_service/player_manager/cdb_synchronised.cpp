@@ -757,15 +757,6 @@ sint64 CCDBSynchronised::x_getProp( ICDBStructNode *node ) const
 //} // getProp //
 
 
-//-----------------------------------------------
-//	getProp by node
-//	Precondition: node not null.
-//-----------------------------------------------
-ucstring CCDBSynchronised::x_getPropUcstring( ICDBStructNode *node ) const
-{
-	return CDBStringUpdater::getInstance().getStringLeaf(const_cast<CCDBSynchronised*>(this), node);
-}
-
 const std::string &CCDBSynchronised::x_getPropString( ICDBStructNode *node ) const
 {
 	return CDBStringUpdater::getInstance().getStringLeaf(const_cast<CCDBSynchronised*>(this), node);
@@ -811,15 +802,6 @@ bool CCDBSynchronised::x_setProp( const std::string& name, sint64 value, bool fo
 // \param value is the value of the property
 // \return bool : 'true' if the property was found.
 //-----------------------------------------------
-bool CCDBSynchronised::x_setPropString( const std::string& name, const ucstring &value, bool forceSending )
-{
-	H_AUTO(CCDBSynchronisedSetProp);
-	
-	ICDBStructNode *leaf = getICDBStructNodeFromName(name);
-	BOMB_IF(leaf==NULL,"Failed to find node in database: "+name,return false);
-
-	return x_setPropString( leaf, value, forceSending );
-}
 
 /*
  * Same as setProp(ICDBStructNode*,sint64,bool) but one level below.
@@ -843,17 +825,6 @@ bool CCDBSynchronised::x_setProp( ICDBStructNode *node, const char *childName, s
  * If the child is not found, returns false.
  * Use getICDBStructNodeFromName() to store the node pointer.
  */
-bool CCDBSynchronised::x_setPropString( ICDBStructNode *node, const char *childName, const ucstring &value, bool forceSending )
-{
-	H_AUTO(CCDBSynchronisedSetProp3);
-
-	string name = string(childName);
-	ICDBStructNode::CTextId textId( name );
-	ICDBStructNode *leaf = node->getNode( textId, false );
-	if ( ! leaf )
-		nlwarning( "Leaf %s not found", childName );
-	return (leaf && x_setPropString ( leaf, value, forceSending ));
-}
 
 
 /*
@@ -941,16 +912,6 @@ bool CCDBSynchronised::x_setProp( ICDBStructNode * node, sint64 value, bool forc
 
 // :KLUDGE: ICDBStructNode non-const 'coz getName and getParent are not const
 // methods. See CCDBSynchronised::getICDBStructNodeFromName for more info.
-bool CCDBSynchronised::x_setPropString( ICDBStructNode * node, const ucstring &value, bool forceSending )
-{
-	// assert that this node is a TEXT node
-	nlassert(node->getType() == ICDBStructNode::TEXT);
-
-	// transmit control to the string updater for IOS mapping stuff
-	CDBStringUpdater::getInstance().setStringLeaf(this, node, value, forceSending);
-
-	return true;
-}
 
 bool CCDBSynchronised::x_setPropString( ICDBStructNode * node, const std::string &value, bool forceSending )
 {

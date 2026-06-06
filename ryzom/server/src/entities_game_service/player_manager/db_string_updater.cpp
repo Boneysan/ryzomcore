@@ -56,11 +56,7 @@ void CDBStringUpdater::onIOSUp()
 	{
 		const TBDStringLeaf &ident = first->first;
 
-		ucstring str;
-
-		str.fromUtf8(CStringMapper::unmap(first->second.LocalStringId));
-
-		storeAStringInIOS(str);
+		storeAStringInIOS(CStringMapper::unmap(first->second.LocalStringId));
 	}
 
 }
@@ -97,11 +93,6 @@ void CDBStringUpdater::onClientDatabaseDeleted(CCDBSynchronised *clientDB)
 	}
 }
 
-void CDBStringUpdater::setStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node, const ucstring &str, bool forceSending)
-{
-	setStringLeaf(clientDB, node, str.toUtf8(), forceSending);
-}
-
 void CDBStringUpdater::setStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node, const std::string &str, bool forceSending)
 {
 	TBDStringLeaf ident(clientDB, node);
@@ -133,19 +124,6 @@ void CDBStringUpdater::setStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode 
 	}
 }
 
-ucstring CDBStringUpdater::getUcstringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node) const
-{
-	static const ucstring emptyStr;
-	TBDStringLeaf ident(clientDB, node);
-
-	// check if we already have a mapping for this entry
-	TStringLeafs::const_iterator it(_StringLeafs.find(ident));
-	if (it == _StringLeafs.end())
-		return emptyStr;
-	
-	return ucstring::makeFromUtf8(CStringMapper::unmap(it->second.LocalStringId));
-}
-
 const std::string & CDBStringUpdater::getStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node) const
 {
 	static const std::string emptyStr;
@@ -160,12 +138,13 @@ const std::string & CDBStringUpdater::getStringLeaf(CCDBSynchronised *clientDB, 
 }
 
 
-void CDBStringUpdater::storeAStringInIOS(const ucstring &str)
+void CDBStringUpdater::storeAStringInIOS(const std::string &str)
 {
 	if (_IOSIsUp && !str.empty())
 	{
 		CMessage msgios("STORE_STRING");
-		nlWrite(msgios, serial, str);
+		ucstring ucStr; ucStr.fromUtf8(str);
+		nlWrite(msgios, serial, ucStr);
 		CUnifiedNetwork::getInstance()->send("IOS", msgios);
 	}
 }
@@ -178,13 +157,13 @@ void	CDBStringUpdater::cbStoreStringResult(CMessage& msgin, const string &servic
 
 void	CDBStringUpdater::storeStringResult(CMessage& msgin, const string &serviceName, NLNET::TServiceId serviceId)
 {
-	ucstring			str;
+	ucstring			ucStr;
 	TIOSStringId		iosStringId;
 
-	msgin.serial(str);
+	msgin.serial(ucStr);
 	msgin.serial(iosStringId);
 
-	TLocalStringId localStringId = CStringMapper::map(str.toUtf8());
+	TLocalStringId localStringId = CStringMapper::map(ucStr.toUtf8());
 
 	// store the mapping for later uses
 	_MappedIOSStrings.insert(make_pair(localStringId, iosStringId));

@@ -416,12 +416,12 @@ void CPVPManager2::updateFactionChannel(CCharacter * user, bool b )
 	*/
 }
 
-void CPVPManager2::broadcastMessage(TChanID channel, const ucstring& speakerName, const ucstring& txt)
+void CPVPManager2::broadcastMessage(TChanID channel, const std::string& speakerName, const std::string& txt)
 {
 	CMessage msgout("DYN_CHAT:SERVICE_CHAT");
 	msgout.serial(channel);
-	msgout.serial(const_cast<ucstring&>(speakerName));
-	msgout.serial(const_cast<ucstring&>(txt));
+	ucstring ucSpeaker; ucSpeaker.fromUtf8(speakerName); msgout.serial(ucSpeaker);
+	ucstring ucTxt;     ucTxt.fromUtf8(txt);             msgout.serial(ucTxt);
 	sendMessageViaMirror("IOS", msgout);
 }
 
@@ -433,17 +433,14 @@ void CPVPManager2::sendChannelUsers(TChanID channel, CCharacter * user, bool out
 	if(it != _UserChannelCharacters.end())
 	{
 		lst = (*it).second;
-		ucstring players;
+		std::string players;
 		uint32 shardId = CEntityIdTranslator::getInstance()->getEntityShardId(user->getId());
 		for (uint i = 0; i < lst.size(); i++)
 		{
-			ucstring name = CEntityIdTranslator::getInstance()->getByEntity(lst[i]);
+			ucstring nameUc = CEntityIdTranslator::getInstance()->getByEntity(lst[i]);
 			if (shardId == CEntityIdTranslator::getInstance()->getEntityShardId(lst[i]))
-			{
-				// Same shard, remove shard from name
-				CEntityIdTranslator::removeShardFromName(name);
-			}
-			players += "\n" + name ;
+				CEntityIdTranslator::removeShardFromName(nameUc);
+			players += "\n" + nameUc.toUtf8();
 		}
 
 		TDataSetRow senderRow = TheDataset.getDataSetRow(user->getId());
@@ -453,18 +450,16 @@ void CPVPManager2::sendChannelUsers(TChanID channel, CCharacter * user, bool out
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
 			params[0].Literal = channelName;
 			CCharacter::sendDynamicSystemMessage( user->getId(), "WHO_CHANNEL_INTRO" );
-			params[0].Literal = players.toUtf8(); // players built as ucstring from translator; Literal is string
+			params[0].Literal = players;
 			CCharacter::sendDynamicSystemMessage( user->getId(), "LITERAL", params );
 		}
 		else
 		{
 			CMessage msgout("DYN_CHAT:SERVICE_TELL");
 			msgout.serial(channel);
-			ucstring users = ucstring("<USERS>");
-			msgout.serial(const_cast<ucstring&>(users));	
+			ucstring ucUsers; ucUsers.fromUtf8("<USERS>"); msgout.serial(ucUsers);
 			msgout.serial(senderRow);
-			ucstring txt = ucstring(players);
-			msgout.serial(const_cast<ucstring&>(txt));
+			ucstring ucPlayers; ucPlayers.fromUtf8(players); msgout.serial(ucPlayers);
 
 			sendMessageViaMirror("IOS", msgout);
 		}

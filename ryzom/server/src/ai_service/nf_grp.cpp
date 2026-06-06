@@ -3724,7 +3724,7 @@ void phrasePushString_ss_(CStateInstance* entity, CScriptStack& stack )
 		}
 
 		case STRING_MANAGER::literal:
-			param.Literal.fromUtf8(s);
+			param.Literal = s;
 			break;
 
 		case STRING_MANAGER::dyn_string_id:

@@ -290,7 +290,7 @@ bool CRewardSharing::userValidSelect(const TDataSetRow & userRow, uint8 state)
 //					user->_PropertyDatabase.setProp( NLMISC::toString("INVENTORY:SHARE:TM_%u:VALID",j),0);
 					tmItem.setVALID(user->_PropertyDatabase, false);
 //					user->_PropertyDatabase.setProp( NLMISC::toString("INVENTORY:SHARE:TM_%u:NAME",j),0);
-					tmItem.setNAME(user->_PropertyDatabase, ucstring());
+					tmItem.setNAME(user->_PropertyDatabase, std::string{});
 				}
 			}
 		}

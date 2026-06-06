@@ -207,9 +207,7 @@ namespace CHATUNI
 				nldebug("sendFarTell : no entity locator");
 				return;
 			}
-			ucstring destNameU;
-			destNameU.fromUtf8(destName);
-			uint32 hostShardId = el->getShardIdForChar(destNameU);
+			uint32 hostShardId = el->getShardIdForChar(destName);
 
 			if (hostShardId == 0)
 			{
@@ -241,9 +239,9 @@ namespace CHATUNI
 				return;
 			}
 
-			ucstring senderNameU = charSync->getCharacterName(uint32(senderCharId.getShortId()));
+			std::string senderName = charSync->getCharacterName(uint32(senderCharId.getShortId()));
 
-			if (senderNameU.empty())
+			if (senderName.empty())
 			{
 				// no character synchronizer to retrieve sender name !
 				cucSender.recvFarTellFail(this, senderCharId, destName, TFailInfo::fi_sender_char_unknown);
@@ -253,7 +251,7 @@ namespace CHATUNI
 
 			// ok, we can send the far tell
 			CChatUnifierClientProxy cucDest(*pproxy);
-			cucDest.recvFarTell(this, senderCharId, senderNameU.toUtf8(), havePrivilege, destName, text);
+			cucDest.recvFarTell(this, senderCharId, senderName, havePrivilege, destName, text);
 		}
 
 		// IOS forward a guild chat message to the unifier

@@ -39,7 +39,7 @@ public:
 	static void release();
 
 	// set different visual properties for an entity
-	static	void setName(const TDataSetRow&	dataSetRow, ucstring name);
+	static	void setName(const TDataSetRow&	dataSetRow, const std::string& name);
 	
 //	static void setMode(CAIEntityId id,MBEHAV::EMode mode);
 //	static void setBehaviour(CAIEntityId id,MBEHAV::EBehaviour behaviour);

@@ -395,9 +395,9 @@ namespace ENTITYLOC
 			return locIt->second;
 		}
 
-		NLNET::IModuleProxy *getLocatorModuleForChar(const ucstring &charName)
+		NLNET::IModuleProxy *getLocatorModuleForChar(const std::string &charName)
 		{
-			TCharNameMap::iterator it(_ConnectedCharsByName.find(toCaseInsensitive(charName.toUtf8()))); // FIXME: UTF-8
+			TCharNameMap::iterator it(_ConnectedCharsByName.find(toCaseInsensitive(charName)));
 			if (it == _ConnectedCharsByName.end())
 			{
 				// not online
@@ -412,9 +412,9 @@ namespace ENTITYLOC
 			return locIt->second;
 		}
 
-		uint32 getShardIdForChar(const ucstring &charName)
+		uint32 getShardIdForChar(const std::string &charName)
 		{
-			TCharNameMap::iterator it(_ConnectedCharsByName.find(toCaseInsensitive(charName.toUtf8()))); // FIXME: UTF-8
+			TCharNameMap::iterator it(_ConnectedCharsByName.find(toCaseInsensitive(charName)));
 			if (it == _ConnectedCharsByName.end())
 			{
 				// not online

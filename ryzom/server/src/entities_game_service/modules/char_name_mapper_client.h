@@ -25,7 +25,7 @@ class ICharNameMapperClient : public NLMISC::CManualSingleton<ICharNameMapperCli
 {
 public:
 
-	virtual void mapCharacterName(const NLMISC::CEntityId &charEid, const ucstring &charName) = 0;
+	virtual void mapCharacterName(const NLMISC::CEntityId &charEid, const std::string &charName) = 0;
 };
 
 #endif // CHAR_NAME_MAPPER_CLIENT_H

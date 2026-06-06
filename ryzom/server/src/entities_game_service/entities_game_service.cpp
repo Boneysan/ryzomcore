@@ -1701,9 +1701,7 @@ NLMISC_COMMAND(loadAndReSaveCharacters,"load and resave the complete set of play
 			{
 				H_AUTO(LoadAndReSaveCharactersCharacterLoop);
 				CEntityId charId = PlayerManager.createCharacterId( *it, (uint8)c );
-				ucstring characterName( player->getCharacterReference()[ c ]->getName() );
-				std::string s;
-				characterName.fromUtf8(s);
+				const std::string& s = player->getCharacterReference()[ c ]->getName();
 				txt+= NLMISC::toString(" CHAR%d:%s",c,s.c_str());
 				{
 					H_AUTO(LoadAndReSaveCharactersCharacterSaveCharacter);
@@ -3118,8 +3116,7 @@ NLMISC_COMMAND(saveAllPlayerChars," saveAllPlayerChars","uid")
 				if( player->getCharacterReference()[ c ] )
 				{
 					// dbg text
-					ucstring characterName( player->getCharacterReference()[ c ]->getName() );
-					std::string s= characterName.toUtf8();
+					const std::string& s = player->getCharacterReference()[ c ]->getName();
 					txt+= NLMISC::toString(" CHAR%d:%s",c,s.c_str());
 					// save the character
 					PlayerManager.savePlayerChar(userId,c);

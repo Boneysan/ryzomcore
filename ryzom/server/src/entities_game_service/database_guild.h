@@ -81,10 +81,6 @@ inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const std::stri
 {
 	db.x_setPropString(node, value, forceSending);
 }
-inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const ucstring &value, bool forceSending = false)
-{
-	_setProp(db, node, value.toUtf8(), forceSending);
-}
 inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const NLMISC::CSheetId &value, bool forceSending = false)
 {
 	db.x_setProp(node, uint64(value.asInt()), forceSending);
@@ -130,12 +126,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, sint64 &v
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, std::string &value)
 {
 	value = db.x_getPropString(node);
-}
-inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, ucstring &value)
-{
-	std::string s;
-	_getProp(db, node, s);
-	value.fromUtf8(s);
 }
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::CSheetId &value)
 {
@@ -349,12 +339,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			
 
 			_setProp(dbGroup.Database, _NAME, value, forceSending);
-		}
-
-		// legacy bridge
-		void setNAME(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME, value.toUtf8(), forceSending);
 		}
 
 		std::string getNAME(const CCDBGroup &dbGroup)
@@ -594,12 +578,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			_setProp(dbGroup.Database, _NAME, value, forceSending);
 		}
 
-		// legacy bridge
-		void setNAME(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME, value.toUtf8(), forceSending);
-		}
-
 		std::string getNAME(const CCDBGroup &dbGroup)
 		{
 			std::string value;
@@ -667,12 +645,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 		void setNAME_ATT(CCDBGroup &dbGroup, const std::string &value, bool forceSending = false)
 		{
 			_setProp(dbGroup.Database, _NAME_ATT, value, forceSending);
-		}
-
-		// legacy bridge
-		void setNAME_ATT(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME_ATT, value.toUtf8(), forceSending);
 		}
 
 		std::string getNAME_ATT(const CCDBGroup &dbGroup)
@@ -1628,12 +1600,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			_setProp(dbGroup.Database, _NAME, value, forceSending);
 		}
 
-		// legacy bridge
-		void setNAME(CCDBGroup &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup.Database, _NAME, value.toUtf8(), forceSending);
-		}
-
 		std::string getNAME(const CCDBGroup &dbGroup)
 		{
 			std::string value;
@@ -1665,11 +1631,10 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			_setProp(dbGroup.Database, _DESCRIPTION, value, forceSending);
 		}
 
-		ucstring getDESCRIPTION(const CCDBGroup &dbGroup)
+		std::string getDESCRIPTION(const CCDBGroup &dbGroup)
 		{
-			ucstring value;
+			std::string value;
 			_getProp(dbGroup.Database, _DESCRIPTION, value);
-
 			return value;
 		}
 		
@@ -1757,11 +1722,10 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			_setProp(dbGroup.Database, _VILLAGE, value, forceSending);
 		}
 
-		ucstring getVILLAGE(const CCDBGroup &dbGroup)
+		std::string getVILLAGE(const CCDBGroup &dbGroup)
 		{
-			ucstring value;
+			std::string value;
 			_getProp(dbGroup.Database, _VILLAGE, value);
-
 			return value;
 		}
 		

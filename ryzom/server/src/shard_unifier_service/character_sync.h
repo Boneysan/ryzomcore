@@ -53,7 +53,7 @@ namespace CHARSYNC
 		/** Get the name of a user */
 		virtual std::string getUserName(uint32 userId) =0;
 		/** Get the name of a character */
-		virtual ucstring getCharacterName(uint32 charId) =0;
+		virtual std::string getCharacterName(uint32 charId) =0;
 		/// Try to find a shard id from a name and session id. Return 0 if not found
 		virtual uint32 findCharId(const std::string &charName, uint32 homeSessionId) =0;
 		/// Try to find a shard id from a name without session id, return 0 if 0 or more than one match.

@@ -254,8 +254,8 @@ public:
 	
 	NLMISC::CEntityId createEntityId() const;
 	
-	const ucstring& getCustomName() const { return _CustomName; }
-	void setCustomName(const ucstring &name) { _CustomName = name; }
+	const std::string& getCustomName() const { return _CustomName; }
+	void setCustomName(const std::string &name) { _CustomName = name; }
 
 	const uint32& getCustomMaxHp() const { return _CustomMaxHp; }
 	void setCustomMaxHp(const uint32 &maxHp) { _CustomMaxHp = maxHp; }
@@ -289,7 +289,7 @@ private:
 	bool _IgnoreOffensiveActions;
 	bool _Healer;
 	bool _BuildingBot;
-	ucstring _CustomName;
+	std::string _CustomName;
 	uint32 _CustomMaxHp;
 	CTimer					_SetSheetTimer;
 	struct CSetSheetData

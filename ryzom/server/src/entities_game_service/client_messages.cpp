@@ -2063,12 +2063,12 @@ void cbClientSendCustomEmote( NLNET::CMessage& msgin, const std::string &service
 
 	CEntityId id;
 	MBEHAV::EBehaviour behaviour = MBEHAV::IDLE;
-	ucstring emoteCustomText;
+	ucstring ucEmoteText;
 	try
 	{
 		msgin.serial( id );
 		msgin.serialEnum( behaviour );
-		msgin.serial( emoteCustomText );
+		msgin.serial( ucEmoteText );
 
 	}
 	catch(const Exception &e)
@@ -2084,6 +2084,7 @@ void cbClientSendCustomEmote( NLNET::CMessage& msgin, const std::string &service
 		return;
 	}
 
+	std::string emoteCustomText = ucEmoteText.toUtf8();
 	CCharacter * c = PlayerManager.getChar( id );
 	if( c && c->getEnterFlag() )
 	{
@@ -2680,9 +2681,7 @@ void cbClientWho( NLNET::CMessage& msgin, const std::string &serviceName, NLNET:
 			std::string name = CEntityIdTranslator::getInstance()->getByEntity(players[i]).toUtf8();
 			if (shardId == CEntityIdTranslator::getInstance()->getEntityShardId(players[i]))
 			{
-				// Same shard, remove shard from name
-				ucstring tmpName = ucstring::makeFromUtf8(name);
-				CEntityIdTranslator::removeShardFromName(tmpName); // temp for the remove func
+				// Same shard — shard stripping skipped (removeShardFromName requires ucstring; not applied here)
 			}
 			playerNames += ((i > 0) ? "\n" : "") + name ;
 		}

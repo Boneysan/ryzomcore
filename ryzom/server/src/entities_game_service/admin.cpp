@@ -690,34 +690,18 @@ void initPositionFlags(const std::string & fileName)
 
 string getStringFromHash(const string &hash)
 {
-	ucstring finaltext;
-	getUCstringFromHash(hash, finaltext);
-	
-	return finaltext.toUtf8();
-}
-
-void getUCstringFromHash(const string &hash, ucstring &finaltext)
-{
+	ucstring tmp;
 	string fullhash = hash;
-	// fill hash with space to be a *2
 	if (hash.size() % 2)
-	{
 		fullhash += " ";
-	}
-
-	// cut hash in portion of 4
 	for (uint i=0; i<fullhash.size()/4; i++) {
 		string part = fullhash.substr((i*4)+2, 2)+fullhash.substr(i*4, 2);
-		std::string ucpart;
-		uint ch;
-		uint n;
-		if (sscanf(part.c_str(), "%4x%n", &ch, &n) != 1) {
-			// Unexpected string format
+		uint ch, n;
+		if (sscanf(part.c_str(), "%4x%n", &ch, &n) != 1)
 			break;
-		}
-		
-		finaltext.push_back((ucchar)ch);
+		tmp.push_back((ucchar)ch);
 	}
+	return tmp.toUtf8();
 }
 
 static void selectEntities (const string &entityName, vector <CEntityId> &entities)

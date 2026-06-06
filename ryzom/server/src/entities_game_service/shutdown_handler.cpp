@@ -276,12 +276,11 @@ std::string	CShutdownHandler::getState()
 /*
  * Broadcast message
  */
-void	CShutdownHandler::broadcastMessage(const ucstring& message)
+void	CShutdownHandler::broadcastMessage(const std::string& message)
 {
 	_NextBroadcastMessage = NLMISC::CTime::getLocalTime() + _BroadcastMessageRate*1000;
 
-	/// \todo handle ucstring somewhere here...
-	PlayerManager.broadcastMessage(1, 0, 0, message.toString());
+	PlayerManager.broadcastMessage(1, 0, 0, message);
 }
 
 /*

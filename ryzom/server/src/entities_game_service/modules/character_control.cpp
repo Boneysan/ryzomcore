@@ -467,7 +467,7 @@ public:
 		const NLMISC::CEntityId&  creatureId = TheDataset.getEntityId( entityRowId );
 		TAIAlias alias = CAIAliasTranslator::getInstance()->getAIAlias(creatureId);
 		uint32 nameId =  CEntityIdTranslator::getInstance()->getEntityNameStringId(creatureId);
-		const ucstring & ucName =	CEntityIdTranslator::getInstance()->getByEntity(creatureId);
+		const std::string ucName = CEntityIdTranslator::getInstance()->getByEntity(creatureId).toUtf8();
 		CCreature* creature = CreatureManager.getCreature(entityRowId);
 		alive = creature && creature->getMode() != MBEHAV::DEATH;
 

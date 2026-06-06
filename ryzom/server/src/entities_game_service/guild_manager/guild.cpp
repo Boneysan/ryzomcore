@@ -242,7 +242,7 @@ void CGuild::setMOTD( const std::string& motd, const NLMISC::CEntityId& eId)
 		{
 			// Show the old MOTD
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
+			params[0].Literal= _MessageOfTheDay;
 			CCharacter::sendDynamicMessageToChatGroup(user->getEntityRowId(), "GMOTD", CChatGroup::guild, params);
 			return;
 		}
@@ -254,20 +254,13 @@ void CGuild::setMOTD( const std::string& motd, const NLMISC::CEntityId& eId)
 			return;
 		}
 
-		if( motd.empty() )
-		{
-			_MessageOfTheDay.clear();
-		}
-		else
-		{
-			_MessageOfTheDay.fromUtf8(motd);
-		}
+		_MessageOfTheDay = motd.empty() ? std::string{} : motd;
 
 		if(!_MessageOfTheDay.empty())
 		{
 			// Show new MOTD to all members
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
+			params[0].Literal= _MessageOfTheDay;
 			sendMessageToGuildChat("GMOTD", params);
 		}
 	}
@@ -1382,7 +1375,7 @@ void CGuild::setMemberOnline( CGuildMember * member, uint8 dynamicId )
 			CGuildCharProxy proxy;
 			module->getProxy(proxy);
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
+			params[0].Literal= _MessageOfTheDay;
 			proxy.sendDynamicMessageToChatGroup("GMOTD", CChatGroup::guild, params);			
 		}
 	}
@@ -2379,7 +2372,7 @@ private:
 #define PERSISTENT_DATA\
 	PROP2(_Name,string,getName(),setName(val))\
 	PROP2(_Description,string,getDescription(),setDescription(val))\
-	PROP2(_MessageOfTheDay,string,_MessageOfTheDay.toUtf8(),ucstring s; s.fromUtf8(val); _MessageOfTheDay=s)\
+	PROP2(_MessageOfTheDay,string,_MessageOfTheDay,_MessageOfTheDay=val)\
 	LSTRUCT2(_Inventory, if (0), ;/* do not store in old format anymore */, COldGuildInventoryLoader((CGuildInventory *)_Inventory).apply(pdr))\
 	STRUCT2(GuildInventory, _Inventory->store(pdr), _Inventory->apply(pdr, NULL))\
 \

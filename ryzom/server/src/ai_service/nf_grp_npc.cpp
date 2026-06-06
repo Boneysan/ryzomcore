@@ -2266,8 +2266,7 @@ void execSayHelper(CSpawnBot *spawnBot, NLMISC::CSString text, CChatGroup::TGrou
 		if (prefix=="RAW ")
 		{
 			std::string phrase = text.right(text.length()-4);
-			ucstring ucstr = phrase;
-			npcChatToChannelSentence(spawnBot->dataSetRow(), mode, ucstr);
+			npcChatToChannelSentence(spawnBot->dataSetRow(), mode, phrase);
 			return;
 		}
 
@@ -2599,13 +2598,12 @@ void rename_s_(CStateInstance* entity, CScriptStack& stack)
 					if (spawnBot)
 					{
 						TDataSetRow	row = spawnBot->dataSetRow();
-						ucstring name;
-						name.fromUtf8(newName);
+						ucstring nameU; nameU.fromUtf8(newName);
 						NLNET::CMessage	msgout("CHARACTER_NAME");
 						msgout.serial(row);
-						msgout.serial(name);
+						msgout.serial(nameU);
 						sendMessageViaMirror("IOS", msgout);
-						bot->setCustomName(name);
+						bot->setCustomName(newName);
 					}
 				}
 			}

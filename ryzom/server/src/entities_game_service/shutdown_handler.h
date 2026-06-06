@@ -21,8 +21,6 @@
 #include "nel/misc/variable.h"
 #include "nel/misc/time_nl.h"
 
-#include "nel/misc/ucstring.h"
-
 
 /**
  * This singleton handles shutdown events
@@ -121,7 +119,7 @@ private:
 	static void				broadcastShutdownMessage();
 
 	/// Broadcast message
-	static void				broadcastMessage(const ucstring& message);
+	static void				broadcastMessage(const std::string& message);
 
 	/// Disconnect all players
 	static void				disconnectPlayers();

@@ -19,8 +19,6 @@
 #ifndef RY_ENTITY_PERSISTANT_DATA_H
 #define RY_ENTITY_PERSISTANT_DATA_H
 
-#include "nel/misc/ucstring.h"
-
 #include "game_share/mirror_prop_value.h"
 #include "game_share/people.h"
 #include "game_share/gender.h"

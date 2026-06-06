@@ -45,7 +45,7 @@ class CCharNameMapperClient
 	struct TPendingCharName
 	{
 		CEntityId	CharEid;
-		ucstring	CharName;
+		std::string	CharName;
 	};
 
 	typedef list<TPendingCharName>	TPendingcharNames;
@@ -84,7 +84,7 @@ public:
 
 			for (; first != last; ++first)
 			{
-				mapCharacterName(first->first, first->second.EntityName);
+				mapCharacterName(first->first, first->second.EntityName.toUtf8());
 			}
 		}
 	}
@@ -113,7 +113,7 @@ public:
 				const TPendingCharName &pcn = _PendingCharNames.front();
 				charNameInfos.push_back(TCharNameInfo());
 				charNameInfos.back().setCharEid(pcn.CharEid);
-				charNameInfos.back().setCharName(pcn.CharName.toUtf8()); // 0.5 bridge
+				charNameInfos.back().setCharName(pcn.CharName);
 
 				_PendingCharNames.pop_front();
 			}
@@ -129,7 +129,7 @@ public:
 	// Virtual from ICharNameMapperClient
 	///////////////////////////////////////////////////////////////////////////
 
-	virtual void mapCharacterName(const NLMISC::CEntityId &charEid, const ucstring &charName)
+	virtual void mapCharacterName(const NLMISC::CEntityId &charEid, const std::string &charName)
 	{
 		_PendingCharNames.push_back(TPendingCharName());
 

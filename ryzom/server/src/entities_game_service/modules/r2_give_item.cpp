@@ -130,10 +130,8 @@ void CR2GiveItem::_SetClientDB( const TItemRequest & req, uint32 index)
 		CCharacter *c = PlayerManager.getChar( req.CharacterRowId );
 		if( c )
 		{
-			ucstring ucstr;
-			ucstr.fromUtf8( req.MissionText );
-//			c->_PropertyDatabase.setProp( NLMISC::toString("TARGET:CONTEXT_MENU:MISSION_RING:%d:TITLE", index), _regiserLiteralString( req.CharacterRowId, ucstr ) );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSION_RING().getArray(index).setTITLE(c->_PropertyDatabase, _regiserLiteralString( req.CharacterRowId, ucstr ) );
+//			c->_PropertyDatabase.setProp( NLMISC::toString("TARGET:CONTEXT_MENU:MISSION_RING:%d:TITLE", index), _regiserLiteralString( req.CharacterRowId, req.MissionText ) );
+			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSION_RING().getArray(index).setTITLE(c->_PropertyDatabase, _regiserLiteralString( req.CharacterRowId, req.MissionText ) );
 //			c->_PropertyDatabase.setProp( NLMISC::toString("TARGET:CONTEXT_MENU:MISSION_RING:%d:ID", index), req.ActionId );
 			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSION_RING().getArray(index).setID(c->_PropertyDatabase, req.ActionId );
 			c->updateTargetingChars();
@@ -216,10 +214,10 @@ void CR2GiveItem::_SendAckToAIS( bool ok, const TItemRequest &req )
 }
 
 //----------------------------------------------------------------------------
-uint32 CR2GiveItem::_regiserLiteralString( TDataSetRow userRowId, const ucstring &litStr )
+uint32 CR2GiveItem::_regiserLiteralString( TDataSetRow userRowId, const std::string &litStr )
 {
 	SM_STATIC_PARAMS_1(params,STRING_MANAGER::literal);
-	params[0].Literal = litStr.toUtf8();
+	params[0].Literal = litStr;
 	return STRING_MANAGER::sendStringToClient( userRowId,"LITERAL", params );
 }
 

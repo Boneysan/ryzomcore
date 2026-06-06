@@ -44,7 +44,6 @@ struct CAdminCommand
 void initAdmin ();
 void initCommandsPrivileges(const std::string & fileName);
 void initPositionFlags(const std::string & fileName);
-void getUCstringFromHash(const std::string & hash, ucstring & finaltext);
 std::string getStringFromHash(const std::string &hash);
 
 CAdminCommand * findAdminCommand(const std::string & name);

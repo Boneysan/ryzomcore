@@ -156,7 +156,6 @@ public:
 	 * If not found, throws ECDBNotFound().
 	 * Precondition: node not null.
 	 */
-	ucstring x_getPropUcstring( ICDBStructNode *node ) const;
 	const std::string &x_getPropString( ICDBStructNode *node ) const;
 
 	/**
@@ -188,21 +187,11 @@ public:
 	 * \param forceSending is a flag to force to send the update even if the value has not changed
 	 * \return bool : 'true' if the property was found.
 	 */
-	bool x_setPropString( const std::string& name, const ucstring &value, bool forceSending=false );
-
 	/**
 	 * Same as setProp(string,sint64,bool) but much faster version.
 	 * Use getICDBStructNodeFromName() to store the node pointer.
 	 */
-	bool x_setPropString( ICDBStructNode *node, const ucstring &value, bool forceSending=false );
 	bool x_setPropString( ICDBStructNode *node, const std::string &value, bool forceSending=false );
-
-	/**
-	 * Same as setProp(ICDBStructNode*,sint64,bool) but one level below.
-	 * If the child is not found, returns false.
-	 * Use getICDBStructNodeFromName() to store the node pointer.
-	 */
-	bool x_setPropString( ICDBStructNode *node, const char *childName, const ucstring &value, bool forceSending=false );
 
 	/**
 	 * Same as setProp(ICDBStructNode*,const char*,sint64,bool) but increment the current value

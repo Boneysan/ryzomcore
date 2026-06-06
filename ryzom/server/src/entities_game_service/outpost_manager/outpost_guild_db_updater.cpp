@@ -99,7 +99,7 @@ void COutpostGuildDBHandler::setLEVEL(uint8 val)
 }
 
 //----------------------------------------------------------------------------
-void COutpostGuildDBHandler::setGUILD__NAME(const ucstring &val)
+void COutpostGuildDBHandler::setGUILD__NAME(const std::string &val)
 {
 //	setPropString("GUILD:NAME", val);
 	_GuildDBOutpostNode.getGUILD().setNAME(*_GuildDB, val);
@@ -120,7 +120,7 @@ void COutpostGuildDBHandler::setGUILD__TRIBE(bool val)
 }
 
 //----------------------------------------------------------------------------
-void COutpostGuildDBHandler::setGUILD__NAME_ATT(const ucstring &val)
+void COutpostGuildDBHandler::setGUILD__NAME_ATT(const std::string &val)
 {
 //	setPropString("GUILD:NAME_ATT", val);
 	_GuildDBOutpostNode.getGUILD().setNAME_ATT(*_GuildDB, val);
@@ -329,10 +329,10 @@ void COutpostGuildDBUpdater::updateOutpostGuildDBOUTPOST_PROPERTIES()
 //	uint32 const OWNED					= (_Side == OUTPOSTENUMS::OutpostOwner)?1:0;
 //	uint32 const SHEET					= _Outpost->_Sheet.asInt();
 //	uint32 const LEVEL					= _Outpost->getStaticForm()?_Outpost->getStaticForm()->Level:0;
-	ucstring const GUILD_NAME				= owner?owner->getName():ucstring();
+	std::string const GUILD_NAME			= owner ? owner->getName() : std::string{};
 	uint64 const GUILD_ICON				= owner?owner->getIcon():0;
 //	uint32 const TRIBE					= _Outpost->isBelongingToAGuild()?0:1;
-	ucstring const GUILD_NAME_ATT			= attacker?attacker->getName():ucstring();
+	std::string const GUILD_NAME_ATT		= attacker ? attacker->getName() : std::string{};
 //	uint32 const STATUS					= _Outpost->computeStatusForClient();
 //	uint32 const DISPLAY_CRASH			= _Outpost->_CrashHappened?1:0;
 	uint32 const WARCOST				= _Outpost->_Form->ChallengeCost;

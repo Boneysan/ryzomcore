@@ -97,7 +97,7 @@ CSpawnGroupPet& CSpawnBotPet::spawnGrp()
 void CSpawnBotPet::setVisualPropertiesName()
 {
 	CBotPet& botRef = CSpawnBotPet::getPersistent();
-	ucstring name = botRef.getName();
+	std::string name = botRef.getName();
 	
 	if (CVisualPropertiesInterface::UseIdForName)
 	{

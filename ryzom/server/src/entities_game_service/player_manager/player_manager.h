@@ -474,7 +474,7 @@ public :
 	/**
 	 * Set name/stringId association, returns true if association has been succesfully set.
 	 */
-	bool setStringId( const ucstring &str, uint32 stringId);
+	bool setStringId( const std::string &str, uint32 stringId);
 
 	// add an entity for string ids request
 //	inline void addEntityForStringIdRequest( const NLMISC::CEntityId &entity)

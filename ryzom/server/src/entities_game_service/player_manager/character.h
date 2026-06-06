@@ -1307,7 +1307,7 @@ public:
 	void setEmote( MBEHAV::EBehaviour emote );
 
 	void sendEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour behaviour, uint16 emoteTextId, bool checkPrivilege = true );
-	void sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour behaviour, ucstring& emoteCustomText );
+	void sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour behaviour, std::string& emoteCustomText );
 
 	uint32 getActionsSPValue() const;
 	uint32 getStartActionsSPValue() const;
@@ -1628,7 +1628,7 @@ public:
 	void forgetPhrase(uint8 memSet, uint8 i);
 
 	/// learn a new phrase
-	void learnPhrase(const std::vector<NLMISC::CSheetId> &bricks, uint16 phraseId, const ucstring &name);
+	void learnPhrase(const std::vector<NLMISC::CSheetId> &bricks, uint16 phraseId, const std::string &name);
 
 	/// delete a known phrase
 	void deleteKnownPhrase(uint16 phraseId);

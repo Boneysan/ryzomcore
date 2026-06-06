@@ -385,7 +385,7 @@ private:
 	/// The description of the guild
 	std::string							_Description;
 	// words of the day
-	ucstring							_MessageOfTheDay; // TODO 0.5 later (persistent macro)
+	std::string							_MessageOfTheDay;
 
 	// The declared Cult and Civilization information for the guild for fame purposes.
 	PVP_CLAN::TPVPClan					_DeclaredCult;

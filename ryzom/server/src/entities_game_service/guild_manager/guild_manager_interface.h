@@ -18,8 +18,6 @@
 #ifndef GUILD_MANAGER_INTERFACE_H
 #define GUILD_MANAGER_INTERFACE_H
 
-#include "nel/misc/ucstring.h"
-
 #include "game_share/character_sync_itf.h"
 
 namespace EGSPD

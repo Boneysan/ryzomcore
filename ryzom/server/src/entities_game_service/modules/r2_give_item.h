@@ -108,7 +108,7 @@ private:
 	void _SetClientDB( const TItemRequest & req, uint32 MissionIndex );
 	void _SetClientDBAll( CCharacter *c, const TCreatureItemRequest & req );
 	void _SendAckToAIS( bool ok, const TItemRequest &req );
-	uint32 _regiserLiteralString( TDataSetRow userRowId, const ucstring &litStr );
+	uint32 _regiserLiteralString( TDataSetRow userRowId, const std::string &litStr );
 
 	TPendingRequest		_PendingRequest;
 	static uint32		_NextActionId;

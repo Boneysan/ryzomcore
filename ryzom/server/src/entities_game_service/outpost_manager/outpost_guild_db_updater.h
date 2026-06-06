@@ -48,10 +48,10 @@ protected:
 	void setOWNED					(bool val);
 	void setSHEET					(const NLMISC::CSheetId val);
 	void setLEVEL					(uint8 val);
-	void setGUILD__NAME				(const ucstring &val);
+	void setGUILD__NAME				(const std::string &val);
 	void setGUILD__ICON				(uint64 val);
 	void setGUILD__TRIBE			(bool val);
-	void setGUILD__NAME_ATT			(const ucstring &val);
+	void setGUILD__NAME_ATT			(const std::string &val);
 	void setSTATUS					(uint8 val);
 	void setSTATE_END_DATE			(uint32 val);
 	void setDISPLAY_CRASH			(bool val);

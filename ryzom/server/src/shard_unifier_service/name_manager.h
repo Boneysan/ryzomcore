@@ -20,7 +20,6 @@
 
 // Misc
 #include "nel/misc/common.h"
-#include "nel/misc/ucstring.h"
 
 #include "game_share/character_sync_itf.h"
 

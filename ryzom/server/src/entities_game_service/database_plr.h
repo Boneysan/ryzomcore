@@ -73,11 +73,6 @@ inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const std::stri
 {
 	db.x_setPropString(node, value, forceSending);
 }
-inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const ucstring &value, bool forceSending = false)
-{
-	// legacy bridge
-	_setProp(db, node, value.toUtf8(), forceSending);
-}
 inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const NLMISC::CSheetId &value, bool forceSending = false)
 {
 	db.x_setProp(node, uint64(value.asInt()), forceSending);
@@ -123,12 +118,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, sint64 &v
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, std::string &value)
 {
 	value = db.x_getPropString(node);
-}
-inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, ucstring &value)
-{
-	std::string s;
-	_getProp(db, node, s);
-	value.fromUtf8(s);
 }
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::CSheetId &value)
 {
@@ -4560,12 +4549,6 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 		void setNAME(CCDBSynchronised &dbGroup, const std::string &value, bool forceSending = false)
 		{
 			_setProp(dbGroup, _NAME, value, forceSending);
-		}
-
-		// legacy bridge
-		void setNAME(CCDBSynchronised &dbGroup, const ucstring &value, bool forceSending = false)
-		{
-			_setProp(dbGroup, _NAME, value.toUtf8(), forceSending);
 		}
 
 		std::string getNAME(const CCDBSynchronised &dbGroup)

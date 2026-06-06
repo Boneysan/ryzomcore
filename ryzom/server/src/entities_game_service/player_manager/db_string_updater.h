@@ -99,7 +99,7 @@ class CDBStringUpdater : public NLMISC::CSingleton<CDBStringUpdater>
 
 
 private:
-	void	storeAStringInIOS(const ucstring &str);
+	void	storeAStringInIOS(const std::string &str);
 
 	void	storeStringResult(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId);
 public:
@@ -111,8 +111,6 @@ public:
 
 	void onClientDatabaseDeleted(CCDBSynchronised *clientDB);
 	void setStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node, const std::string &str, bool forceSending);
-	void setStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node, const ucstring &str, bool forceSending);
-	ucstring getUcstringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node) const;
 	const std::string &getStringLeaf(CCDBSynchronised *clientDB, ICDBStructNode *node) const;
 
 	static void	cbStoreStringResult(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId);

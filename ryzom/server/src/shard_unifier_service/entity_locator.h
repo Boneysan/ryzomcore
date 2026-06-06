@@ -58,11 +58,11 @@ namespace ENTITYLOC
 		/** Return the proxy on the locator module that claims to host the character
 		 *	Return NULL if the character is not currently online.
 		 */
-		virtual NLNET::IModuleProxy *getLocatorModuleForChar(const ucstring &charName) =0;
+		virtual NLNET::IModuleProxy *getLocatorModuleForChar(const std::string &charName) =0;
 
 		/** Return the shard Id of the shard hosting the character (or 0 if not online)
 		 */
-		virtual uint32 getShardIdForChar(const ucstring &charName) =0;
+		virtual uint32 getShardIdForChar(const std::string &charName) =0;
 
 		/** Return the module for a given shard id
 		 *	return NULL if no module available for the specified shard id

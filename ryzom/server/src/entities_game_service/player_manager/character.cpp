@@ -12926,7 +12926,7 @@ void CCharacter::sendPhrasesToClient()
 //-----------------------------------------------
 // learnPhrase
 //-----------------------------------------------
-void CCharacter::learnPhrase(const vector<CSheetId> &bricks, uint16 phraseId, const ucstring &name)
+void CCharacter::learnPhrase(const vector<CSheetId> &bricks, uint16 phraseId, const std::string &name)
 {
 	if (phraseId >= _KnownPhrases.size())
 		_KnownPhrases.resize(phraseId + 1);
@@ -12939,7 +12939,7 @@ void CCharacter::learnPhrase(const vector<CSheetId> &bricks, uint16 phraseId, co
 		if (bricks[i] != NLMISC::CSheetId::Unknown)
 			_KnownPhrases[phraseId].PhraseDesc.Bricks.push_back(bricks[i]);
 	}
-	_KnownPhrases[phraseId].PhraseDesc.Name = name.toUtf8(); // bridge: learnPhrase still takes ucstring for phrase user name
+	_KnownPhrases[phraseId].PhraseDesc.Name = name;
 } // learnPhrase //
 
 //-----------------------------------------------
@@ -13251,7 +13251,7 @@ void CCharacter::addWebCommandCheck(const string &url, const string &data, const
 		{
 			if (data.empty())
 			{
-				item->setCustomText(ucstring(url));
+				item->setCustomText(url);
 				vector<string> infos;
 				NLMISC::splitString(url, "\n", infos);
 				sendUrl(infos[0] + "&player_eid=" + getId().toString() + "&event=command_added");
@@ -13265,7 +13265,7 @@ void CCharacter::addWebCommandCheck(const string &url, const string &data, const
 				{
 					finalData += ","+randomString+infos[i];
 				}
-				item->setCustomText(ucstring(url + "\n" + finalData));
+				item->setCustomText(url + "\n" + finalData);
 				sendUrl(url + "&player_eid=" + getId().toString() + "&event=command_added&transaction_id=" + randomString);
 			}
 		}
@@ -16028,7 +16028,7 @@ void CCharacter::sendEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour beha
 //-----------------------------------------------
 //		sendCustomEmote
 //-----------------------------------------------
-void CCharacter::sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour behaviour, ucstring& emoteCustomText )
+void CCharacter::sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour behaviour, std::string& emoteCustomText )
 {
 	// set behaviour
 	if( behaviour != MBEHAV::IDLE )
@@ -16036,14 +16036,12 @@ void CCharacter::sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviou
 		setEmote( behaviour );
 	}
 
-	string sEmoteCustomText = emoteCustomText.toUtf8();
-
-	if ((behaviour != MBEHAV::IDLE) || (sEmoteCustomText == "none"))
+	if ((behaviour != MBEHAV::IDLE) || (emoteCustomText == "none"))
 	{
 		setAfkState(false);
 	}
 
-	if( sEmoteCustomText == "none" )
+	if( emoteCustomText == "none" )
 	{
 		return;
 	}
@@ -16051,7 +16049,7 @@ void CCharacter::sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviou
 	// send emote message to IOS
 	NLNET::CMessage	msgout("CUSTOM_EMOTE");
 	msgout.serial( const_cast<TDataSetRow&>( getEntityRowId() ) );
-	msgout.serial(emoteCustomText);
+	ucstring ucEmote; ucEmote.fromUtf8(emoteCustomText); msgout.serial(ucEmote);
 	sendMessageViaMirror("IOS", msgout);
 
 } // sendCustomEmote //
@@ -18854,19 +18852,20 @@ void CCharacter::setTeamId(uint16 id)
 void CCharacter::setLeagueId(TChanID id, bool removeIfEmpty)
 {
 
-	ucstring name = CEntityIdTranslator::getInstance()->getByEntity(getId()); // local for translator interop (registered name)
-	CEntityIdTranslator::removeShardFromName(name);
+	ucstring nameUc = CEntityIdTranslator::getInstance()->getByEntity(getId());
+	CEntityIdTranslator::removeShardFromName(nameUc);
+	const std::string name = nameUc.toUtf8();
 
 	// Remove old dynamic channel
 	if (_LeagueId != DYN_CHAT_INVALID_CHAN)
 	{
 		CPVPManager2::getInstance()->broadcastMessage(_LeagueId, string("<INFO>"), name+" -->[]");
 		PHRASE_UTILITIES::sendDynamicSystemMessage(getEntityRowId(), "TEAM_QUIT_LEAGUE");
-		DynChatEGS.removeSession(_LeagueId, getEntityRowId());		
-		
+		DynChatEGS.removeSession(_LeagueId, getEntityRowId());
+
 		vector<CEntityId> players;
 		bool isEmpty = DynChatEGS.getPlayersInChan(_LeagueId, players);
-				
+
 		if (isEmpty)
 		{
 			if (removeIfEmpty)

@@ -223,18 +223,13 @@ namespace CHARSYNC
 		}
 
 		/** Get the name of a character */
-		ucstring getCharacterName(uint32 charId)
+		std::string getCharacterName(uint32 charId)
 		{
 			CCharacterPtr character = CCharacter::load(_RingDB, charId, __FILE__, __LINE__);
 			if (character == NULL)
-			{
-				static ucstring emptyString;
-				return emptyString;
-			}
+				return {};
 
-			ucstring ret;
-			ret.fromUtf8(CShardNames::getInstance().makeFullName(character->getCharName(), TSessionId(character->getHomeMainlandSessionId())));
-			return ret;
+			return CShardNames::getInstance().makeFullName(character->getCharName(), TSessionId(character->getHomeMainlandSessionId()));
 		}
 
 		/// Try to find a shard id from a name and session id. Return 0 if not found
