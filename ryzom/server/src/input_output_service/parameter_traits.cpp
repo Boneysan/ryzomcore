@@ -1460,7 +1460,7 @@ public:
 		}
 		else if (cond.Property == "name")
 		{
-			value = NLMISC::toLowerAscii(charInfo->ShortName.toString());
+			value = NLMISC::toLowerAscii(charInfo->ShortName);
 		}
 		else
 		{

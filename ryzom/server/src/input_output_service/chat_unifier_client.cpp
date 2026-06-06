@@ -105,47 +105,44 @@ public:
 	/** IChatUnifierClient implementation */
 	/**************************************/
 
-	void sendFarTell(const CEntityId &senderCharId, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	void sendFarTell(const CEntityId &senderCharId, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
 		if (_ChatUnifierServer == NULL)
 			return;
 
 		CChatUnifierProxy cuc(_ChatUnifierServer);
 
-		cuc.sendFarTell(this, senderCharId, havePrivilege, destName.toUtf8(), text.toUtf8()); // bridge: itf now string, local sigs still ucstring from unifier wire
+		cuc.sendFarTell(this, senderCharId, havePrivilege, destName, text);
 	}
 
-	void sendFarGuildChat(const ucstring &senderName, uint32 guildId, const ucstring &text)
+	void sendFarGuildChat(const std::string &senderName, uint32 guildId, const std::string &text)
 	{
-		CChatUnifierClientProxy::broadcast_farGuildChat(_Peers.begin(), _Peers.end(), this, senderName.toUtf8(), guildId, text.toUtf8()); // bridge to string itf
+		CChatUnifierClientProxy::broadcast_farGuildChat(_Peers.begin(), _Peers.end(), this, senderName, guildId, text);
 	}
 
-	void sendFarGuildChat2(const ucstring &senderName, uint32 guildId, const std::string &phraseName)
+	void sendFarGuildChat2(const std::string &senderName, uint32 guildId, const std::string &phraseName)
 	{
-		CChatUnifierClientProxy::broadcast_farGuildChat2(_Peers.begin(), _Peers.end(), this, senderName.toUtf8(), guildId, phraseName); // bridge senderName (ucstring local) to string itf
+		CChatUnifierClientProxy::broadcast_farGuildChat2(_Peers.begin(), _Peers.end(), this, senderName, guildId, phraseName);
 	}
 
-	void sendFarGuildChat2Ex(const ucstring &senderName, uint32 guildId, uint32 phraseId)
+	void sendFarGuildChat2Ex(const std::string &senderName, uint32 guildId, uint32 phraseId)
 	{
 		CChatUnifierClientProxy::broadcast_farGuildChat2Ex(_Peers.begin(), _Peers.end(), this, senderName, guildId, phraseId);
 	}
 
-	void sendUniverseChat(const ucstring &senderName, uint32 homeSessionId, const ucstring &text)
+	void sendUniverseChat(const std::string &senderName, uint32 homeSessionId, const std::string &text)
 	{
 		CChatUnifierClientProxy::broadcast_universeBroadcast(_Peers.begin(), _Peers.end(), this, senderName, homeSessionId, text);
 
 		if (ForceFarChat)
 		{
-			// send back the chat locally
 			CChatManager &cm = IOS->getChatManager();
-
-			// rebuild a the universe group id and fake the creator and dynamic id
-			TGroupId grpId(RYZOMID::chatGroup,0);
+			TGroupId grpId(RYZOMID::chatGroup, 0);
 			cm.farChatInGroup(grpId, homeSessionId, text, senderName);
 		}
 	}
 
-	void sendUnifiedDynChat(const NLMISC::CEntityId &dynCharId, const ucstring &senderName, const ucstring &text)
+	void sendUnifiedDynChat(const NLMISC::CEntityId &dynCharId, const std::string &senderName, const std::string &text)
 	{
 #ifdef NL_OS_WINDOWS
 #	pragma message (NL_LOC_WRN "Add the message in the interface")
@@ -160,9 +157,9 @@ public:
 	/******************************************/
 
 	// SU send a far tell failure to IOS. This mean that the player is offline or unknow
-	void recvFarTellFail(NLNET::IModuleProxy *sender, const CEntityId &senderCharId, const ucstring &destName, TFailInfo failInfo)
+	void recvFarTellFail(NLNET::IModuleProxy *sender, const CEntityId &senderCharId, const std::string &destName, TFailInfo failInfo)
 	{
-		nldebug("IOSCU: recvFarTellFail : receiving a far tell failure from %s to '%s'", senderCharId.toString().c_str(), destName.toUtf8().c_str());
+		nldebug("IOSCU: recvFarTellFail : receiving a far tell failure from %s to '%s'", senderCharId.toString().c_str(), destName.c_str());
 		// try to retrieve the sender char
 		TDataSetRow dsr = TheDataset.getDataSetRow(senderCharId);
 		if (!dsr.isValid())
@@ -193,7 +190,7 @@ public:
 		case TFailInfo::fi_char_offline:
 			{
 				SM_STATIC_PARAMS_1( vect, STRING_MANAGER::literal );
-				vect[0].Literal = destName;
+				vect[0].Literal = destName; // already std::string
 				uint32 phraseId = STRING_MANAGER::sendStringToClient( dsr, "TELL_PLAYER_UNKNOWN", vect, &IosLocalSender );
 				cm.sendChat2Ex( CChatGroup::tell, dsr, phraseId );
 			}
@@ -203,74 +200,61 @@ public:
 	}
 
 	// SU send a far tell to the IOS hosting the addressee character
-	void recvFarTell(NLNET::IModuleProxy *sender, const CEntityId &senderCharId, const ucstring &senderName, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	void recvFarTell(NLNET::IModuleProxy *sender, const CEntityId &senderCharId, const std::string &senderName, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
-		nldebug("IOSCU: recvFarTell : receiving a far tell from %s to '%s'", senderCharId.toString().c_str(), destName.toUtf8().c_str());
+		nldebug("IOSCU: recvFarTell : receiving a far tell from %s to '%s'", senderCharId.toString().c_str(), destName.c_str());
 		CChatManager &cm = IOS->getChatManager();
 		cm.farTell(senderCharId, senderName, havePrivilege, destName, text);
 	}
 
 	// SU forward a guild chat message to the IOS
-	void farGuildChat(NLNET::IModuleProxy *sender, const ucstring &senderName, uint32 guildId, const ucstring &text)
+	void farGuildChat(NLNET::IModuleProxy *sender, const std::string &senderName, uint32 guildId, const std::string &text)
 	{
 		CChatManager &cm = IOS->getChatManager();
-
-		// rebuild a group ID and fake the creator and dynamic id
 		TGroupId grpId(RYZOMID::chatGroup, guildId, 0, 0);
 		cm.farChatInGroup(grpId, 0, text, senderName);
 	}
 
 	// SU forward a guild chat message to the IOS
-	void farGuildChat2(NLNET::IModuleProxy *sender, const ucstring &senderName, uint32 guildId, const ucstring &phraseName)
+	void farGuildChat2(NLNET::IModuleProxy *sender, const std::string &senderName, uint32 guildId, const std::string &phraseName)
 	{
 	}
 
 	// SU forward a guild chat message to the IOS
-	void farGuildChat2Ex(NLNET::IModuleProxy *sender, const ucstring &senderName, uint32 guildId, uint32 phraseId)
+	void farGuildChat2Ex(NLNET::IModuleProxy *sender, const std::string &senderName, uint32 guildId, uint32 phraseId)
 	{
 	}
 
 	// IOS forward a universe chat message to the IOS
-	virtual void universeBroadcast(NLNET::IModuleProxy *sender, const ucstring &senderName, uint32 senderHomeSession, const ucstring &text)
+	virtual void universeBroadcast(NLNET::IModuleProxy *sender, const std::string &senderName, uint32 senderHomeSession, const std::string &text)
 	{
 		CChatManager &cm = IOS->getChatManager();
-
-//		if (!IsRingShard)
-//		{
-//			// universe broadcast is allowed on on ring shard
-//			return;
-//		}
-
-		// rebuild a the universe group id
-		TGroupId grpId(RYZOMID::chatGroup,0);
+		TGroupId grpId(RYZOMID::chatGroup, 0);
 		cm.farChatInGroup(grpId, senderHomeSession, text, senderName);
 	}
 
 	// IOS forward a dyn chat chat message to the IOSs
-	virtual void dynChanBroadcast(NLNET::IModuleProxy *sender, const NLMISC::CEntityId &chanId, const ucstring &senderName, const ucstring &text)
+	virtual void dynChanBroadcast(NLNET::IModuleProxy *sender, const NLMISC::CEntityId &chanId, const std::string &senderName, const std::string &text)
 	{
 		CChatManager &cm = IOS->getChatManager();
 
-		// retreive the dyn chat (is it exist here)
-		CDynChatChan *chan =  cm.getDynChat().getChan(chanId);
-
-		if (chan ==  NULL)
+		CDynChatChan *chan = cm.getDynChat().getChan(chanId);
+		if (chan == NULL)
 		{
 			nldebug("IOSCU : universeBroadcast : cannot find dynamic channel %s to broadcast chat", chanId.toString().c_str());
 			return;
 		}
 
-		// broadcast to other client in the channel
 		CDynChatSession *dcc = chan->getFirstSession();
 		while (dcc)
 		{
 			cm.sendChat(CChatGroup::dyn_chat, dcc->getClient()->getID(), text, TDataSetRow(), chanId, senderName);
-			dcc = dcc->getNextChannelSession(); // next session in this channel
-		}						
+			dcc = dcc->getNextChannelSession();
+		}
 	}
 
 	// SU send a broadcast message to the IOS
-	void recvBroadcastMessage(NLNET::IModuleProxy *sender, const ucstring &message)
+	void recvBroadcastMessage(NLNET::IModuleProxy *sender, const std::string &message)
 	{
 	}
 

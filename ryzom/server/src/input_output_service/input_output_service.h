@@ -76,11 +76,11 @@ public:
 	TDataSetRow			DataSetIndex;
 
 	/// Name of the character
-	ucstring						Name;
+	std::string						Name;
 	/// index of the name in the string manager
 	CMirrorPropValue< uint32, CPropLocationPacked<2> >		NameIndex;
 	/// Short name (ie name without the $title$ spec)
-	ucstring						ShortName;
+	std::string						ShortName;
 	/// Short name index
 	uint32							ShortNameIndex;
 	/// The home mainland session id
@@ -118,7 +118,7 @@ public:
 	bool HavePrivilege;
 
 		// custom afk text
-	ucstring	AfkCustomTxt;
+	std::string	AfkCustomTxt;
 
 	/**
 	 * Default constructor
@@ -267,7 +267,7 @@ public:
 	/**
 	 *	Add the name of a character
 	 */
-	void addCharacterName( const TDataSetRow& chId, const ucstring& name, TSessionId homeSessionId );
+	void addCharacterName( const TDataSetRow& chId, const std::string& name, TSessionId homeSessionId );
 
 	/**
 	 * Get the infos of character from its id
@@ -277,7 +277,7 @@ public:
 	/**
 	 * Get the infos of character from its name
 	 */
-	CCharacterInfos * getCharInfos( const ucstring& name );
+	CCharacterInfos * getCharInfos( const std::string& name );
 
 	/**
 	 * Remove an entity

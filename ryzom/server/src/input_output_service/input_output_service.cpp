@@ -93,59 +93,56 @@ void CAIAliasManager::add(uint32 alias, const std::string &name)
 	CCharacterInfos cInfo;
 	
 
-	std::string botName = name;
-	ucstring ucname  = botName;
-
 		//addCharacterName
-	
-	ucstring title;
+
+	std::string title;
 
 	// remove any $title$ specification in the short name
-	ucstring::size_type pos = ucname.find('$');
-	if (pos != ucstring::npos)
+	std::string::size_type pos = name.find('$');
+	if (pos != std::string::npos)
 	{
-		cInfo.ShortName = ucname.substr(0, pos);
+		cInfo.ShortName = name.substr(0, pos);
 		// extract $title$ spec in the title
-		ucstring::size_type pos2 = ucname.find('$', pos+1);
-		title = ucname.substr(pos+1, pos2-pos-1);
-		cInfo.Title = title.toString();
+		std::string::size_type pos2 = name.find('$', pos+1);
+		title = name.substr(pos+1, pos2-pos-1);
+		cInfo.Title = title;
 		cInfo.TitleIndex = SM->storeString(title);
 	}
 	else
-		cInfo.ShortName = ucname;
+		cInfo.ShortName = name;
 
 
-	cInfo.ShortNameIndex = SM->storeString(cInfo.ShortName.toUtf8()); // bridge ShortName ucstring
+	cInfo.ShortNameIndex = SM->storeString(cInfo.ShortName);
 
 	// try to map a translated bot name on the short name
-	cInfo.UntranslatedNameIndex = SM->storeString(ucname);
-	cInfo.UntranslatedShortNameIndex = SM->storeString(cInfo.ShortName.toUtf8()); // bridge ShortName ucstring
-	
+	cInfo.UntranslatedNameIndex = SM->storeString(name);
+	cInfo.UntranslatedShortNameIndex = SM->storeString(cInfo.ShortName);
+
 
 	cInfo.ShortNameIndex = SM->translateShortName(cInfo.UntranslatedShortNameIndex);
-	
+
 	cInfo.ShortName = SM->getString(cInfo.ShortNameIndex);
 
 	// extract title from the translated bot name (if needed)
 	// this allow translated name to overload the title and
 	// to support generic name
 	{
-		ucstring::size_type pos = cInfo.ShortName.find('$');
-		if (pos != ucstring::npos)
+		std::string::size_type pos = cInfo.ShortName.find('$');
+		if (pos != std::string::npos)
 		{
-			ucstring sn = cInfo.ShortName;
+			std::string sn = cInfo.ShortName;
 			cInfo.ShortName = sn.substr(0, pos);
 			// extract $title$ spec in the title
-			ucstring::size_type pos2 = sn.find('$', pos+1);
+			std::string::size_type pos2 = sn.find('$', pos+1);
 			title = sn.substr(pos+1, pos2-pos-1);
-			cInfo.Title = title.toString();
+			cInfo.Title = title;
 			cInfo.TitleIndex = SM->storeString(title);
 		}
 	}
 
 
 
-	
+
 
 //	_Translation[alias].UntranslatedShortNameIndex = cInfo.ShortNameIndex;
 	if (!cInfo.ShortName.empty())
@@ -529,13 +526,13 @@ void CInputOutputService::scanMirrorChanges()
 //	addCharacterName :
 //
 //-----------------------------------------------
-void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstring& ucname, TSessionId homeSessionId )
+void CInputOutputService::addCharacterName( const TDataSetRow& chId, const std::string& ucname, TSessionId homeSessionId )
 {
 	if (!chId.isValid())
 	{
 		nlwarning("addCharacterName: receiveing char info with an invalid dataset row (datasetRow = %u, name = '%s'). IGNORING.",
 			chId.getIndex(),
-			ucname.toString().c_str());
+			ucname.c_str());
 		return;
 	}
 	// Add player in the chat manager (note: not done when chId added in the mirror, because callback called earlier)
@@ -544,7 +541,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 
 	CEntityId eid = TheDataset.getEntityId(chId);
 
-	ucstring oldname;
+	std::string oldname;
 	CCharacterInfos * charInfos = IOS->getCharInfos( eid, false );
 	if( charInfos == NULL )
 	{
@@ -556,7 +553,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 	{
 		// remove previous name association
 //		_NameToInfos.erase(ucname);
-		_NameToInfos.erase(charInfos->ShortName.toUtf8());
+		_NameToInfos.erase(charInfos->ShortName);
 		oldname = charInfos->ShortName;
 
 		if (charInfos->EntityId != eid)
@@ -571,19 +568,19 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 		}
 	}
 
-	ucstring title;
+	std::string title;
 	charInfos->EntityId = eid;
 	charInfos->DataSetIndex = chId;
-		
+
 	// remove any $title$ specification in the short name
-	ucstring::size_type pos = ucname.find('$');
-	if (pos != ucstring::npos)
+	std::string::size_type pos = ucname.find('$');
+	if (pos != std::string::npos)
 	{
 		charInfos->ShortName = ucname.substr(0, pos);
 		// extract $title$ spec in the title
-		ucstring::size_type pos2 = ucname.find('$', pos+1);
+		std::string::size_type pos2 = ucname.find('$', pos+1);
 		title = ucname.substr(pos+1, pos2-pos-1);
-		charInfos->Title = title.toString();
+		charInfos->Title = title;
 		charInfos->TitleIndex = SM->storeString(title);
 	}
 	else
@@ -609,7 +606,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 		if (!oldname.empty())
 		{
 			TSessionId sessionid;
-			string name = charInfos->ShortName.toUtf8();
+			string name = charInfos->ShortName;
 			// Make sure that the short name contains the home session name, but only if the new name does not exist yet
 			// otherwise we will have problems. If the new name contains opening parentheses then don't add it because
 			// it will try to match it as a homeland name
@@ -623,28 +620,28 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 			if( itInfos == _NameToInfos.end() )
 			{
 				// New name does not exist
-				charInfos->ShortName.fromUtf8(name);
+				charInfos->ShortName = name;
 			}
 
 			// Save the old name only if new name is not found (and the player is getting original name back)
-			itInfos = _RenamedCharInfos.find( charInfos->ShortName.toUtf8() );
+			itInfos = _RenamedCharInfos.find( charInfos->ShortName );
 			if( itInfos != _RenamedCharInfos.end() )
 			{
-				// New name was in the saved list; player is getting original name back. 
+				// New name was in the saved list; player is getting original name back.
 				// Remove the new name
-				_RenamedCharInfos.erase(charInfos->ShortName.toUtf8());
+				_RenamedCharInfos.erase(charInfos->ShortName);
 			}
 			else
 			{
 				// New name was not in the list, save old name
-				_RenamedCharInfos.insert( make_pair(oldname.toUtf8(), charInfos) );
+				_RenamedCharInfos.insert( make_pair(oldname, charInfos) );
 			}
 		}
 	}
 
 	// try to map a translated bot name on the short name
 	charInfos->UntranslatedNameIndex = SM->storeString(ucname);
-	charInfos->UntranslatedShortNameIndex = SM->storeString(charInfos->ShortName.toUtf8()); // bridge ShortName ucstring
+	charInfos->UntranslatedShortNameIndex = SM->storeString(charInfos->ShortName);
 	
 	// don't translate players names
 	if (eid.getType() != RYZOMID::player)
@@ -662,22 +659,22 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 	// this allow translated name to overload the title and
 	// to support generic name
 	{
-		ucstring::size_type pos = charInfos->ShortName.find('$');
-		if (pos != ucstring::npos)
+		std::string::size_type pos = charInfos->ShortName.find('$');
+		if (pos != std::string::npos)
 		{
-			ucstring sn = charInfos->ShortName;
+			std::string sn = charInfos->ShortName;
 			charInfos->ShortName = sn.substr(0, pos);
 			// extract $title$ spec in the title
-			ucstring::size_type pos2 = sn.find('$', pos+1);
+			std::string::size_type pos2 = sn.find('$', pos+1);
 			title = sn.substr(pos+1, pos2-pos-1);
-			charInfos->Title = title.toString();
+			charInfos->Title = title;
 			charInfos->TitleIndex = SM->storeString(title);
 		}
 	}
-	
+
 	// build the translated name
 	if (!charInfos->Title.empty())
-		charInfos->Name = charInfos->ShortName + "$" + charInfos->Title+"$";
+		charInfos->Name = charInfos->ShortName + "$" + charInfos->Title + "$";
 	else
 		charInfos->Name = charInfos->ShortName;
 
@@ -685,14 +682,12 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 	{
 		if (charInfos->ShortNameIndex != charInfos->UntranslatedShortNameIndex)
 		{
-			string sn = charInfos->ShortName.toString();
 			string usn = SM->getString(charInfos->UntranslatedShortNameIndex);
-			nlinfo(" Translated short name for this character : '%s' (index %u) (untranslated : '%s')", sn.c_str(), charInfos->ShortNameIndex, usn.c_str());
+			nlinfo(" Translated short name for this character : '%s' (index %u) (untranslated : '%s')", charInfos->ShortName.c_str(), charInfos->ShortNameIndex, usn.c_str());
 		}
 		else
 		{
-			string sn = charInfos->ShortName.toString();
-			nlinfo(" Short name for this character : '%s' (index %u)", sn.c_str(), charInfos->ShortNameIndex);
+			nlinfo(" Short name for this character : '%s' (index %u)", charInfos->ShortName.c_str(), charInfos->ShortNameIndex);
 		}
 	}
 
@@ -710,7 +705,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 			}
 			charInfos->NameIndex.init( TheDataset, chId, DSPropertyNAME_STRING_ID );
 		}
-		charInfos->NameIndex = SM->storeString(charInfos->Name.toUtf8()); // bridge: Name ucstring here to string storeString (IOS name surface ripple)
+		charInfos->NameIndex = SM->storeString(charInfos->Name);
 		charInfos->VisualPropertyA.init( TheDataset, chId, DSPropertyVPA );
 		charInfos->AIInstance.init( TheDataset, chId, DSPropertyAI_INSTANCE );
 	}
@@ -726,13 +721,13 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 	{
 		if (charInfos->NameIndex == charInfos->UntranslatedNameIndex)
 			nldebug("IOS: addCharacterName Adding name '%s' for entity %s:%x",
-				ucname.toString().c_str(),
+				ucname.c_str(),
 				TheDataset.getEntityId(chId).toString().c_str(),
 				chId.getIndex());
 		else
 			nldebug("IOS: addCharacterName Adding name '%s' translated as '%s' for entity %s:%x",
-				ucname.toString().c_str(), 
-				charInfos->Name.c_str(), 
+				ucname.c_str(),
+				charInfos->Name.c_str(),
 				TheDataset.getEntityId(chId).toString().c_str(),
 				chId.getIndex());
 	}
@@ -740,7 +735,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 	// store name assoc
 //	_NameToInfos.insert( make_pair(ucname,charInfos) );
 	// store the short name assoc.
-	_NameToInfos.insert( make_pair(charInfos->ShortName.toUtf8(), charInfos) );
+	_NameToInfos.insert( make_pair(charInfos->ShortName, charInfos) );
 	// TODO : remove when dynDB removed
 //	charInfos->OldNameIndex = IOS->getChatManager().getDynamicDB().add(charInfos->ShortName, false);
 
@@ -779,16 +774,16 @@ CCharacterInfos * CInputOutputService::getCharInfos( const CEntityId& chId, bool
 //	getCharInfos :
 //
 //-----------------------------------------------
-CCharacterInfos * CInputOutputService::getCharInfos( const ucstring& chName )
+CCharacterInfos * CInputOutputService::getCharInfos( const std::string& chName )
 {
-	TCharInfoCont::iterator itInfos = _NameToInfos.find( chName.toUtf8() );
+	TCharInfoCont::iterator itInfos = _NameToInfos.find( chName );
 	if( itInfos != _NameToInfos.end() )
 	{
 		return 	itInfos->second;
 	}
-	
+
 	// Not found so check any renamed players
-	itInfos = _RenamedCharInfos.find( chName.toUtf8() );
+	itInfos = _RenamedCharInfos.find( chName );
 	if( itInfos != _NameToInfos.end() )
 	{
 		return 	itInfos->second;
@@ -818,7 +813,6 @@ void CInputOutputService::removeEntity( const TDataSetRow &chId )
 
 	CEntityId eid = TheDataset.getEntityId(chId);
 
-	ucstring name;
 //	uint32 index;
 	TIdToInfos::iterator itInfos = _IdToInfos.find( eid );
 	if( itInfos != _IdToInfos.end() )
@@ -849,7 +843,7 @@ void CInputOutputService::removeEntity( const TDataSetRow &chId )
 
 //		index = itInfos->second->OldNameIndex;
 
-		_NameToInfos.erase(itInfos->second->ShortName.toUtf8());
+		_NameToInfos.erase(itInfos->second->ShortName);
 
 		// erase the entry in _IdToInfos
 		delete itInfos->second;

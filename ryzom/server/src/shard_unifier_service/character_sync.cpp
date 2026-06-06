@@ -177,9 +177,7 @@ namespace CHARSYNC
 					const CNameManager::TFullName *pname = _NameManager._Names.getA(cs);
 					if (pname != NULL)
 					{
-						ucstring name;
-						name.fromUtf8(CShardNames::getInstance().makeFullName(pname->Name, pname->HomeSessionId));
-						ne.setName(name);
+						ne.setName(CShardNames::getInstance().makeFullName(pname->Name, pname->HomeSessionId));
 						ne.setUserId(cs.UserId);
 						ne.setCharIndex(cs.CharIndex);
 						
@@ -257,15 +255,15 @@ namespace CHARSYNC
 			CCharacterPtr character = CCharacter::load(_RingDB, charId, __FILE__, __LINE__);
 			BOMB_IF(character == NULL, "Failed to find character "<<charId<<" in database for renaming", return);
 
-			ucstring newName = _NameManager.renameCharacter(charId, character->getHomeMainlandSessionId());
+			std::string newName = _NameManager.renameCharacter(charId, character->getHomeMainlandSessionId());
 
 			// update the database
-			character->setCharName(newName.toUtf8());
+			character->setCharName(newName);
 			character->update(_RingDB);
 
 			// send back the new name to the EGS
 			CNameUnifierClientProxy nuc (sender);
-			nuc.characterRenamed(this, charId, newName.toUtf8(), updateToClient);
+			nuc.characterRenamed(this, charId, newName, updateToClient);
 		}
 
 
@@ -292,15 +290,13 @@ namespace CHARSYNC
 			CShardNames::getInstance().parseRelativeName(playerSessionId, newNameIn, newName, notUsed);
 
 			// ok, we can rename the character !
-			ucstring ucNewName;
-			ucNewName.fromUtf8(newName);
 			// check the name validity
-			if (_NameManager.isNameUsable(ucNewName, playerCharId >> 4, uint8(playerCharId & 0xf), playerSessionId.asInt()) != TCharacterNameResult::cnr_ok)
+			if (_NameManager.isNameUsable(newName, playerCharId >> 4, uint8(playerCharId & 0xf), playerSessionId.asInt()) != TCharacterNameResult::cnr_ok)
 			{
 				return false;
 			}
 			// assign the name
-			if (!_NameManager.assignName(playerCharId, ucNewName, playerSessionId.asInt()))
+			if (!_NameManager.assignName(playerCharId, newName, playerSessionId.asInt()))
 			{
 				return false;
 			}
@@ -571,14 +567,11 @@ namespace CHARSYNC
 			ret.setUserId(charId >> 4);
 			ret.setCharIndex(uint8(charId & 0xf));
 
-			ucstring ucName;
-			ucName.fromUtf8(name);
-
-			if (_NameManager.assignName(charId, ucName, homeSessionId))
+			if (_NameManager.assignName(charId, name, homeSessionId))
 			{
 				// ok, the name assignment is validated
 				ret.setResult(TCharacterNameResult::cnr_ok);
-				ret.setFullName(ucstring::makeFromUtf8(CShardNames::getInstance().makeFullName(name, TSessionId(homeSessionId))));
+				ret.setFullName(CShardNames::getInstance().makeFullName(name, TSessionId(homeSessionId)));
 			}
 			else
 			{
@@ -607,8 +600,8 @@ namespace CHARSYNC
 		virtual void registerLoadedGuildNames(NLNET::IModuleProxy *sender, uint32 shardId, const std::vector < CGuildInfo > &guildInfos) 
 		{
 
-			std::vector<uint32>			renamedGuildIds;
-			std::map<uint32, ucstring>	guilds;
+			std::vector<uint32>				renamedGuildIds;
+			std::map<uint32, std::string>	guilds;
 
 			// build the map of guilds
 			for (uint i=0; i<guildInfos.size(); ++i)
@@ -675,7 +668,7 @@ namespace CHARSYNC
 					guild = CGuild::createTransient(__FILE__, __LINE__);
 
 					guild->setObjectId(guildId);
-					guild->setGuildName(guildInfos[i].getGuildName().toUtf8());
+					guild->setGuildName(guildInfos[i].getGuildName());
 					guild->setShardId(shardId);
 
 					guild->create(_RingDB);
@@ -685,7 +678,7 @@ namespace CHARSYNC
 				else
 				{
 					// update the guild
-					guild->setGuildName(guildInfos[i].getGuildName().toUtf8());
+					guild->setGuildName(guildInfos[i].getGuildName());
 					guild->setShardId(shardId);
 					guild->update(_RingDB);
 				}
@@ -698,7 +691,7 @@ namespace CHARSYNC
 		}
 
 		// EGS ask to name unifier to validate a new guild name
-		virtual void validateGuildName(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &guildName)
+		virtual void validateGuildName(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &guildName)
 		{
 			TCharacterNameResult ret;
 			// ask to name manager to validate the guild name
@@ -711,16 +704,16 @@ namespace CHARSYNC
 		}
 
 		// EGS add newly created guild info
-		virtual void addGuild(NLNET::IModuleProxy *sender, uint32 shardId, uint32 guildId, const ucstring &guildName)
+		virtual void addGuild(NLNET::IModuleProxy *sender, uint32 shardId, uint32 guildId, const std::string &guildName)
 		{
 			// register the new guild name in the name manager
-			ucstring name;
+			std::string name;
 
 			// check that the name is correct
 			if (!_NameManager.assignGuildName(shardId, guildId, guildName))
 			{
 				// assignation has assigned a new name because of a conflict
-				ucstring newName = _NameManager.getGuildName(guildId);
+				const std::string &newName = _NameManager.getGuildName(guildId);
 
 				// we need to warn EGS that the guild name has been changed by name manager
 				CNameUnifierClientProxy nuc(sender);
@@ -738,7 +731,7 @@ namespace CHARSYNC
 			CGuildPtr guild = CGuild::createTransient(__FILE__, __LINE__);
 
 			guild->setObjectId(guildId);
-			guild->setGuildName(name.toUtf8());
+			guild->setGuildName(name);
 			guild->setShardId(shardId);
 			
 			// store the record
@@ -1185,7 +1178,7 @@ namespace CHARSYNC
 							charInfo.getCharName().c_str());
 
 						// set a default name for now
-						charName = _NameManager.generateDefaultName(charId, charInfo.getHomeSessionId()).toUtf8();
+						charName = _NameManager.generateDefaultName(charId, charInfo.getHomeSessionId());
 					}
 
 					character->setObjectId(charId);
@@ -1296,7 +1289,7 @@ namespace CHARSYNC
 			{
 				const CCharacterPtr &character = first->second;
 				charEntries[i].setCharId(first->first);
-				charEntries[i].setCharName(ucstring::makeFromUtf8(CShardNames::getInstance().makeFullName(character->getCharName(), TSessionId(character->getHomeMainlandSessionId()))));
+				charEntries[i].setCharName(CShardNames::getInstance().makeFullName(character->getCharName(), TSessionId(character->getHomeMainlandSessionId())));
 				charEntries[i].setHomeSessionId(TSessionId(character->getHomeMainlandSessionId()));
 				charEntries[i].setEditionSessionId(0);
 				charEntries[i].setActiveAnimSessionId(0);
@@ -1556,7 +1549,7 @@ namespace CHARSYNC
 
 			TNameEntry nameEntry;
 			nameEntry.setCharIndex(charSlot);
-			nameEntry.setName(charName);
+			nameEntry.setName(charName.toUtf8());
 			nameEntry.setShardId(shardId);
 			nameEntry.setUserId(userId);
 			nameEntry.setUserName(userName);

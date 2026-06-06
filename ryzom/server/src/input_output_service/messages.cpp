@@ -117,10 +117,10 @@ void cbImpulsionChat( CMessage& msgin, const string &serviceName, TServiceId ser
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring ucstr;
+	ucstring ucstrWire;
 	try
 	{
-		msgin.serial(ucstr);
+		msgin.serial(ucstrWire);
 	}
 	catch(const Exception &e)
 	{
@@ -128,12 +128,13 @@ void cbImpulsionChat( CMessage& msgin, const string &serviceName, TServiceId ser
 		return;
 	}
 
+	std::string ucstr = ucstrWire.toUtf8();
 	// Do a general filtering on client input
 	ucstr = IOS->getChatManager().filterClientInput(ucstr);
 
 	if( ShowChat )
 	{
-		nlinfo("<impulsionChat> CHAT received : %s",ucstr.toString().c_str());
+		nlinfo("<impulsionChat> CHAT received : %s", ucstr.c_str());
 	}
 
 	try
@@ -158,10 +159,10 @@ void cbImpulsionChatTeam( CMessage& msgin, const string &serviceName, TServiceId
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring ucstr;
+	ucstring ucstrWire;
 	try
 	{
-		msgin.serial(ucstr);
+		msgin.serial(ucstrWire);
 	}
 	catch(const Exception &e)
 	{
@@ -169,26 +170,22 @@ void cbImpulsionChatTeam( CMessage& msgin, const string &serviceName, TServiceId
 		return;
 	}
 
+	std::string ucstr = ucstrWire.toUtf8();
 	// Do a general filtering on client input
 	ucstr = IOS->getChatManager().filterClientInput(ucstr);
 
 	if( ShowChat )
 	{
-		nlinfo("<impulsionChatTeam> CHAT_TEAM received : %s",ucstr.toString().c_str());
+		nlinfo("<impulsionChatTeam> CHAT_TEAM received : %s", ucstr.c_str());
 	}
 
 	try
-	{		
+	{
 		TDataSetRow senderRow = TheDataset.getDataSetRow(sender);
-		// get current chat mode
 		const CChatGroup::TGroupType chatModeBck = IOS->getChatManager().getClient(senderRow).getChatMode();
-		// set chat mode to group
 		IOS->getChatManager().getClient(senderRow).setChatMode( CChatGroup::team );
-		//IOS->getChatManager().getClient(sender).updateAudience(); // only for say and shout
-		// send the message
 		IOS->getChatManager().chat( senderRow, ucstr );
-		// reset chat mode to old value
-		IOS->getChatManager().getClient(senderRow).setChatMode( chatModeBck );		
+		IOS->getChatManager().getClient(senderRow).setChatMode( chatModeBck );
 	}
 	catch(const Exception &e)
 	{
@@ -207,11 +204,11 @@ void cbImpulsionTell( CMessage& msgin, const string &serviceName, TServiceId ser
 	msgin.serial(sender);
 
 	string receiver;
-	ucstring str;
+	ucstring strWire;
 	try
 	{
 		msgin.serial(receiver);
-		msgin.serial(str);
+		msgin.serial(strWire);
 	}
 	catch(const Exception &e)
 	{
@@ -219,12 +216,13 @@ void cbImpulsionTell( CMessage& msgin, const string &serviceName, TServiceId ser
 		return;
 	}
 
+	std::string str = strWire.toUtf8();
 	// Do a general filtering on client input
 	str = IOS->getChatManager().filterClientInput(str);
 
 	if( ShowChat )
 	{
-		nlinfo("<impulsionTell> TELL received for char %s: '%s'",receiver.c_str(),str.toString().c_str());
+		nlinfo("<impulsionTell> TELL received for char %s: '%s'", receiver.c_str(), str.c_str());
 	}
 	TDataSetRow senderRow = TheDataset.getDataSetRow(sender);
 
@@ -424,10 +422,10 @@ void cbImpulsionAfkTxt( CMessage& msgin, const string &serviceName, TServiceId s
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring afkTxt;
+	ucstring afkTxtWire;
 	try
 	{
-		msgin.serial( afkTxt );
+		msgin.serial( afkTxtWire );
 	}
 	catch(const Exception &e)
 	{
@@ -435,13 +433,14 @@ void cbImpulsionAfkTxt( CMessage& msgin, const string &serviceName, TServiceId s
 		return;
 	}
 
+	std::string afkTxtStr = afkTxtWire.toUtf8();
 	// Do a general filtering on client input
-	afkTxt = IOS->getChatManager().filterClientInputColorCode(afkTxt);
+	afkTxtStr = IOS->getChatManager().filterClientInputColorCode(afkTxtStr);
 
 	CCharacterInfos * charInfos = IOS->getCharInfos( sender );
 	if( charInfos != NULL )
 	{
-		charInfos->AfkCustomTxt = afkTxt;
+		charInfos->AfkCustomTxt = afkTxtStr;
 	}
 	else
 	{
@@ -587,7 +586,7 @@ static void cbChatMessage(CMessage& msgin, const string &serviceName, TServiceId
 static void cbCharacterName(CMessage& msgin, const string &serviceName, TServiceId serviceId)
 {
 	TDataSetRow chId;
-	ucstring name;
+	ucstring nameWire;
 
 	try
 	{
@@ -595,7 +594,7 @@ static void cbCharacterName(CMessage& msgin, const string &serviceName, TService
 		msgin.serial( chId );
 
 		// character's name
-		msgin.serial( name );
+		msgin.serial( nameWire );
 	}
 	catch(const Exception &e)
 	{
@@ -603,7 +602,7 @@ static void cbCharacterName(CMessage& msgin, const string &serviceName, TService
 		return;
 	}
 
-	IOS->addCharacterName( chId, name, TSessionId(0) );
+	IOS->addCharacterName( chId, nameWire.toUtf8(), TSessionId(0) );
 
 } // cbCharacterName //
 
@@ -639,7 +638,7 @@ static void cbCharacterNameId(CMessage& msgin, const string &serviceName, TServi
 static void cbCharacterNameAndLang(CMessage& msgin, const string &serviceName, TServiceId serviceId)
 {
 	TDataSetRow chId;
-	ucstring name;
+	ucstring nameWire;
 	TSessionId sessionId;
 	string language;
 	std::vector<NLMISC::CEntityId> ignoreList;
@@ -650,7 +649,7 @@ static void cbCharacterNameAndLang(CMessage& msgin, const string &serviceName, T
 		msgin.serial( chId );
 
 		// character's name
-		msgin.serial( name );
+		msgin.serial( nameWire );
 
 		// character home mainland session
 		msgin.serial( sessionId  );
@@ -670,7 +669,7 @@ static void cbCharacterNameAndLang(CMessage& msgin, const string &serviceName, T
 		return;
 	}
 
-	IOS->addCharacterName( chId, name, sessionId );
+	IOS->addCharacterName( chId, nameWire.toUtf8(), sessionId );
 	CCharacterInfos *ci = IOS->getCharInfos(TheDataset.getEntityId(chId), false);
 	if (ci)
 	{
@@ -951,11 +950,11 @@ void cbSysChat( CMessage& msgin, const string &serviceName, TServiceId serviceId
 
 	if (talkToUser)
 	{
-		IOS->getChatManager().sendChat(CChatGroup::tell, TheDataset.getDataSetRow(talkTo), ucstring("{no_bubble}<"+serviceName+":"+toString(serviceId.get())+"> "+chatString));
+		IOS->getChatManager().sendChat(CChatGroup::tell, TheDataset.getDataSetRow(talkTo), "{no_bubble}<"+serviceName+":"+toString(serviceId.get())+"> "+chatString);
 	}
 	else
 	{
-		IOS->getChatManager().chatInGroup(talkTo, ucstring("{no_bubble}<"+serviceName+":"+toString(serviceId.get())+"> ")+chatString, TDataSetRow());
+		IOS->getChatManager().chatInGroup(talkTo, "{no_bubble}<"+serviceName+":"+toString(serviceId.get())+"> "+chatString, TDataSetRow());
 	}
 
 } // cbSysChat //
@@ -1176,20 +1175,20 @@ void cbNpcChatSentence( CMessage& msgin, const string &serviceName, TServiceId s
 {
 	TDataSetRow				sender;
 	CChatGroup::TGroupType	type = CChatGroup::nbChatMode;
-	ucstring					sentence;
+	ucstring				sentenceWire;
 
 	msgin.serial(sender);
 	msgin.serialEnum(type);
-	msgin.serial(sentence);
+	msgin.serial(sentenceWire);
+	std::string sentence = sentenceWire.toUtf8();
 
 	CChatManager &cm = IOS->getChatManager();
 
 	try
 	{
-//		TDataSetRow dsr = TheDataset.getDataSetRow(sender);
 		if ( !sender.isValid() || !TheDataset.isDataSetRowStillValid(sender) )
 		{
-			nlwarning("cbNpcChatSentence : ignoring chat because NPC %x not yet/not anymore in mirror", 
+			nlwarning("cbNpcChatSentence : ignoring chat because NPC %x not yet/not anymore in mirror",
 				sender.getIndex());
 			return;
 		}
@@ -1211,18 +1210,19 @@ void cbNpcChatSentence( CMessage& msgin, const string &serviceName, TServiceId s
 void cbNpcChatSentenceEx( CMessage& msgin, const string &serviceName, TServiceId serviceId )
 {
 	ucstring name;
-	ucstring sentence;
+	ucstring sentenceWire;
 	TChanID id;
 	TDataSetRow sender;
 	msgin.serial(id);
 	msgin.serial(name);
-	msgin.serial(sentence);
+	msgin.serial(sentenceWire);
+	std::string sentence = sentenceWire.toUtf8();
 	if(id.isUnknownId())
 	{
 		nlwarning("bad channel id : %s unable to chat! ",id.toString().c_str());
 		return;
 	}
-	CCharacterInfos* cInfo = IOS->getCharInfos(name);
+	CCharacterInfos* cInfo = IOS->getCharInfos(name.toUtf8());
 	sender = cInfo->DataSetIndex;
 	if(sender.isValid())
 	{
@@ -1230,31 +1230,32 @@ void cbNpcChatSentenceEx( CMessage& msgin, const string &serviceName, TServiceId
 		CChatClient &client = cm.getClient(sender);
 		client.setChatMode(CChatGroup::dyn_chat,id);
 		client.updateAudience();
-		cm.chat(sender,sentence);
+		cm.chat(sender, sentence);
 	}
 	else
 	{
-		nlwarning("sender %s:%x invalid! unable to chat!",name.toString().c_str(),sender.getIndex());
+		nlwarning("sender %s:%x invalid! unable to chat!",name.toUtf8().c_str(),sender.getIndex());
 	}
 }
 
 void cbNpcChatSentenceChannel( CMessage& msgin, const string &serviceName, TServiceId serviceId )
 {
-	ucstring sentence;
+	ucstring sentenceWire;
 	TChanID id;
 	TDataSetRow sender;
 	msgin.serial(id);
 	msgin.serial(sender);
-	msgin.serial(sentence);
-	
+	msgin.serial(sentenceWire);
+	std::string sentence = sentenceWire.toUtf8();
+
 	if(sender.isValid())
 	{
 		CChatManager &cm = IOS->getChatManager();
 		CChatClient &client = cm.getClient(sender);
 		client.setChatMode(CChatGroup::dyn_chat,id);
 		client.updateAudience();
-		cm.chat(sender,sentence);
-		nlwarning("%s said %s !",sender.toString().c_str(),sentence.toString().c_str());
+		cm.chat(sender, sentence);
+		nlwarning("%s said %s !",sender.toString().c_str(), sentence.c_str());
 	}else
 	{
 		nlwarning("sender %x invalid! unable to chat!",sender.getIndex());
@@ -1359,7 +1360,7 @@ void cbStoreString( CMessage& msgin, const string &serviceName, TServiceId servi
 {
 	ucstring str;
 	msgin.serial(str);
-	uint32 stringId = SM->storeString(str);
+	uint32 stringId = SM->storeString(str.toUtf8());
 
 	CMessage msgOut("STORE_STRING_RESULT");
 	msgOut.serial(str);
@@ -1532,18 +1533,19 @@ void cbEmoteSolePlayer( CMessage& msgin, const string &serviceName, TServiceId s
 void cbCustomEmote( CMessage& msgin, const string &serviceName, TServiceId serviceId )
 {
 	TDataSetRow				sender;
-	ucstring				emoteCustomText;
-	
+	ucstring				emoteWire;
+
 	CChatManager &cm = IOS->getChatManager();
-	
+
 	try
 	{
 		msgin.serial(sender);
-		msgin.serial(emoteCustomText);
+		msgin.serial(emoteWire);
+		std::string emoteCustomText = emoteWire.toUtf8();
 
 		// filter emote text
 		emoteCustomText = IOS->getChatManager().filterClientInputColorCode(emoteCustomText);
-		
+
 		// get the player
 		if ( sender == TDataSetRow::createFromRawIndex(INVALID_DATASET_ROW) )
 		{
@@ -1669,12 +1671,13 @@ void cbDynChatAddSessionWithName(CMessage& msgin, const string &serviceName, TSe
 {
 	TChanID	chan;
 	TDataSetRow client;
-	ucstring clientName;
+	ucstring clientNameWire;
 	bool writeRight;
 	msgin.serial(chan);
-	msgin.serial(clientName);
+	msgin.serial(clientNameWire);
 	msgin.serial(writeRight);
-	
+	std::string clientName = clientNameWire.toUtf8();
+
 	if(chan.isUnknownId())
 	{
 		nlwarning("unknown channel id! unable to add session!");
@@ -1685,21 +1688,6 @@ void cbDynChatAddSessionWithName(CMessage& msgin, const string &serviceName, TSe
 	if(client.isValid())
 	{
 		addSession(client,chan,writeRight);
-		/*
-		if (!IOS->getChatManager().checkClient(client))
-			IOS->getChatManager().addClient( client );
-
-		CDynChatSession *session = IOS->getChatManager().getDynChat().addSession(chan, client);
-		if (!session) 
-		{
-			nlwarning("Couldn't create session");
-			return;
-		}
-
-		session->WriteRight = writeRight;
-		// send channel historic to client
-		IOS->getChatManager().sendHistoric(client, chan);
-		*/
 	}
 	else
 	{
@@ -1727,10 +1715,11 @@ void cbDynChatRemoveSession(CMessage& msgin, const string &serviceName, TService
 void cbDynChatRemoveSessionWithName(CMessage& msgin, const string &serviceName, TServiceId serviceId)
 {
 	TChanID		chan;
-	ucstring	clientName;
-	TDataSetRow client;	
+	ucstring	clientNameWire;
+	TDataSetRow client;
 	msgin.serial(chan);
-	msgin.serial(clientName);
+	msgin.serial(clientNameWire);
+	std::string clientName = clientNameWire.toUtf8();
 	CCharacterInfos* cInfo = IOS->getCharInfos(clientName);
 	client = cInfo->DataSetIndex;
 	if(client.isValid())
@@ -1836,9 +1825,9 @@ void cbDynChatServiceChat(CMessage& msgin, const string &serviceName, TServiceId
 
 	while (dcc)
 	{		
-		cm.sendChat(CChatGroup::dyn_chat, dcc->getClient()->getID(), text, TDataSetRow(), chanID, senderName);
+		cm.sendChat(CChatGroup::dyn_chat, dcc->getClient()->getID(), text.toUtf8(), TDataSetRow(), chanID, senderName.toUtf8());
 		dcc = dcc->getNextChannelSession(); // next session in this channel
-	}						
+	}
 }
 
 void cbDynChatServiceTell(CMessage& msgin, const string &serviceName, TServiceId serviceId)
@@ -1869,7 +1858,7 @@ void cbDynChatServiceTell(CMessage& msgin, const string &serviceName, TServiceId
 	{
 		if (dcc->getClient()->getID() == player)
 		{
-			cm.sendChat(CChatGroup::dyn_chat, dcc->getClient()->getID(), text, TDataSetRow(), chanID, senderName);
+			cm.sendChat(CChatGroup::dyn_chat, dcc->getClient()->getID(), text.toUtf8(), TDataSetRow(), chanID, senderName.toUtf8());
 			dcc = dcc->getNextChannelSession(); // next session in this channel
 			// no more needed to continue
 			break;
@@ -1941,13 +1930,13 @@ void cbRequestDsr(CMessage& msgin, const string &serviceName, TServiceId service
 	ucstring name;
 	TDataSetRow client;
 	msgin.serial(name);
-	CCharacterInfos* cInfo = IOS->getCharInfos(name);
+	CCharacterInfos* cInfo = IOS->getCharInfos(name.toUtf8());
 	if(!cInfo)return;
 	client = cInfo->DataSetIndex;
 	if(client.isValid())
 	{
 		CMessage msg("DSR_VALUE");
-		nlwarning("dsr value sent! %s = %s",name.toString().c_str(),client.toString().c_str());
+		nlwarning("dsr value sent! %s = %s",name.toUtf8().c_str(),client.toString().c_str());
 		msg.serial(name);
 		msg.serial(client);
 		CUnifiedNetwork::getInstance()->send(serviceName,msg);

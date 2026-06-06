@@ -57,10 +57,10 @@ public:
 	{}
 
 	// assign a name to owner, return true if name is accepted
-	bool assignName(uint32 charId, const ucstring & ucName, uint32 homeSessionId, bool skipTest = false);
+	bool assignName(uint32 charId, const std::string& name, uint32 homeSessionId, bool skipTest = false);
 
 	// liberate a name
-	void liberateName(uint32 charId, const ucstring & ucName);
+	void liberateName(uint32 charId, const std::string& name);
 
 	// liberate any name associated to a character
 	void liberateName(uint32 charId);
@@ -69,18 +69,18 @@ public:
 //	void checkCharacterSlot(uint32 charId, const ucstring & ucName);
 
 	// return true if name is free or usable
-	CHARSYNC::TCharacterNameResult isNameUsable(const ucstring & ucName, uint32 userId, uint8 charIndex, uint32 homeSessionId);
+	CHARSYNC::TCharacterNameResult isNameUsable(const std::string& name, uint32 userId, uint8 charIndex, uint32 homeSessionId);
 
 	// return true if name is free or usable
-	CHARSYNC::TCharacterNameResult isGuildNameUsable(const ucstring & ucName, uint32 guildId);
+	CHARSYNC::TCharacterNameResult isGuildNameUsable(const std::string& name, uint32 guildId);
 
 	// register a list of loaded guild, update the name table accordingly and fill an output
 	// vector with renamed guild (because of name conflict).
-	void registerLoadedGuildNames(uint32 shardId, const std::map<uint32, ucstring> &guilds, std::vector<uint32> &renamedGuildIds);
+	void registerLoadedGuildNames(uint32 shardId, const std::map<uint32, std::string> &guilds, std::vector<uint32> &renamedGuildIds);
 
 	// A new guild has been created, return true if the name is valid, false if
 	// the guild has been renamed
-	bool assignGuildName(uint32 shardId, uint32 guildId, const ucstring &guildName);
+	bool assignGuildName(uint32 shardId, uint32 guildId, const std::string &guildName);
 
 	// A guild as been deleted, release the name
 	void releaseGuildName(uint32 shardId, uint32 guildId);
@@ -95,7 +95,7 @@ public:
 	void loadAllNames();
 
 	// rename a character with a default name
-	ucstring renameCharacter(uint32 charId, uint32 homeSessionId);
+	std::string renameCharacter(uint32 charId, uint32 homeSessionId);
 
 	// regular update (used to clean up the temporary reserved name)
 	void update();
@@ -123,9 +123,9 @@ private:
 	bool loadReservedNames(const char * fileNameWithoutPath);
 
 	// generate a valid default name
-	ucstring generateDefaultName(uint32 charId, uint32 homeSessionId);
+	std::string generateDefaultName(uint32 charId, uint32 homeSessionId);
 	// generate a valid default guild name
-	ucstring generateDefaultGuildName(uint32 guildId);
+	std::string generateDefaultGuildName(uint32 guildId);
 
 
 	/** This methods implemented by CCommandHandler is used by the 

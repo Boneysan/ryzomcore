@@ -516,7 +516,7 @@ void CChatManager::chat( const TDataSetRow& sender, const std::string& ucstr )
 				senderName = TheDataset.getEntityId(sender).toString();
 			}
 			else
-				senderName = ci->Name.toString();
+				senderName = ci->Name;
 		}
 
 		static const char*	groupNames[]=
@@ -563,7 +563,7 @@ void CChatManager::chat( const TDataSetRow& sender, const std::string& ucstr )
 					}
 					else
 					{
-						receiverName = ci->Name.toString();
+						receiverName = ci->Name;
 					}
 
 					_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.c_str() );
@@ -668,9 +668,9 @@ void CChatManager::chat( const TDataSetRow& sender, const std::string& ucstr )
 						CDynChatChan::CHistoricEntry entry;
 						entry.String = ucstr;
 						if (ci != NULL)
-							entry.SenderString = ci->Name;
+							entry.SenderString.fromUtf8(ci->Name);
 						else
-							entry.SenderString = "";
+							entry.SenderString = ucstring();
 
 						session->getChan()->Historic.push(entry);
 
@@ -1911,7 +1911,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 						SM_STATIC_PARAMS_1( vect, STRING_MANAGER::player );
 						vect[0].setEId( receiverInfos->EntityId );
 						uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_AFK", vect, &IosLocalSender );
-						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId, TDataSetRow(), receiverInfos->AfkCustomTxt.toUtf8() ); // bridge AfkCustomTxt ucstring to string param
+						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId, TDataSetRow(), receiverInfos->AfkCustomTxt );
 					}
 					if ( _UsersIgnoringTells.find( receiverInfos->EntityId ) != _UsersIgnoringTells.end() )
 					{
@@ -1925,7 +1925,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 				}
 
 				// info for log the chat message
-				string senderName = senderInfos->Name.toString();
+				string senderName = senderInfos->Name;
 /*
 				{
 					if (senderInfos == NULL)
@@ -1933,12 +1933,12 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 						senderName = TheDataset.getEntityId(sender).toString();
 					}
 					else
-						senderName = senderInfos->Name.toString();
+						senderName = senderInfos->Name;
 				}
 */
 
 				// info for log the chat message
-				string receiverName = receiverInfos->Name.toString();
+				string receiverName = receiverInfos->Name;
 /*
 				{
 					CCharacterInfos *ci = IOS->getCharInfos(senderInfos->EntityId);
@@ -1947,7 +1947,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 						receiverName = receiverInfos->EntityId.toString();
 					}
 					else
-						receiverName = receiverInfos->Name.toString();
+						receiverName = receiverInfos->Name;
 				}
 */
 
@@ -2095,10 +2095,10 @@ void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const std::st
 //				}
 
 				// info for log the chat message
-//				string senderName = senderInfos->Name.toString();
+//				string senderName = senderInfos->Name;
 
 				// info for log the chat message
-				string receiverName = receiverInfos->Name.toString();
+				string receiverName = receiverInfos->Name;
 
 				_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), "tell", ucstr.c_str() );
 
@@ -2148,7 +2148,7 @@ void CChatManager::displayChatClients(NLMISC::CLog &log)
 		{
 			if (ci->EntityId.getType() == RYZOMID::player)
 				log.displayNL("'%s' %s:%x %s mode '%s'",
-					ci->Name.toString().c_str(),
+					ci->Name.c_str(),
 					ci->EntityId.toString().c_str(),
 					im->first.getIndex(),
 					im->second->isMuted()?"(muted)":"",
@@ -2192,7 +2192,7 @@ void CChatManager::displayChatGroup(NLMISC::CLog &log, TGroupId gid, CChatGroup 
 			CCharacterInfos *ci = IOS->getCharInfos(TheDataset.getEntityId(*first));
 			if (ci != NULL)
 				log.displayNL("  '%s' %s:%x",
-					ci->Name.toString().c_str(),
+					ci->Name.c_str(),
 					ci->EntityId.toString().c_str(),
 					first->getIndex());
 			else
@@ -2275,7 +2275,7 @@ void CChatManager::displayChatAudience(NLMISC::CLog &log, const CEntityId &eid, 
 				CCharacterInfos *ci = IOS->getCharInfos(TheDataset.getEntityId(*first));
 				if (ci != NULL)
 					log.displayNL("  '%s' %s:%x",
-						ci->Name.toString().c_str(),
+						ci->Name.c_str(),
 						TheDataset.getEntityId(*first).toString().c_str(),
 						first->getIndex());
 
