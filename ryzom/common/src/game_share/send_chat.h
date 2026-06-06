@@ -74,7 +74,7 @@ void npcChatToChannelEx(const TDataSetRow &senderId, CChatGroup::TGroupType grou
  *	Chat group can be constructed from CChatGroup class.
  *	sentence is the sentence to be sent.
  */
-void npcChatToChannelSentence(const TDataSetRow &senderId, CChatGroup::TGroupType groupType, ucstring& sentence);
+void npcChatToChannelSentence(const TDataSetRow &senderId, CChatGroup::TGroupType groupType, std::string& sentence); // UTF-8 (0.5)
 
 /**
  *	Request to the DSS to send a chat line from a bot in a chat channel

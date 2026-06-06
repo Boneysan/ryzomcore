@@ -453,7 +453,7 @@ void CPVPManager2::sendChannelUsers(TChanID channel, CCharacter * user, bool out
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
 			params[0].Literal = channelName;
 			CCharacter::sendDynamicSystemMessage( user->getId(), "WHO_CHANNEL_INTRO" );
-			params[0].Literal = players;
+			params[0].Literal = players.toUtf8(); // players built as ucstring from translator; Literal is string
 			CCharacter::sendDynamicSystemMessage( user->getId(), "LITERAL", params );
 		}
 		else

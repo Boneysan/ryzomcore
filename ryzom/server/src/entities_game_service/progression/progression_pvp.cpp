@@ -532,7 +532,7 @@ void CDamageScoreTable::dumpDamageScoreTable(NLMISC::CLog & log) const
 			CCharacter * leaderChar = PlayerManager.getChar(leaderId);
 			if (leaderChar != NULL)
 			{
-				leaderName = leaderChar->getName().toUtf8();
+				leaderName = leaderChar->getName();
 			}
 		}
 
@@ -541,7 +541,7 @@ void CDamageScoreTable::dumpDamageScoreTable(NLMISC::CLog & log) const
 		{
 			CCharacter * beneficiaryChar = PlayerManager.getChar(teamScore.Beneficiaries[k]);
 			if (beneficiaryChar != NULL)
-				beneficiaries += "'" + beneficiaryChar->getName().toUtf8() + "'";
+				beneficiaries += "'" + beneficiaryChar->getName() + "'";
 			else
 				beneficiaries += teamScore.Beneficiaries[k].toString();
 
@@ -570,7 +570,7 @@ void CDamageScoreTable::dumpDamageScoreTable(NLMISC::CLog & log) const
 		if (playerChar != NULL)
 		{
 			playerId = playerChar->getId();
-			playerName = playerChar->getName().toUtf8();
+			playerName = playerChar->getName();
 		}
 
 		log.displayNL("Single player %s '%s', damage = %g, max skill value = %u",
@@ -1136,7 +1136,7 @@ void CDamageScoreManager::playerDeath(CCharacter * victimChar, const CCharacter 
 		{
 			nlinfo("Faction PvP kill: no winner for killed player %s '%s' (creatures won!)",
 				victimChar->getId().toString().c_str(),
-				victimChar->getName().toUtf8().c_str()
+				victimChar->getName().c_str()
 				);
 			nlinfo("Damage score table:\n");
 			scoreTable.dumpDamageScoreTable(*InfoLog);
@@ -1154,7 +1154,7 @@ void CDamageScoreManager::playerDeath(CCharacter * victimChar, const CCharacter 
 	{
 		nlinfo("Faction PvP kill: killed player %s '%s' (best skill value = %u)",
 			victimChar->getId().toString().c_str(),
-			victimChar->getName().toUtf8().c_str(),
+			victimChar->getName().c_str(),
 			victimSkillValue
 			);
 		nlinfo("Damage score table:\n");
@@ -1340,7 +1340,7 @@ void CDamageScoreManager::spireDestroyed(CCreature * spire, const CCharacter * f
 		{
 			nlinfo("Faction Spire kill: spire is destroyed by creature %s '%s'",
 				spire->getId().toString().c_str(),
-				spire->getName().toUtf8().c_str()
+				spire->getName().c_str()
 				);
 			nlinfo("Damage score table:\n");
 			scoreTable.dumpDamageScoreTable(*InfoLog);
@@ -1356,7 +1356,7 @@ void CDamageScoreManager::spireDestroyed(CCreature * spire, const CCharacter * f
 	{
 		nlinfo("Faction Spire kill: killed player %s '%s'",
 			spire->getId().toString().c_str(),
-			spire->getName().toUtf8().c_str()
+			spire->getName().c_str()
 			);
 		nlinfo("Damage score table:\n");
 		scoreTable.dumpDamageScoreTable(*InfoLog);
@@ -1912,7 +1912,7 @@ void CDamageScoreManager::changePlayerHoFPoints(CCharacter * playerChar, sint32 
 			{
 				nlinfo("player %s '%s' gets %d HoF points at path '%s'",
 					playerChar->getId().toString().c_str(),
-					playerChar->getName().toUtf8().c_str(),
+					playerChar->getName().c_str(),
 					hofpDelta,
 					sdbPvPPath.c_str());
 			}

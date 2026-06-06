@@ -382,7 +382,7 @@ static void prepareCharacterPositionForStore ( COfflineEntityState & state, cons
 	{\
 		/* process pending Tp command for this character if exist */\
 		COfflineEntityState state;\
-		if( CGmTpPendingCommand::getInstance()->getTpPendingforCharacter( _Name.toString(), state, *this ) )\
+		if( CGmTpPendingCommand::getInstance()->getTpPendingforCharacter( _Name, state, *this ) )\
 		{\
 			if (PositionStack.empty())\
 				_EntityState = state;\
@@ -606,7 +606,7 @@ static void prepareCharacterPositionForStore ( COfflineEntityState & state, cons
 	FLAG0(CLEAR,clear())\
 	STRUCT2(_EntityPosition,DEFAULT_LOGIC,_EntityState.apply(pdr)) /* has been moved to CCharacter, only load for previous version */\
 	PROP2(_SheetId,uint32,_SheetId(),_SheetId=val)\
-	PROP2(_Name,string,_Name.toUtf8(),_Name.fromUtf8(val))\
+	PROP2(_Name,string,_Name,_Name=val)\
 	PROP2(_Race,string,CPeople::toString(_Race),_Race=CPeople::fromString(val))\
 	PROP(uint8,_Gender)\
 	PROP(uint8,_Size)\
@@ -1147,7 +1147,7 @@ static void displayWarning(const std::string& s)
 
 #define PERSISTENT_DATA\
 	FLAG0(CLEAR,clear())\
-	PROP2(Name,string,Name.toUtf8(),Name.fromUtf8(val))\
+	PROP2(Name,string,Name,Name=val)\
 	PROP_VECT(CSheetId,Bricks)\
 
 //#pragma message( PERSISTENT_GENERATION_MESSAGE )

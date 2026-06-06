@@ -133,7 +133,7 @@ namespace R2
 
 		virtual void stopTalkAs(NLNET::TModuleId& id,TDataSetRow& npcId);
 
-		virtual void forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence);
+		virtual void forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence); // UTF-8 (0.5 std::string migration)
 
 		virtual void sendTable(TSessionId sessionId,NLNET::IModuleProxy *moduleProxy);
 
@@ -155,7 +155,7 @@ namespace R2
 
 		virtual void addAnimSession(NLNET::TModuleId id,TSessionId scenarioId);
 
-		void requestDsr( ucstring& name);
+		void requestDsr( std::string& name);
 
 	private:
 		std::map<uint32,TChanID> _AnimChans;

@@ -59,12 +59,12 @@ void	CSPhraseCom::serial(NLMISC::IStream &impulse)
 	string sTmp;
 
 	if(!impulse.isReading())
-		sTmp = Name.toUtf8();
+		sTmp = Name;  // now std::string (UTF-8) after 0.5
 
 	impulse.serial(sTmp);
 
 	if(impulse.isReading())
-		Name.fromUtf8(sTmp);
+		Name = sTmp;
 
 	// Get the type of .sbrick
 	static	uint	sbrickType= 0;

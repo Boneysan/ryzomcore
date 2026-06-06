@@ -34,25 +34,19 @@
 struct CIOSMsgSetPhrase
 {
 	std::string PhraseName;
-	ucstring Txt;
-
-	CIOSMsgSetPhrase(const std::string& phraseName, const ucstring& txt)
-	{
-		PhraseName= phraseName;
-		Txt= txt;
-	}
+	std::string Txt;
 
 	CIOSMsgSetPhrase(const std::string& phraseName, const std::string& txt)
 	{
 		PhraseName= phraseName;
-		Txt.fromUtf8(txt);
+		Txt= txt;
 	}
 
 	void send() const
 	{
 		NLNET::CMessage msg("SET_PHRASE");
 		msg.serial(const_cast<CIOSMsgSetPhrase*>(this)->PhraseName);
-		ucstring ucTxt= ucstring(PhraseName+"(){[")+Txt+ucstring("]}");
+		std::string ucTxt= std::string(PhraseName+"(){[")+Txt+std::string("]}");
 		msg.serial(ucTxt);
 		NLNET::CUnifiedNetwork::getInstance()->send("IOS",msg);
 	}

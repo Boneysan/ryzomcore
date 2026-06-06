@@ -36,8 +36,8 @@
 			<serial/>
 
 			<property type="uint32"				name="GuildId"/>
-			<property type="ucstring"			name="GuildName"	byref="true"/>
-			<property type="ucstring"			name="GuildDesc"	byref="true"/>
+			<property type="string"			name="GuildName"	byref="true"/>
+			<property type="string"			name="GuildDesc"	byref="true"/>
 			<property type="uint64"				name="GuildMoney"/>
 			<property type="uint32"				name="GuildCreationDate"/>
 <!--			<property type="uint32"				name="GuildXP"/>

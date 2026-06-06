@@ -366,7 +366,7 @@ void cbClientReady( CMessage& msgin, const std::string &serviceName, NLNET::TSer
 	{
 		// validate player web account
 		// \todo this is unsafe, because name is an ucstring which might be fucked up when casted into string
-		CMailForumValidator::validateUserEntry( c->getHomeMainlandSessionId(), c->getName().toString(), player->getLoginCookie().toString() );
+		CMailForumValidator::validateUserEntry( c->getHomeMainlandSessionId(), c->getName(), player->getLoginCookie().toString() );
 
 		NLNET::CMessage	msgout( "IMPULSION_ID" );
 		CEntityId		id = c->getId();
@@ -918,7 +918,7 @@ void cbSelectChar( CMessage& msgin, const std::string &serviceName, NLNET::TServ
 					ch->sendNpcMissionGiverTimer(false);
 
 					// log this event
-					log_Character_Select(uint32(ch->getId().getShortId()>>4), ch->getId(), ch->getName().toUtf8());
+					log_Character_Select(uint32(ch->getId().getShortId()>>4), ch->getId(), ch->getName());
 					return;
 				}
 			}
@@ -1046,7 +1046,7 @@ void cbCreateChar( CMessage& msgin, const std::string &serviceName, NLNET::TServ
 	if (IShardUnifierEvent::getInstance() == NULL)
 	{
 		// we can't create new character when Name unifier is offline
-		nlinfo("VALID_NAME::EC::cbCreateChar name %s rejected because we have no SU instance", createCharMsg.Name.toString().c_str());
+		nlinfo("VALID_NAME::EC::cbCreateChar name %s rejected because we have no SU instance", createCharMsg.Name.c_str());
 		goto CreationFailed;
 	}
 
@@ -1076,7 +1076,7 @@ void cbCreateChar_part2(uint32 userId, const CCreateCharMsg &createCharMsg, bool
 	if (!ok)
 	{
 		nlwarning("cbCreateChar_part2 : user %u : SU has failed to validate the character creation with name '%s'! ",
-			userId, createCharMsg.Name.toUtf8().c_str());
+			userId, createCharMsg.Name.c_str());
 		// The code come here in case of error in the received info
 		sendCharactersSummary( PlayerManager.getPlayer( userId ) );
 		return;
@@ -1214,7 +1214,7 @@ void cbDeleteChar( CMessage& msgin, const std::string &serviceName, NLNET::TServ
 	sint32 index = characterIndex;
 	CCharacter *character = player->getCharacter(characterIndex);
 	if (character != NULL)
-		charName = character->getName().toUtf8();
+		charName = character->getName();
 
 	PlayerManager.deleteCharacter( userId, index );
 

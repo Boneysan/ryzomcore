@@ -46,7 +46,7 @@ NLNET_REGISTER_MODULE_FACTORY(CStringManagerModule, "StringManagerModule");
 /**
 *Send a npc chat
 */
-void sendChatGroup(TDataSetRow& sender,CChatGroup::TGroupType groupType,ucstring& sentence)
+void sendChatGroup(TDataSetRow& sender,CChatGroup::TGroupType groupType,std::string& sentence)
 {
 	CMessage msg("NPC_CHAT_SENTENCE");
 	msg.serial(sender);
@@ -55,7 +55,7 @@ void sendChatGroup(TDataSetRow& sender,CChatGroup::TGroupType groupType,ucstring
 	CUnifiedNetwork::getInstance()->send("IOS",msg);
 }
 
-void sendChatChannel(TDataSetRow& sender,TChanID& chanId,ucstring& ucsentence)
+void sendChatChannel(TDataSetRow& sender,TChanID& chanId,std::string& ucsentence)
 {
 	nldebug("NPC_CHAT_SENTENCE_CHANNEL");
 	CMessage msg("NPC_CHAT_SENTENCE_CHANNEL");
@@ -120,7 +120,7 @@ static void removeSession(NLMISC::CEntityId& id,TChanID& chId)
 
 
 
-void CStringManagerModule::requestDsr( ucstring& name)
+void CStringManagerModule::requestDsr( std::string& name)
 {
 	NLNET::CMessage msg("REQUEST_DSR");
 	msg.serial(name);
@@ -488,8 +488,7 @@ void CStringManagerModule::send(TDataSetRow& senderId,CChatGroup::TGroupType gro
 {
 	if(!toSend.empty())
 	{
-		ucstring uStr;
-		uStr.fromUtf8(toSend);
+		std::string uStr = toSend;  // already UTF-8 after 0.5 migration
 		//for each client (animator)
 		std::map<NLNET::TModuleId,ClientInfo* >::const_iterator first(_ClientChannels.begin()), last(_ClientChannels.end());
 		for (;first!=last;first++)
@@ -497,8 +496,8 @@ void CStringManagerModule::send(TDataSetRow& senderId,CChatGroup::TGroupType gro
 			TChanID chanId = first->second->getIncarnation(senderId);
 			if( !chanId.isUnknownId() )
 			{
-				//ucstring tmp("{no_bubble}"+toSend);
-				ucstring uStr2("{no_bubble}");
+				//std::string tmp("{no_bubble}"+toSend);
+				std::string uStr2("{no_bubble}");
 				uStr2 += uStr;
 				sendChatChannel(senderId,chanId,uStr2);
 				return;
@@ -600,7 +599,7 @@ TChanID CStringManagerModule::initChannel(std::string name,bool forwardInput)
 
 
 //called when a DYN_CHAT:FORWARD message is received by the DSS
-void CStringManagerModule::forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence)
+void CStringManagerModule::forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence)
 {
 	nldebug("dyn chat '%s' in channel '%s'",sentence.c_str(),id.toString().c_str());
 	map<NLNET::TModuleId,ClientInfo* >::const_iterator first(_ClientChannels.begin()),last(_ClientChannels.end());
@@ -613,14 +612,14 @@ void CStringManagerModule::forwardIncarnChat(TChanID id,TDataSetRow senderId,ucs
 		//and we must forward it
 		if( (npcId.isValid()) && (npcId!=senderId) )
 		{
-			static ucstring noBubble("{no_bubble}");
-			static ucstring::size_type noBubbleLen = noBubble.length();
+			static std::string noBubble("{no_bubble}");
+			static std::string::size_type noBubbleLen = noBubble.length();
 
 			CChatGroup::TGroupType groupType = CChatGroup::say;
 
-			ucstring tmp = sentence;
-			ucstring::size_type pos = tmp.find(noBubble);
-			if (pos != ucstring::npos && pos == 0)
+			std::string tmp = sentence;
+			std::string::size_type pos = tmp.find(noBubble);
+			if (pos != std::string::npos && pos == 0)
 			{
 				tmp = tmp.substr(pos + noBubbleLen);
 			}

@@ -44,7 +44,7 @@ public:
 	/** Create a new channel with localized name.
 	  * If channel already exist, DYN_CHAT_INVALID_CHAN is returned
 	  */
-	TChanID				addChan(const std::string &name, const ucstring &title, TChanID = NLMISC::CEntityId::Unknown, bool noBroadcast = false, bool forwardPlayerInputs = false, bool unify = false);
+	TChanID				addChan(const std::string &name, const std::string &title, TChanID = NLMISC::CEntityId::Unknown, bool noBroadcast = false, bool forwardPlayerInputs = false, bool unify = false);
 	// Add of channel whose name is its string id
 	TChanID				addLocalizedChan(const std::string &name, TChanID = NLMISC::CEntityId::Unknown, bool noBroadcast = false, bool forwardPlayerInputs = false, bool unify = false);
 	// Retrieves id of a channel from its localized name, or DYN_CHAT_INVALID_CHAN if not such channel exists
@@ -134,7 +134,7 @@ private:
 	// Clear channel / sessions in IOS side.
 	void			 iosResetDynChat();
 	//
-	TChanID			 addChan(const std::string &name, const ucstring &title, bool localized, TChanID chanID, bool noBroadcast, bool forwardPlayerInputs, bool unify);
+	TChanID			 addChan(const std::string &name, const std::string &title, bool localized, TChanID chanID, bool noBroadcast, bool forwardPlayerInputs, bool unify);
 
 
 	// message received 

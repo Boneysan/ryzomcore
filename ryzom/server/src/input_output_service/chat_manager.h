@@ -155,7 +155,7 @@ public :
 	 * \param sender is the id of the talking char
 	 * \param str is the chat content
 	 */
-	void chat( const TDataSetRow& sender, const ucstring& ucstr );
+	void chat( const TDataSetRow& sender, const std::string& ucstr );
 
 	/**
 	 * Transmit a chat message to a group
@@ -164,12 +164,12 @@ public :
 	 * \param sender is the id of the talking char
 	 * \param excluded is a container of player that must not receive this chat
 	 */
-	void chatInGroup( TGroupId& grpId, const ucstring& ucstr, const TDataSetRow& sender, const std::vector<TDataSetRow> & excluded = std::vector<TDataSetRow>());
+	void chatInGroup( TGroupId& grpId, const std::string& ucstr, const TDataSetRow& sender, const std::vector<TDataSetRow> & excluded = std::vector<TDataSetRow>());
 
 	/**
 	 * Transmit a far chat message to a group
 	 */
-	void farChatInGroup(TGroupId &grpId, uint32 homeSessionId, const ucstring &text, const ucstring &senderName);
+	void farChatInGroup(TGroupId &grpId, uint32 homeSessionId, const std::string &text, const std::string &senderName);
 
 	/**
 	 * Transmit a chat message to the receiver
@@ -177,11 +177,11 @@ public :
 	 * \param receiver is the id of the listening char
 	 * \param str is the chat content
 	 */
-	void tell( const TDataSetRow& sender, const std::string& receiver, const ucstring& ucstr );
+	void tell( const TDataSetRow& sender, const std::string& receiver, const std::string& ucstr );
 	/**
 	 * Transmit a chat message to the receiver
 	 */
-	void farTell(  const NLMISC::CEntityId &senderCharId, const ucstring &senderName, bool havePrivilege, const ucstring& receiver, const ucstring& ucstr   );
+	void farTell(  const NLMISC::CEntityId &senderCharId, const std::string &senderName, bool havePrivilege, const std::string& receiver, const std::string& ucstr   );
 	/**
 	 * Transmit a chat message to the receiver
 	 * \param sender is the id of the speaking char
@@ -261,7 +261,7 @@ public :
 	 * \param sender is the id of the talking char
 	 * \param str is the custom phrase
 	 */
-	void sendEmoteCustomTextToAll( const TDataSetRow& sender, const ucstring & str );
+	void sendEmoteCustomTextToAll( const TDataSetRow& sender, const std::string & str );
 
 	/**
 	 * Send a message to the client to add a new string in the dynamic database
@@ -325,10 +325,10 @@ public :
 	void	  sendHistoric(const TDataSetRow &receiver, TChanID chanID);
 
 	/// Filter text send from client for removing any color code
-	ucstring filterClientInputColorCode(ucstring &text);
+	std::string filterClientInputColorCode(std::string &text);
 
 	/// Filter text send from client for removing any forbiden or harming content
-	ucstring filterClientInput(ucstring &text);
+	std::string filterClientInput(std::string &text);
 
 	/// Subscribe special ring users in the ring universe chat
 	void subscribeCharacterInRingUniverse(const NLMISC::CEntityId &charEId);
@@ -391,13 +391,13 @@ public:
 	 * \param chanID If the chat group is CChatGroup::dyn_chan, gives target channel .
 	 * \param senderName Can be used to replace the sender name with a specific string
 	 */
-	void sendChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const ucstring& ucstr, const TDataSetRow &sender = TDataSetRow(), TChanID chanID = NLMISC::CEntityId::Unknown, const ucstring &senderName = ucstring());
+	void sendChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const std::string& ucstr, const TDataSetRow &sender = TDataSetRow(), TChanID chanID = NLMISC::CEntityId::Unknown, const std::string &senderName = std::string());
 
 
 	/**
 	 * Send a far chat message
 	 */
-	void sendFarChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const ucstring& ucstr, const ucstring &senderName, TChanID chanID = NLMISC::CEntityId::Unknown);
+	void sendFarChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const std::string& ucstr, const std::string &senderName, TChanID chanID = NLMISC::CEntityId::Unknown);
 
 	/**
 	 * Send a chat message
@@ -418,7 +418,7 @@ public:
 	 * \param sender is the id of the sender
 	 * \param customTxt is a custom text which can be added immediately after the chat message, on the same line
 	 */
-	void sendChat2Ex( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, uint32 phraseId, const TDataSetRow &sender = TDataSetRow(), ucstring customTxt = ucstring());
+	void sendChat2Ex( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, uint32 phraseId, const TDataSetRow &sender = TDataSetRow(), std::string customTxt = std::string());
 
 	/**
 	 * Send a custom emote chat message
@@ -426,7 +426,7 @@ public:
 	 * \param receiver is the id of the receiver
 	 * \param ucstr is the message content
 	 */
-	void sendChatCustomEmote( const TDataSetRow &sender, const TDataSetRow &receiver, const ucstring& ucstr );
+	void sendChatCustomEmote( const TDataSetRow &sender, const TDataSetRow &receiver, const std::string& ucstr );
 };
 
 

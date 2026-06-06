@@ -158,7 +158,7 @@ namespace R2
 		bool useNetwork() const { return _UseNetwork;}
 		virtual void translateAndForwardRequested(TDataSetRow senderId,CChatGroup::TGroupType groupType,std::string id,TSessionId sessionId);
 
-		void forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence);
+		void forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence); // UTF-8 (0.5)
 
 		IServerAnimationModule* getAnimationModule() const;
 

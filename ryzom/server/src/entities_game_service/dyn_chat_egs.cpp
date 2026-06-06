@@ -66,7 +66,7 @@ void CDynChatEGS::init()
 
 
 //============================================================================================================
-TChanID CDynChatEGS::addChan(const std::string &name, const ucstring &title, TChanID chan, bool noBroadcast, bool forwardPlayerInputs, bool unify)
+TChanID CDynChatEGS::addChan(const std::string &name, const std::string &title, TChanID chan, bool noBroadcast, bool forwardPlayerInputs, bool unify)
 {
 	return addChan(name, title, false, chan, noBroadcast, forwardPlayerInputs, unify);
 }
@@ -75,11 +75,11 @@ TChanID CDynChatEGS::addChan(const std::string &name, const ucstring &title, TCh
 //============================================================================================================
 TChanID CDynChatEGS::addLocalizedChan(const std::string &name, TChanID chan, bool noBroadcast, bool forwardPlayerInputs, bool unify)
 {
-	return addChan(name, ucstring(""), true, chan, noBroadcast, forwardPlayerInputs, unify);
+	return addChan(name, std::string(""), true, chan, noBroadcast, forwardPlayerInputs, unify);
 }
 
 //============================================================================================================
-TChanID CDynChatEGS::addChan(const std::string &name, const ucstring &title, bool localized, TChanID chan, bool noBroadcast, bool forwardPlayerInputs, bool unify)
+TChanID CDynChatEGS::addChan(const std::string &name, const std::string &title, bool localized, TChanID chan, bool noBroadcast, bool forwardPlayerInputs, bool unify)
 {
 	if (name.empty()) return DYN_CHAT_INVALID_CHAN;
 	if (getChanIDFromName(name) != DYN_CHAT_INVALID_CHAN)
@@ -94,7 +94,7 @@ TChanID CDynChatEGS::addChan(const std::string &name, const ucstring &title, boo
 		if (_DynChat.addChan(chan, noBroadcast, forwardPlayerInputs, unify))
 		{
 			_DynChat.getChan(chan)->Localized = localized;
-			_DynChat.getChan(chan)->Title = title;
+			_DynChat.getChan(chan)->Title = title; // 0.5: Title now string
 			iosAddChan(chan, noBroadcast, forwardPlayerInputs, unify, name);
 			_ChanNames.add(chan, name);
 			return chan;
@@ -212,7 +212,7 @@ bool CDynChatEGS::addSession(TChanID chan, const TDataSetRow &client, bool write
 		if (!session->getChan()->Localized)
 		{			
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= session->getChan()->Title;
+			params[0].Literal= session->getChan()->Title;  // now string after 0.5 (was ucstring)
 			session->StringID = STRING_MANAGER::sendStringToClient(client, "LITERAL", params);
 		}
 		else

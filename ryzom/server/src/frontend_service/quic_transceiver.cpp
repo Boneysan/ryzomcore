@@ -323,10 +323,11 @@ void CQuicTransceiver::start(uint16 port)
 
 		if (!liveCert)
 		{
-			// Programmatically create a self signed certificate, only valid in Windows
-			// This is very useful for development servers
+			// Programmatically create a self signed certificate for development servers.
+			// Windows: uses CAPI / in-memory CERTIFICATE_CONTEXT (original)
+			// Unix/Linux: uses openssl CLI to emit PEM files + CERTIFICATE_FILE (cross-platform MsQuic)
 			uint8 certHash[20];
-			void *certContext = FES_findOrCreateSelfSignedCertificate(certHash); // PCCERT_CONTEXT
+			void *certContext = FES_findOrCreateSelfSignedCertificate(certHash); // PCCERT_CONTEXT (Windows)
 			if (certContext)
 			{
 				// Server credentials
@@ -356,12 +357,39 @@ void CQuicTransceiver::start(uint16 port)
 				FES_freeSelfSignedCertificate((void *)certContext);
 				certContext = nullptr;
 			}
-			else
+
+			// Unix fallback / alternative path: PEM self-signed (no context)
+#if defined(NL_OS_UNIX)
+			if (!certContext && !liveCert)
 			{
-				// Either we could not create a self-signed certificate on Windows, or could not load it into the configuration
-				// Try with an OpenSSL certificate
-				// TODO
-				nlwarning("Self signed OpenSSL certificate generation is not yet supported, QUIC will not work. Specify a certificate in the configuration file");
+				std::string certPem, keyPem;
+				if (FES_generateSelfSignedCertificatePem(certPem, keyPem))
+				{
+					nlinfo("Using self-signed PEM for QUIC dev (Linux): %s", certPem.c_str());
+					QUIC_CREDENTIAL_CONFIG credConfig;
+					QUIC_CERTIFICATE_FILE certFile;
+					memset(&credConfig, 0, sizeof(credConfig));
+					credConfig.Type = QUIC_CREDENTIAL_TYPE_CERTIFICATE_FILE;
+					credConfig.Flags = QUIC_CREDENTIAL_FLAG_NONE;
+					credConfig.CertificateFile = &certFile;
+					certFile.CertificateFile = certPem.c_str();
+					certFile.PrivateKeyFile = keyPem.c_str();
+					status = MsQuic->ConfigurationLoadCredential(m->Configuration, &credConfig);
+					if (QUIC_FAILED(status))
+					{
+						nlwarning("MsQuic->ConfigurationLoadCredential (PEM selfsign) failed with status 0x%x", status);
+					}
+					else
+					{
+						liveCert = true;
+					}
+				}
+			}
+#endif
+
+			if (!liveCert && !certContext)
+			{
+				nlwarning("Self signed certificate generation is not available for this platform, QUIC will not work. Specify QuicCertificate + QuicPrivateKey in the configuration file (PEM).");
 				MsQuic->ConfigurationClose(m->Configuration);
 				m->Configuration = nullptr;
 				return;

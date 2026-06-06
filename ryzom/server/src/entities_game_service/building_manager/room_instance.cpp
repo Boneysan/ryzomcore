@@ -124,7 +124,7 @@ std::string CRoomInstanceGuild::getRoomDescription() const
 	string guildName;
 	CGuild * guild = CGuildManager::getInstance()->getGuildFromId( _GuildId );
 	if (guild)
-		guildName = guild->getName().toUtf8();
+		guildName = guild->getName();
 
 	return toString("guild room [index=%hu, owner index=%hu, nb users=%hu, guild name='%s' id=%u]",
 		_RoomIdx, _OwnerIndex, _RefCount, guildName.c_str(), _GuildId);
@@ -199,7 +199,7 @@ std::string CRoomInstancePlayer::getRoomDescription() const
 	string charName;
 	CCharacter * c = PlayerManager.getChar( _Player );
 	if (c)
-		charName = c->getName().toUtf8();
+		charName = c->getName();
 
 	return toString("player room [index=%hu, owner index=%hu, nb users=%hu, player name='%s' eid=%s]",
 		_RoomIdx, _OwnerIndex, _RefCount, charName.c_str(), _Player.toString().c_str());

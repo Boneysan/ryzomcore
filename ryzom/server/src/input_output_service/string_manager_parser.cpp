@@ -39,17 +39,22 @@ using namespace NLMISC;
 using namespace NLNET;
 using namespace std;
 
+// Aliases (only for the few CI18N iterator sites that still need ucstring walk).
+// Most parsing now uses std::string + size_t pos with thin bridge only for CI18N primitives.
+using UcIt = ucstring::const_iterator;
+using UcIter = ucstring::iterator;
+
 #define LOG if (!VerboseStringManager) {} else nlinfo
 #define LOGPARSE if (!VerboseStringManagerParser) {} else nlinfo
 
 
 extern NLMISC::CVariable<bool> VerboseStringManagerParser;
-extern const ucstring		nl;
+extern const std::string		nl;
 
 class CReadPhraseFile : public TPhraseDiff::IDiffCallback
 {
 public:
-	void readPhraseFile(const string &filename, const string &workfilename, ucstring &text, vector<TPhrase> &phrases)
+	void readPhraseFile(const string &filename, const string &workfilename, std::string &text, vector<TPhrase> &phrases)
 	{
 		vector<TPhrase>	addition;
 		vector<TPhrase>	reference;
@@ -81,16 +86,16 @@ public:
 			differ.makeDiff(this, context);
 
 			phrases = diff;
-			text = preparePhraseFile(phrases, true);
+			text = preparePhraseFile(phrases, true).toUtf8(); // bridge: prepare returns ucstring (internal)
 		}
 		else
 		{
 			phrases = reference;
-			text = preparePhraseFile(phrases, true);
+			text = preparePhraseFile(phrases, true).toUtf8(); // bridge: prepare returns ucstring (internal)
 		}
 	}
 
-	void readPhraseFileFromString(const ucstring &file, const string &filename, ucstring &text, vector<TPhrase> &phrases)
+	void readPhraseFileFromString(const std::string &file, const string &filename, std::string &text, vector<TPhrase> &phrases)
 	{
 		vector<TPhrase>	reference;
 
@@ -103,7 +108,7 @@ public:
 		}
 
 		phrases = reference;
-		text = preparePhraseFile(phrases, true);
+		text = preparePhraseFile(phrases, true).toUtf8(); // bridge: preparePhraseFile returns ucstring
 	}
 
 	void onEquivalent(uint addIndex, uint refIndex, TPhraseDiffContext &context)
@@ -134,7 +139,7 @@ public:
 class CReadClauseFile : public TStringDiff::IDiffCallback
 {
 public:
-	void readClauseFile(const string &filename, const vector<TPhrase> &phrases, ucstring &text)
+	void readClauseFile(const string &filename, const vector<TPhrase> &phrases, std::string &text)
 	{
 		vector<TStringInfo>	addition;
 		vector<TStringInfo>	reference;
@@ -175,13 +180,13 @@ public:
 			TStringDiff	differ;
 			differ.makeDiff(this, context);
 
-			text = prepareStringFile(diff, true);
+			text = prepareStringFile(diff, true).toUtf8(); // bridge prepare* ucstring return
 		}
 		else
 		{
-			text = prepareStringFile(reference, true);
+			text = prepareStringFile(reference, true).toUtf8(); // bridge prepare* ucstring return
 		}
-//		string debug(text.toString());
+//		string debug(text);
 //		nldebug("%s", debug.c_str());
 	}
 
@@ -192,7 +197,7 @@ public:
 	void onAdd(uint addIndex, uint refIndex, TStringDiffContext &context)
 	{
 		context.Diff.push_back(context.Addition[addIndex]);
-		context.Diff.back().Text = ucstring("<NEW>")+context.Diff.back().Text;
+		context.Diff.back().Text = std::string("<NEW>") + context.Diff.back().Text;
 		LOGPARSE("Adding new clause '%s'", context.Diff.back().Identifier.c_str());	
 	}
 	void onRemove(uint addIndex, uint refIndex, TStringDiffContext &context)
@@ -203,7 +208,7 @@ public:
 	void onChanged(uint addIndex, uint refIndex, TStringDiffContext &context)
 	{
 		context.Diff.push_back(context.Addition[addIndex]);
-		context.Diff.back().Text = ucstring("<CHG>")+context.Diff.back().Text;
+		context.Diff.back().Text = std::string("<CHG>") + context.Diff.back().Text;
 		LOGPARSE("Changing clause '%s'", context.Diff.back().Identifier.c_str());	
 	}
 	void onSwap(uint newIndex, uint refIndex, TStringDiffContext &context)
@@ -214,7 +219,7 @@ public:
 class CReadWorkSheetFile : public TWorkSheetDiff::IDiffCallback
 {
 public:
-	void readWorkSheetFile(const string &filename, const string &workfilename, ucstring &text)
+	void readWorkSheetFile(const string &filename, const string &workfilename, std::string &text)
 	{
 		TWorksheet	addition;
 		TWorksheet	reference;
@@ -241,7 +246,7 @@ public:
 		}
 		else
 		{
-			text = prepareExcelSheet(reference);
+			text = prepareExcelSheet(reference).toUtf8(); // bridge prepareExcelSheet ucstring return
 			return;
 		}
 
@@ -252,7 +257,7 @@ public:
 		// no _lang file or empty
 		if (reference.size() == 0)
 		{
-			text = prepareExcelSheet(addition);
+			text = prepareExcelSheet(addition).toUtf8(); // bridge prepareExcelSheet ucstring return
 			return;
 		}
 
@@ -330,7 +335,7 @@ public:
 			diff = reference;
 		}
 
-		text = prepareExcelSheet(diff);
+		text = prepareExcelSheet(diff).toUtf8(); // bridge prepareExcelSheet ucstring return
 	}
 
 	void onEquivalent(uint addIndex, uint refIndex, TWordsDiffContext &context)
@@ -340,7 +345,7 @@ public:
 	void onAdd(uint addIndex, uint refIndex, TWordsDiffContext &context)
 	{
 		context.Diff.push_back(context.Addition[addIndex]);
-		LOGPARSE("Using newly sheet row %s", context.Diff.getData(context.Diff.size()-1, 1).toString().c_str());
+		LOGPARSE("Using newly sheet row %s", context.Diff.getData(context.Diff.size()-1, 1).c_str());
 	}
 	void onRemove(uint addIndex, uint refIndex, TWordsDiffContext &context)
 	{
@@ -349,7 +354,7 @@ public:
 	void onChanged(uint addIndex, uint refIndex, TWordsDiffContext &context)
 	{
 		context.Diff.push_back(context.Addition[addIndex]);
-		LOGPARSE("Using changed sheet row %s", context.Diff.getData(context.Diff.size()-1, 1).toString().c_str());
+		LOGPARSE("Using changed sheet row %s", context.Diff.getData(context.Diff.size()-1, 1).c_str());
 	}
 	void onSwap(uint newIndex, uint refIndex, TWordsDiffContext &context)
 	{
@@ -358,16 +363,18 @@ public:
 };
 
 
-bool CStringManager::parseClauseStrings(const ucstring &clausesStrings)
+bool CStringManager::parseClauseStrings(const std::string &clausesStrings)
 {
+	ucstring clausesU;
+	clausesU.fromUtf8(clausesStrings);
 	std::string lastRead = "nothing";
 	bool b = true;
-	ucstring::const_iterator first(clausesStrings.begin()), last(clausesStrings.end());
+	UcIt first(clausesU.begin()), last(clausesU.end());
 	while (first != last)
 	{
 		NLMISC::CI18N::skipWhiteSpace(first, last);
 		std::string label;
-		ucstring text;
+		std::string text;
 
 		if (first == last)
 			break;
@@ -381,13 +388,15 @@ bool CStringManager::parseClauseStrings(const ucstring &clausesStrings)
 		lastRead = label;
 
 		NLMISC::CI18N::skipWhiteSpace(first, last);
-		if (!NLMISC::CI18N::parseMarkedString('[', ']', first, last, text))
+		ucstring textU;
+		if (!NLMISC::CI18N::parseMarkedString('[', ']', first, last, textU))
 		{
 			nlwarning("Error reading text in clause string, aborting on %s.", lastRead.c_str());
 			return false;
 		}
+		text = textU.toUtf8();
 
-		std::pair<std::map<std::string, ucstring>::iterator, bool>	ret;
+		std::pair<std::map<std::string, std::string>::iterator, bool>	ret;
 		ret = SM->TempClauseStrings.insert(std::make_pair(label, text));
 		if (!ret.second)
 		{
@@ -399,18 +408,19 @@ bool CStringManager::parseClauseStrings(const ucstring &clausesStrings)
 }
 
 
-CStringManager::CEntityWords CStringManager::parseEntityWords(const ucstring &str)
+CStringManager::CEntityWords CStringManager::parseEntityWords(const std::string &str)
 {
+	ucstring u; u.fromUtf8(str);
 	CEntityWords	ew;
 	if (ew._Data != NULL)
 		delete ew._Data;
 	ew._Data = 0;
 	ew._NbColums = 0;
-	if (str.empty())
+	if (u.empty())
 		return ew;
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(str, ws);
+	STRING_MANAGER::readExcelSheet(u, ws);
 
 	if (ws.size() == 0)
 		return ew;
@@ -419,7 +429,7 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const ucstring &st
 	// remove any unwanted column
 	for (i=0; i<ws.ColCount; ++i)
 	{
-		const ucstring &colName = ws.getData(0, i);
+		std::string colName = ws.getData(0, i).toUtf8();
 		if (colName.empty() || colName[0] == '*')
 		{
 			ws.eraseColumn(i);
@@ -432,42 +442,43 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const ucstring &st
 	ew._NbColums = ws.ColCount;
 	for (i=0; i<ws.ColCount; ++i)
 	{
-		ew._ColumnInfo.insert(make_pair(ws.getData(0, i).toString(), i));
+		ew._ColumnInfo.insert(make_pair(ws.getData(0, i).toUtf8(), i));
 	}
 	// fill the data
 	ew._Data = new uint32[ws.size() * ws.ColCount];
 	for (i=1; i<ws.size(); ++i)
 	{
 		// on the first col, we uncapitalize the id
-		ws.setData(i, 0, ucstring(NLMISC::toLowerAscii(ws.getData(i, 0).toString())));
+		std::string firstCol = NLMISC::toLowerAscii(ws.getData(i, 0).toUtf8());
+		ws.setData(i, 0, ucstring(firstCol));  // keep ws cell ucstring for lib
 
-		ew._RowInfo.insert(make_pair(ws.getData(i, 0).toString(), i-1));
+		ew._RowInfo.insert(make_pair(firstCol, i-1));
 		for (uint j=0; j<ws.ColCount; ++j)
 		{
-			ucstring field = ws.getData(i, j);
+			std::string field = ws.getData(i, j).toUtf8();
 			// parse any escape code
-			ucstring::size_type pos;
-			while ((pos = field.find(ucstring("\\"))) != ucstring::npos)
+			std::string::size_type pos;
+			while ((pos = field.find("\\")) != std::string::npos)
 			{
 				if (pos < field.size()-1)
 				{
 					if (field[pos+1] == '\\')
 						field = field.substr(0, pos) + field.substr(pos+1);
 					else if (field[pos+1] == 'd')
-						field = field.substr(0, pos) + ucchar(8) + field.substr(pos+2);
+						field = field.substr(0, pos) + std::string(1, (char)8) + field.substr(pos+2);
 					else if (field[pos+1] == 'n')
-						field = field.substr(0, pos) + ucchar('\n') + field.substr(pos+2);
+						field = field.substr(0, pos) + std::string(1, '\n') + field.substr(pos+2);
 					else if (field[pos+1] == 't')
-						field = field.substr(0, pos) + ucchar('\t') + field.substr(pos+2);
+						field = field.substr(0, pos) + std::string(1, '\t') + field.substr(pos+2);
 					else
 					{
-						nlwarning("Invalid escape code '\\%c' in field [%s]", (char)field[pos+1], field.toString().c_str());
+						nlwarning("Invalid escape code '\\%c' in field [%s]", (char)field[pos+1], field.c_str());
 						field = field.substr(0, pos) + field.substr(pos+2);
 					}
 				}
 				else
 				{
-					nlwarning("Invalid escape code '\\<eol>' in field [%s]", field.toString().c_str());
+					nlwarning("Invalid escape code '\\<eol>' in field [%s]", field.c_str());
 					field = field.substr(0, pos);
 				}
 			}
@@ -483,8 +494,11 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const ucstring &st
 }
 
 
-void CStringManager::parsePhraseDoc(ucstring &doc, uint langNum)
+void CStringManager::parsePhraseDoc(std::string &doc, uint langNum)
 {
+	// keep a ucstring copy only for the CI18N comment removal step if needed; the block collection now uses std::string
+	// Work on a local copy (header takes non-const ref, but we don't want to mutate the caller's string).
+	std::string work = doc;
 	enum TToken
 	{
 		token_label,
@@ -495,17 +509,21 @@ void CStringManager::parsePhraseDoc(ucstring &doc, uint langNum)
 	struct CToken
 	{
 		TToken		Type;
-		ucstring	Value;
+		std::string	Value;
 	};
 
-	// remove any comment
-	NLMISC::CI18N::removeCComment(doc);
+	// remove any comment (CI18N works on ucstring)
+	{
+		ucstring docU; docU.fromUtf8(work);
+		NLMISC::CI18N::removeCComment(docU);
+		work = docU.toUtf8();
+	}
 
 	//broke the text into phrase block
-	ucstring block;
-	std::list<ucstring>	blocks;
+	std::string block;
+	std::list<std::string>	blocks;
 
-	ucstring::const_iterator first(doc.begin()), last(doc.end());
+	std::string::const_iterator first(work.begin()), last(work.end());
 	for (;first != last; ++first)
 	{
 		block.push_back(*first);
@@ -514,7 +532,7 @@ void CStringManager::parsePhraseDoc(ucstring &doc, uint langNum)
 		{
 			// end of the block
 			blocks.push_back(block);
-			block.erase();
+			block.clear();
 		}
 		else if (*first == '[')
 		{
@@ -539,7 +557,7 @@ void CStringManager::parsePhraseDoc(ucstring &doc, uint langNum)
 		CPhrase phrase;
 		if (!parseBlock(blocks.front(), phrase))
 		{
-			nlwarning("Malformed block : [%s] in %s file", blocks.front().toString().c_str(), _LanguageCode[langNum].c_str());
+			nlwarning("Malformed block : [%s] in %s file", blocks.front().c_str(), _LanguageCode[langNum].c_str());
 		}
 		else
 		{
@@ -558,10 +576,11 @@ void CStringManager::parsePhraseDoc(ucstring &doc, uint langNum)
 	}
 }
 
-bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
+bool CStringManager::parseBlock(const std::string &block, CPhrase &phrase)
 {
 //		CPhrase	phrase;
-	ucstring::const_iterator first(block.begin()), last(block.end());
+	ucstring u; u.fromUtf8(block);
+	UcIt first(u.begin()), last(u.end());
 
 	// read the phrase name
 	NLMISC::CI18N::skipWhiteSpace(first, last);
@@ -576,11 +595,13 @@ bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
 //	nldebug("Found block named [%s]", phrase.Name.c_str());
 
 	// Read the param list
-	if (!parseParamList(first, last, phrase.Params))
+	size_t parsePos = first - u.begin();
+	if (!parseParamList(block, parsePos, phrase.Params))
 		return false;
 	// read the clauses
-	if (!parseClauses(phrase, first, last, phrase.Clauses))
+	if (!parseClauses(phrase, block, parsePos, phrase.Clauses))
 		return false;
+	// After sub-parser, parsePos has been advanced by the amount consumed inside parseClauses.
 
 	// check coherency between parameters conditions and strings
 	{
@@ -609,7 +630,7 @@ bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
 						}
 						if (!found)
 						{
-							nlwarning("Condition %d in clause %d use parameter [%s] that is unknown in block [%s]", i, count, phrase.Params[es.Conditions[i][k].ParamIndex]->ParamId.Name.c_str(), block.toString().c_str());
+							nlwarning("Condition %d in clause %d use parameter [%s] that is unknown in block [%s]", i, count, phrase.Params[es.Conditions[i][k].ParamIndex]->ParamId.Name.c_str(), block.c_str());
 							return false;
 						}
 					}
@@ -653,12 +674,14 @@ bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
 		if (!clause.Replacements.empty())
 		{
 			uint repCount = 0;
-			ucstring::iterator first(clause.String.begin()), last(clause.String.end());
+			// ClientString build is pure char escape + index compare on the std::string; no CI18N needed.
+			std::string::const_iterator first(clause.String.begin()), last(clause.String.end());
 			for (; first != last; ++first)
 			{
+				size_t curPos = first - clause.String.begin();
 				// check for replacement point
 				if (repCount < clause.Replacements.size()
-					&& (first - clause.String.begin()) == (sint) clause.Replacements[repCount].InsertPlace)
+					&& curPos == (size_t) clause.Replacements[repCount].InsertPlace)
 				{
 					// check parameter type
 					const char *subst;
@@ -714,29 +737,28 @@ bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
 		}
 		else
 		{
-			// no replacement point, just copy and add % escape
-			ucstring::iterator first(clause.String.begin()), last(clause.String.end());
-			for (; first != last; ++first)
+			// no replacement point, just copy and add % escape (pure std::string walk, no ucstring)
+			for (size_t i = 0; i < clause.String.size(); ++i)
 			{
-				if (*first == '%')
+				char c = clause.String[i];
+				if (c == '%')
 				{
 					// push 2 of them
-					clause.ClientString.push_back(*first);
-					clause.ClientString.push_back(*first);
+					clause.ClientString.push_back(c);
+					clause.ClientString.push_back(c);
 				}
-				else if (*first == '$')
+				else if (c == '$')
 				{
-					// this must be an escaped $, check and remove the second one
-					nlassert((first+1) != last);
-					nlassert(*(first+1) == '$');
-					clause.ClientString.push_back(*first);
-					++first;
+					// this must be an escaped $, check and remove (consume) the second one
+					clause.ClientString.push_back(c);
+					++i; // skip the second $
+					// (original asserted the next was $)
 				}
 				else
-					clause.ClientString.push_back(*first);
+					clause.ClientString.push_back(c);
 			}
 		}
-//		nldebug("Client string result : \n       String = [%s]\nClient string = [%s]", clause.String.toString().c_str(), clause.ClientString.toString().c_str());
+//		nldebug("Client string result : \n       String = [%s]\nClient string = [%s]", clause.String.c_str(), clause.ClientString.c_str());
 //		clause.ClientStringId = _DynDb.add(clause.ClientString, false);
 //		clause.ClientStringId = _Mapper->map(clause.ClientString);
 		clause.ClientStringId = storeString(clause.ClientString);
@@ -746,20 +768,21 @@ bool CStringManager::parseBlock(const ucstring &block, CPhrase &phrase)
 	return true;
 }
 
-bool CStringManager::extractReplacement(const CPhrase &phrase, const ucstring &str, std::vector<TReplacement> &result)
+bool CStringManager::extractReplacement(const CPhrase &phrase, const std::string &str, std::vector<TReplacement> &result)
 {
 //		std::vector<TReplacement> ret;
 	result.clear();
 	TReplacement rep;
 	uint count = 0;
-	ucstring::const_iterator first(str.begin()), last(str.end());
+	ucstring u; u.fromUtf8(str);
+	UcIt first(u.begin()), last(u.end());
 	for (; first != last; ++first)
 	{
 		if (*first == '$')
 		{
 			count ++;
 			// here is a replacement point !
-			rep.InsertPlace = first - str.begin();
+			rep.InsertPlace = first - u.begin(); // use the ucstring copy for iterator arithmetic (positions are the same)
 
 			// skip the '$'
 			++first;
@@ -772,14 +795,14 @@ bool CStringManager::extractReplacement(const CPhrase &phrase, const ucstring &s
 					tag.push_back(*first++);
 				if (first == last)
 				{
-					nlwarning("Error during extraction of replacement point %u, missing a closing '$' in [%s]", count, str.toString().c_str());
+					nlwarning("Error during extraction of replacement point %u, missing a closing '$' in [%s]", count, str.c_str());
 					return false;
 				}
 
-				rep.ContinuePlace = (first+1) - str.begin();
-				if (!parseTag(phrase, tag, rep))
+				rep.ContinuePlace = (first+1) - u.begin();
+				if (!parseTag(phrase, tag.toUtf8(), rep))
 				{
-					nlwarning("Error during parsing tag [%s] in [%s] (replacement point %u)", tag.toString().c_str(), str.toString().c_str(), count);
+					nlwarning("Error during parsing tag [%s] in [%s] (replacement point %u)", tag.c_str(), str.c_str(), count);
 					return false;
 				}
 
@@ -790,27 +813,29 @@ bool CStringManager::extractReplacement(const CPhrase &phrase, const ucstring &s
 	return true;
 }
 
-bool CStringManager::parseTag(const CPhrase &phrase, const ucstring &tag, TReplacement &rep)
+bool CStringManager::parseTag(const CPhrase &phrase, const std::string &tag, TReplacement &rep)
 {
-	ucstring::const_iterator first(tag.begin()), last(tag.end());
+	// Bridge only for this tag's CI18N parse (small remaining site).
+	ucstring u; u.fromUtf8(tag);
+	UcIt first(u.begin()), last(u.end());
 	std::string name;
 	std::string spec;
-	ucstring temp;
+	std::string temp;
 
 	NLMISC::CI18N::skipWhiteSpace(first, last);
 	if (!NLMISC::CI18N::parseLabel(first, last, name))
 	{
-		nlwarning("Error reading tag name in the tag [%s]", tag.toString().c_str());
+		nlwarning("Error reading tag name in the tag [%s]", tag.c_str());
 		return false;
 	}
 
-//	name = temp.toString();
+//	name = temp;
 	if (first != last && *first == '.')
 	{
 		++first;
 		if (!NLMISC::CI18N::parseLabel(first, last, spec))
 		{
-			nlwarning("Error reading tag property in the tag [%s]", tag.toString().c_str());
+			nlwarning("Error reading tag property in the tag [%s]", tag.c_str());
 			return false;
 		}
 		spec = NLMISC::toLowerAscii(spec);
@@ -822,7 +847,7 @@ bool CStringManager::parseTag(const CPhrase &phrase, const ucstring &tag, TRepla
 	const TParamId *pparamId;
 	if (!findParam(phrase, name, pparamId))
 	{
-			nlwarning("Error the tag [%s] use an unknown parameter.", tag.toString().c_str());
+			nlwarning("Error the tag [%s] use an unknown parameter.", tag.c_str());
 			return false;
 	}
 	rep.ParamIndex = pparamId->Index;
@@ -844,8 +869,13 @@ bool CStringManager::findParam(const CPhrase &phrase, const std::string paramNam
 	return false;
 }
 
-bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterator &it, ucstring::const_iterator &last, std::vector<CClause> &clauses)
+bool CStringManager::parseClauses(const CPhrase &phrase, const std::string &block, size_t &pos, std::vector<CClause> &clauses)
 {
+	// Bridge only the *remaining* text from pos for this sub-parse (collapse full-block ucstring).
+	ucstring u; u.fromUtf8( (pos < block.size()) ? block.substr(pos) : std::string() );
+	UcIt it = u.begin();
+	UcIt last = u.end();
+
 	NLMISC::CI18N::skipWhiteSpace(it, last);
 
 	if (it != last && *it == '{')
@@ -856,8 +886,10 @@ bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterato
 		do
 		{
 			NLMISC::CI18N::skipWhiteSpace(it, last);
-			ucstring cond;
-			ucstring text;
+			ucstring condU;
+			ucstring textU;
+			std::string cond;
+			std::string text;
 
 			if (it != last && *it == '}')
 				break;
@@ -867,15 +899,16 @@ bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterato
 			uint condGroup = 1;
 			while (it != last && *it == '(')
 			{
-				if (!NLMISC::CI18N::parseMarkedString('(', ')', it, last, cond))
+				if (!NLMISC::CI18N::parseMarkedString('(', ')', it, last, condU))
 				{
 					nlwarning("Error parsing condition(s) in clause %u, condition group %u", count, condGroup);
 					return false;
 				}
+				cond = condU.toUtf8(); // bridge CI18N result -> std::string for parseCondition + storage
 				std::vector<TCondition> conds;
 				if (!parseCondition(phrase, cond, conds))
 				{
-					nlwarning("Error parsing the condition [%s] in clause %u, condition group %u", cond.toString().c_str(), count, condGroup);
+					nlwarning("Error parsing the condition [%s] in clause %u, condition group %u", cond.c_str(), count, condGroup);
 					return false;
 				}
 				NLMISC::CI18N::skipWhiteSpace(it, last);
@@ -898,11 +931,12 @@ bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterato
 			// check if we have the string literal
 			if (it != last && *it == '[')
 			{
-				if (!NLMISC::CI18N::parseMarkedString('[', ']', it, last, text))
+				if (!NLMISC::CI18N::parseMarkedString('[', ']', it, last, textU))
 				{
 					nlwarning("Error parsing string in clause %u", count);
 					return false;
 				}
+				text = textU.toUtf8();
 			}
 			else
 			{
@@ -917,11 +951,11 @@ bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterato
 			// try to replace the text with the one comming from the clause file.
 			if (!stringLabel.empty())
 			{
-				std::map<std::string, ucstring>::iterator it = SM->TempClauseStrings.find(stringLabel);
+				std::map<std::string, std::string>::iterator it = SM->TempClauseStrings.find(stringLabel);
 				if (it != SM->TempClauseStrings.end())
 				{
 					text = it->second;
-//					nldebug("Using indirection to resove %s as %s", stringLabel.c_str(), text.toString().c_str());
+//					nldebug("Using indirection to resove %s as %s", stringLabel.c_str(), text.c_str());
 				}
 			}
 			
@@ -947,17 +981,20 @@ bool CStringManager::parseClauses(const CPhrase &phrase, ucstring::const_iterato
 		return false;
 	}
 
+	pos += (it - u.begin());  // advance caller's pos by what this sub-parser consumed from the remaining text
 	return true;
 }
 
-bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, std::vector<TCondition> &result)
+bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &str, std::vector<TCondition> &result)
 {
+	// Local ucstring only for the CI18N walk on this condition string (pos not used here as it's a leaf).
+	ucstring u; u.fromUtf8(str);
 	TCondition cond;
 
-	if (str.empty())
+	if (u.empty())
 		return true;
 
-	ucstring::const_iterator first(str.begin()), last(str.end());
+	UcIt first(u.begin()), last(u.end());
 	uint count = 1;
 
 	do
@@ -969,11 +1006,11 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 		// condition format : paramName[.genre](=0|=1|>1|=M|=F|=N)
 		std::string paramName;
 		std::string propertyName;
-		ucstring temp;
+		std::string temp;
 		NLMISC::CI18N::skipWhiteSpace(first, last);
 		if (!NLMISC::CI18N::parseLabel(first, last, paramName))
 		{
-			nlwarning("Error parsing parameter name in condition [%s], part %u", str.toString().c_str(), count);
+			nlwarning("Error parsing parameter name in condition [%s], part %u", str.c_str(), count);
 			return false;
 		}
 		if (first != last && *first == '.')
@@ -982,7 +1019,7 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 			// there is a property name
 			if (!NLMISC::CI18N::parseLabel(first, last, cond.Property))
 			{
-				nlwarning("Error parsing parameter property in condition [%s], part %u", str.toString().c_str(), count);
+				nlwarning("Error parsing parameter property in condition [%s], part %u", str.c_str(), count);
 				return false;
 			}
 
@@ -1023,7 +1060,7 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 			cond.Operator = lessEqual;
 		else
 		{
-			nlwarning("Unknown operator [%s] in condition [%s] part %u", opstr.c_str(), str.toString().c_str(), count);
+			nlwarning("Unknown operator [%s] in condition [%s] part %u", opstr.c_str(), str.c_str(), count);
 			return false;
 		}
 
@@ -1039,7 +1076,7 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 			}
 			if (cond.ReferenceStr.empty())
 			{
-				nlwarning("Can't read the reference for condition [%s] part %u", str.toString().c_str(), count);
+				nlwarning("Can't read the reference for condition [%s] part %u", str.c_str(), count);
 				return false;
 			}
 		}
@@ -1053,7 +1090,7 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 			const TParamId *pparamId;
 			if (!findParam(phrase, paramName, pparamId))
 			{
-				nlwarning("The parameter named [%s] is unknown in condition [%s], part %u", paramName.c_str(), str.toString().c_str(), count);
+				nlwarning("The parameter named [%s] is unknown in condition [%s], part %u", paramName.c_str(), str.c_str(), count);
 				return false;
 			}
 			cond.ParamIndex = pparamId->Index;
@@ -1070,8 +1107,13 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const ucstring &str, 
 }
 
 
-bool CStringManager::parseParamList(ucstring::const_iterator &it, ucstring::const_iterator &last, std::vector<CParameterTraits*> &result)
+bool CStringManager::parseParamList(const std::string &block, size_t &pos, std::vector<CParameterTraits*> &result)
 {
+	// Bridge only the *remaining* text from pos (more pos feeding / bridge collapse).
+	ucstring u; u.fromUtf8( (pos < block.size()) ? block.substr(pos) : std::string() );
+	UcIt it = u.begin();
+	UcIt last = u.end();
+
 //	std::vector<TParamId> params;
 	result.clear();
 
@@ -1101,7 +1143,7 @@ bool CStringManager::parseParamList(ucstring::const_iterator &it, ucstring::cons
 				break;
 			std::string type;
 			std::string name;
-			ucstring temp;
+			std::string temp;
 
 			NLMISC::CI18N::skipWhiteSpace(it, last);
 			if (!NLMISC::CI18N::parseLabel(it, last, type))
@@ -1117,7 +1159,7 @@ bool CStringManager::parseParamList(ucstring::const_iterator &it, ucstring::cons
 				nlwarning("Error parsing parameter %u name in param list", count);
 				return false;
 			}
-//			name = temp.toString();
+//			name = temp;
 
 			if (type.empty() || name.empty())
 			{
@@ -1302,6 +1344,7 @@ bool CStringManager::parseParamList(ucstring::const_iterator &it, ucstring::cons
 		nlwarning ("Malformed or non existend param list !");
 		return false;
 	}
+	pos += (it - u.begin());  // additive: u was created from block.substr(incoming pos)
 	return true;
 }
 
@@ -1312,7 +1355,7 @@ void	CStringManager::loadPhraseFile(const std::string& filename, TLanguages lang
 {
 	log->displayNL("Reading and parsing phrase file %s for language %s...", filename.c_str(), getLanguageCodeString(language).c_str());
 	// pre-load the phrase file
-	ucstring phraseText;
+	std::string phraseText;
 	vector<TPhrase>	phrases;
 	{
 		CReadPhraseFile reader;
@@ -1424,16 +1467,16 @@ void	CStringManager::mergeEntityWords(CEntityWords& dest, const CEntityWords& so
  */
 void	CStringManager::loadEntityWordsFile(const std::string& filename, const string &workfilename, CEntityWords& words, NLMISC::CLog *log)
 {
-	ucstring			ucs;
+	std::string			wsText;
 	log->displayNL("Loading words file '%s'", filename.c_str());
 
 	CReadWorkSheetFile	reader;
 
 	// read the worksheet
-	reader.readWorkSheetFile(filename, workfilename, ucs);
+	reader.readWorkSheetFile(filename, workfilename, wsText);
 
 	// parse the worksheet
-	words = parseEntityWords(ucs);
+	words = parseEntityWords(wsText);
 }
 
 struct CDisplayColumnInfo
@@ -1499,14 +1542,14 @@ void	CStringManager::displayEntityWords(TLanguages language, STRING_MANAGER::TPa
 
 		if (!wc.empty())
 		{
-			std::string	rname = getString(pData[columns[0].InRow]).toString();
+			std::string	rname = getString(pData[columns[0].InRow]);
 			if (!testWildCard(rname, wc))
 				continue;
 		}
 
 		for (uint col=0; col<columns.size(); ++col)
 		{
-			uint	sz = (uint)getString(pData[columns[col].InRow]).toString().size();
+			uint	sz = (uint)getString(pData[columns[col].InRow]).size();
 			if (columns[col].MaxWidth < sz)
 				columns[col].MaxWidth = sz;
 		}
@@ -1522,14 +1565,14 @@ void	CStringManager::displayEntityWords(TLanguages language, STRING_MANAGER::TPa
 
 		if (!wc.empty())
 		{
-			std::string	rname = getString(pData[columns[0].InRow]).toString();
+			std::string	rname = getString(pData[columns[0].InRow]);
 			if (!testWildCard(rname, wc))
 				continue;
 		}
 
 		for (uint col=0; col<columns.size(); ++col)
 		{
-			string	s = getString(pData[columns[col].InRow]).toString();
+			string	s = getString(pData[columns[col].InRow]);
 			log->displayRaw("%s ", padAndCropString(s, columns[col].MaxWidth).c_str());
 		}
 		log->displayRawNL("");
@@ -1540,7 +1583,7 @@ void	CStringManager::displayEntityWords(TLanguages language, STRING_MANAGER::TPa
 /*
  * reset entity word
  */
-void	CStringManager::setEntityWord(const std::string& path, const ucstring& value)
+void	CStringManager::setEntityWord(const std::string& path, const std::string& value)
 {
 	std::string::size_type	start = 0, end = 0;
 
@@ -1595,22 +1638,22 @@ void	CStringManager::loadBotNames(const std::string& filename, bool resetBotName
 	if (resetBotNames)
 		_BotNameTranslation.clear();
 
-	ucstring ucs;
+	std::string wsText;
 	CReadWorkSheetFile reader;
-	reader.readWorkSheetFile(filename, filename, ucs);
+	reader.readWorkSheetFile(filename, filename, wsText);
 
-	if (!ucs.empty())
+	if (!wsText.empty())
 		log->displayNL("Loading '%s'", filename.c_str());
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(ucs, ws);
+	STRING_MANAGER::readExcelSheet(ucstring(wsText), ws);  // bridge for readExcelSheet
 
 	if (ws.size() != 0)
 	{
 		// remove any unwanted column
 		for (uint i=0; i<ws.ColCount; ++i)
 		{
-			const ucstring &colName = ws.getData(0, i);
+			std::string colName = ws.getData(0, i).toUtf8();
 			if (colName.empty() || colName[0] == '*')
 			{
 				ws.eraseColumn(i);
@@ -1623,14 +1666,14 @@ void	CStringManager::loadBotNames(const std::string& filename, bool resetBotName
 			// and read the worksheet content : first colum = untranslatedBotName, second column = translatedBotName.
 			for (uint i=0; i<ws.size(); ++i)
 			{
-				const ucstring &name = ws.getData(i, 0);
-				const ucstring &transName = ws.getData(i, 1);
+				std::string name = ws.getData(i, 0).toUtf8();
+				std::string transName = ws.getData(i, 1).toUtf8();
 
 				pair<std::map<uint32, uint32>::iterator, bool> ret = _BotNameTranslation.insert(make_pair(storeString(name), storeString(transName)));
 //				_BotNameTranslation[storeString(name)] = storeString(transName);
 				if (!ret.second)
 				{
-					nlwarning("Duplicate bot name '%s' in bot_name.txt, second definition ignored", name.toString().c_str());
+					nlwarning("Duplicate bot name '%s' in bot_name.txt, second definition ignored", name.c_str());
 				}
 			}
 		}
@@ -1646,7 +1689,7 @@ void	CStringManager::loadBotNames(const std::string& filename, bool resetBotName
 /*
  * Set bot name
  */
-void	CStringManager::setBotName(const ucstring& botname, const ucstring& translation)
+void	CStringManager::setBotName(const std::string& botname, const std::string& translation)
 {
 	_BotNameTranslation[storeString(botname)] = storeString(translation);
 	remapBotNames();
@@ -1743,19 +1786,19 @@ void CStringManager::reloadEventFactions(NLMISC::CLog * log, std::string fileNam
 
 	_EventFactionTranslation.clear();
 
-	ucstring ucs;
+	std::string wsText;
 	CReadWorkSheetFile reader;
-	reader.readWorkSheetFile(fileName, fileName, ucs);
+	reader.readWorkSheetFile(fileName, fileName, wsText);
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(ucs, ws);
+	STRING_MANAGER::readExcelSheet(ucstring(wsText), ws);  // bridge for readExcelSheet
 
 	if (ws.size() != 0)
 	{
 		// remove any unwanted column
 		for (uint i=0; i<ws.ColCount; ++i)
 		{
-			const ucstring &colName = ws.getData(0, i);
+			std::string colName = ws.getData(0, i).toUtf8();
 			if (colName.empty() || colName[0] == '*')
 			{
 				ws.eraseColumn(i);
@@ -1768,8 +1811,8 @@ void CStringManager::reloadEventFactions(NLMISC::CLog * log, std::string fileNam
 			// and read the worksheet content : first colum = event faction ID, second column = translated event faction
 			for (uint i=0; i<ws.size(); ++i)
 			{
-				const ucstring &name = ws.getData(i, 0);
-				const ucstring &transName = ws.getData(i, 1);
+				std::string name = ws.getData(i, 0).toUtf8();
+				std::string transName = ws.getData(i, 1).toUtf8();
 				const uint32 nameId = storeString(name);
 				const uint32 transNameId = storeString(transName);
 
@@ -1777,13 +1820,13 @@ void CStringManager::reloadEventFactions(NLMISC::CLog * log, std::string fileNam
 				if (!ret.second)
 				{
 					if (log)
-						log->displayNL("Warning: duplicated event faction '%s' in '%s', second definition ignored", name.toString().c_str(), fileName.c_str());
+						log->displayNL("Warning: duplicated event faction '%s' in '%s', second definition ignored", name.c_str(), fileName.c_str());
 				}
 				else if (VerboseStringManagerParser)
 				{
 					log->displayNL("Add event faction : '%s' (%u) -> '%s' (%u)",
-						name.toString().c_str(), nameId,
-						transName.toString().c_str(), transNameId
+						name.c_str(), nameId,
+						transName.c_str(), transNameId
 						);
 				}
 			}
@@ -1868,7 +1911,7 @@ void CStringManager::init(NLMISC::CLog *log)
 	}
 
 	// store the initial empty string
-	storeString(ucstring(""));
+	storeString("");
 
 	// Load the sheets Id.
 	NLMISC::CSheetId::init(false);
@@ -1885,7 +1928,7 @@ void CStringManager::init(NLMISC::CLog *log)
 		// if the 'GeorgePaths' config file var exists then we try to perform a mini-scan for sheet files
 		if (IService::isServiceInitialized() && (IService::getInstance()->ConfigFile.getVarPtr(std::string("GeorgePaths"))!=NULL))
 		{
-			loadForm(exts, NLNET::IService::getInstance()->WriteFilesDirectory.toString() + "ios_sheets.packed_sheets", _SheetInfo, false, false);
+			loadForm(exts, NLNET::IService::getInstance()->WriteFilesDirectory + "ios_sheets.packed_sheets", _SheetInfo, false, false);
 		}
 
 		if (_SheetInfo.empty())
@@ -1901,7 +1944,7 @@ void CStringManager::init(NLMISC::CLog *log)
 			}
 
 			// reload with 'update' true this time
-			loadForm(exts, NLNET::IService::getInstance()->WriteFilesDirectory.toString() + "ios_sheets.packed_sheets", _SheetInfo, true);
+			loadForm(exts, NLNET::IService::getInstance()->WriteFilesDirectory + "ios_sheets.packed_sheets", _SheetInfo, true);
 		}
 	}
 
@@ -2010,15 +2053,14 @@ void CStringManager::init(NLMISC::CLog *log)
 /*
  * Replace a phrase
  */
-void CStringManager::setPhrase(std::string const& phraseName, ucstring const& phraseContent, TLanguages language)
+void CStringManager::setPhrase(std::string const& phraseName, const std::string &phraseContent, TLanguages language)
 {
-	ucstring phraseText;
+	std::string phraseText;
 	vector<TPhrase>	phrases;
 	{
 		CReadPhraseFile reader;
 		reader.readPhraseFileFromString(phraseContent, phraseName, phraseText, phrases);
 	}
-	ucstring localPhraseText = phraseText;
-	parsePhraseDoc(localPhraseText, language);
+	parsePhraseDoc(phraseText, language);
 }
 

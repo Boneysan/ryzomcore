@@ -115,11 +115,11 @@ void CAIAliasManager::add(uint32 alias, const std::string &name)
 		cInfo.ShortName = ucname;
 
 
-	cInfo.ShortNameIndex = SM->storeString(cInfo.ShortName);
+	cInfo.ShortNameIndex = SM->storeString(cInfo.ShortName.toUtf8()); // bridge ShortName ucstring
 
 	// try to map a translated bot name on the short name
 	cInfo.UntranslatedNameIndex = SM->storeString(ucname);
-	cInfo.UntranslatedShortNameIndex = SM->storeString(cInfo.ShortName);
+	cInfo.UntranslatedShortNameIndex = SM->storeString(cInfo.ShortName.toUtf8()); // bridge ShortName ucstring
 	
 
 	cInfo.ShortNameIndex = SM->translateShortName(cInfo.UntranslatedShortNameIndex);
@@ -644,7 +644,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 
 	// try to map a translated bot name on the short name
 	charInfos->UntranslatedNameIndex = SM->storeString(ucname);
-	charInfos->UntranslatedShortNameIndex = SM->storeString(charInfos->ShortName);
+	charInfos->UntranslatedShortNameIndex = SM->storeString(charInfos->ShortName.toUtf8()); // bridge ShortName ucstring
 	
 	// don't translate players names
 	if (eid.getType() != RYZOMID::player)
@@ -686,7 +686,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 		if (charInfos->ShortNameIndex != charInfos->UntranslatedShortNameIndex)
 		{
 			string sn = charInfos->ShortName.toString();
-			string usn = SM->getString(charInfos->UntranslatedShortNameIndex).toString();
+			string usn = SM->getString(charInfos->UntranslatedShortNameIndex);
 			nlinfo(" Translated short name for this character : '%s' (index %u) (untranslated : '%s')", sn.c_str(), charInfos->ShortNameIndex, usn.c_str());
 		}
 		else
@@ -710,7 +710,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 			}
 			charInfos->NameIndex.init( TheDataset, chId, DSPropertyNAME_STRING_ID );
 		}
-		charInfos->NameIndex = SM->storeString(charInfos->Name);
+		charInfos->NameIndex = SM->storeString(charInfos->Name.toUtf8()); // bridge: Name ucstring here to string storeString (IOS name surface ripple)
 		charInfos->VisualPropertyA.init( TheDataset, chId, DSPropertyVPA );
 		charInfos->AIInstance.init( TheDataset, chId, DSPropertyAI_INSTANCE );
 	}
@@ -732,7 +732,7 @@ void CInputOutputService::addCharacterName( const TDataSetRow& chId, const ucstr
 		else
 			nldebug("IOS: addCharacterName Adding name '%s' translated as '%s' for entity %s:%x",
 				ucname.toString().c_str(), 
-				charInfos->Name.toString().c_str(), 
+				charInfos->Name.c_str(), 
 				TheDataset.getEntityId(chId).toString().c_str(),
 				chId.getIndex());
 	}

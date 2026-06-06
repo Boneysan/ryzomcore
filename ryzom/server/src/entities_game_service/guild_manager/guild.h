@@ -86,13 +86,13 @@ public:
 	/// get the IOS id of the guild description
 	uint32 getDescriptionId()const;
 	/// get the guild name
-	const ucstring & getName()const;
+	const std::string & getName()const;
 	/// set the guild name
-	void setName(const ucstring & str);
+	void setName(const std::string & str);
 	/// get the guild description
-	const ucstring & getDescription()const;
+	const std::string & getDescription()const;
 	/// set the guild description
-	void setDescription(const ucstring & str);
+	void setDescription(const std::string & str);
 	/// get the guild current session
 	uint8 getMembersSession()const;
 	/// spend an amount of XP
@@ -381,11 +381,11 @@ private:
 	NLMISC::CEntityId					_EId;
 
 	/// The name of the guild
-	ucstring							_Name;
+	std::string							_Name;
 	/// The description of the guild
-	ucstring							_Description;
+	std::string							_Description;
 	// words of the day
-	ucstring							_MessageOfTheDay;
+	ucstring							_MessageOfTheDay; // TODO 0.5 later (persistent macro)
 
 	// The declared Cult and Civilization information for the guild for fame purposes.
 	PVP_CLAN::TPVPClan					_DeclaredCult;

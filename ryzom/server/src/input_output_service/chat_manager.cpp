@@ -484,7 +484,7 @@ CChatGroup& CChatManager::getGroup( const TGroupId& gId )
 //	chat
 //
 //-----------------------------------------------
-void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
+void CChatManager::chat( const TDataSetRow& sender, const std::string& ucstr )
 {
 	TClientInfoCont::iterator itCl = _Clients.find( sender );
 	if( itCl != _Clients.end() )
@@ -566,7 +566,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 						receiverName = ci->Name.toString();
 					}
 
-					_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.toString().c_str() );
+					_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.c_str() );
 
 					sendChat( itCl->second->getChatMode(), *itA, ucstr, sender );
 				}
@@ -583,7 +583,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 				TGroupId grpId = itCl->second->getRegionChatGroup();
 				_DestUsers.push_back(grpId);
 
-				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.toString().c_str() );
+				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.c_str() );
 				chatInGroup( grpId, ucstr, sender );
 				break;
 			}
@@ -615,7 +615,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 
 				TGroupId grpId = CEntityId(RYZOMID::chatGroup, 0);
 
-				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.toString().c_str() );
+				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.c_str() );
 				_DestUsers.push_back(grpId);
 
 				chatInGroup( grpId, ucstr, sender );
@@ -626,7 +626,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 				TGroupId grpId = itCl->second->getTeamChatGroup();
 				_DestUsers.push_back(grpId);
 
-				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.toString().c_str() );
+				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second->getChatMode()], ucstr.c_str() );
 				chatInGroup( grpId, ucstr, sender );
 			}
 			break;
@@ -638,7 +638,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 				_Log.displayNL("'%s' (%s) : \t\"%s\"",
 					senderName.c_str(),
 					groupNames[itCl->second->getChatMode()],
-					ucstr.toString().c_str() );
+					ucstr.c_str() );
 				chatInGroup( grpId, ucstr, sender );
 			}
 			break;
@@ -674,7 +674,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 
 						session->getChan()->Historic.push(entry);
 
-						ucstring content;
+						std::string content;
 						if (!session->getChan()->HideBubble)
 						{	//normal case
 							content = ucstr;
@@ -682,8 +682,8 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 						else
 						{
 							// true for control channel (Ring)
-							ucstring tmp("{no_bubble}");
-							if (ucstr.find(tmp) == ucstring::npos)
+							std::string tmp("{no_bubble}");
+							if (ucstr.find(tmp) == std::string::npos)
 							{
 								tmp += ucstr;
 								content.swap(tmp);
@@ -741,7 +741,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 /*			{
 				TGroupId grpId = itCl->second.getChatGroup();
 
-				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second.getChatMode()], ucstr.toString().c_str() );
+				_Log.displayNL("'%s' (%s) : \t\"%s\"", senderName.c_str(), groupNames[itCl->second.getChatMode()], ucstr.c_str() );
 
 				chatInGroup( grpId, ucstr, sender );
 			}
@@ -751,7 +751,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 //		IOSPD::logChat(ucstr, itCl->second->getId(), _DestUsers);
 		log_Chat_Chat(CChatGroup::groupTypeToString(itCl->second->getChatMode()),
 			TheDataset.getEntityId(sender),
-			ucstr.toUtf8(),
+			ucstr,
 			_DestUsers);
 
 	}
@@ -769,7 +769,7 @@ void CChatManager::chat( const TDataSetRow& sender, const ucstring& ucstr )
 //	chatInGroup
 //
 //-----------------------------------------------
-void CChatManager::chatInGroup( TGroupId& grpId, const ucstring& ucstr, const TDataSetRow& sender, const std::vector<TDataSetRow> & excluded )
+void CChatManager::chatInGroup( TGroupId& grpId, const std::string& ucstr, const TDataSetRow& sender, const std::vector<TDataSetRow> & excluded )
 {
 	CMirrorPropValueRO<uint32> senderInstanceId( TheDataset, sender, DSPropertyAI_INSTANCE );
 
@@ -846,7 +846,7 @@ void CChatManager::chatInGroup( TGroupId& grpId, const ucstring& ucstr, const TD
 
 } // chatInGroup //
 
-void CChatManager::farChatInGroup(TGroupId &grpId, uint32 homeSessionId, const ucstring &text, const ucstring &senderName)
+void CChatManager::farChatInGroup(TGroupId &grpId, uint32 homeSessionId, const std::string &text, const std::string &senderName)
 {
 	map< TGroupId, CChatGroup >::iterator itGrp = _Groups.find( grpId );
 	if( itGrp != _Groups.end() )
@@ -1323,7 +1323,7 @@ void CChatManager::sendEmoteTextToAudience(  const TDataSetRow& sender,const std
 //-----------------------------------------------
 //		sendEmoteCustomTextToAll
 //-----------------------------------------------
-void CChatManager::sendEmoteCustomTextToAll( const TDataSetRow& sender, const ucstring & ustr )
+void CChatManager::sendEmoteCustomTextToAll( const TDataSetRow& sender, const std::string & ustr )
 {
 	TClientInfoCont::iterator itCl = _Clients.find( sender );
 	if( itCl != _Clients.end() )
@@ -1419,7 +1419,7 @@ void CChatManager::sendEmoteCustomTextToAll( const TDataSetRow& sender, const uc
 //	sendChat
 //
 //-----------------------------------------------
-void CChatManager::sendChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const ucstring& ucstr, const TDataSetRow &sender, TChanID chanID, const ucstring &senderName)
+void CChatManager::sendChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const std::string& ucstr, const TDataSetRow &sender, TChanID chanID, const std::string &senderName)
 {
 	//if( receiver != sender )
 	{
@@ -1462,7 +1462,7 @@ void CChatManager::sendChat( CChatGroup::TGroupType senderChatMode, const TDataS
 					else
 					{
 						// if no sender, we use a special name
-						ucstring senderName("<BROADCAST MESSAGE>");
+						std::string senderName("<BROADCAST MESSAGE>");
 						senderNameIndex = SM->storeString( senderName );
 					}
 					if (!senderName.empty())
@@ -1519,7 +1519,7 @@ void CChatManager::sendChat( CChatGroup::TGroupType senderChatMode, const TDataS
 
 } // sendChat //
 
-void CChatManager::sendFarChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const ucstring& ucstr, const ucstring &senderName, TChanID chanID)
+void CChatManager::sendFarChat( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, const std::string& ucstr, const std::string &senderName, TChanID chanID)
 {
 	CCharacterInfos * receiverInfos = IOS->getCharInfos( TheDataset.getEntityId(receiver) );
 	if( receiverInfos )
@@ -1616,7 +1616,7 @@ void CChatManager::sendChatParam( CChatGroup::TGroupType senderChatMode, const T
 //	sendChat2Ex
 //
 //-----------------------------------------------
-void CChatManager::sendChat2Ex( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, uint32 phraseId, const TDataSetRow &sender, ucstring customTxt )
+void CChatManager::sendChat2Ex( CChatGroup::TGroupType senderChatMode, const TDataSetRow &receiver, uint32 phraseId, const TDataSetRow &sender, std::string customTxt )
 {
 	CCharacterInfos * charInfos = NULL;
 	if( sender.isValid() /* != CEntityId::Unknown*/ )
@@ -1690,7 +1690,7 @@ void CChatManager::sendChat2Ex( CChatGroup::TGroupType senderChatMode, const TDa
 //	sendChatCustomEmote
 //
 //-----------------------------------------------
-void CChatManager::sendChatCustomEmote( const TDataSetRow &sender, const TDataSetRow &receiver, const ucstring& ucstr )
+void CChatManager::sendChatCustomEmote( const TDataSetRow &sender, const TDataSetRow &receiver, const std::string& ucstr )
 {
 	TDataSetRow senderFake = TDataSetRow::createFromRawIndex( INVALID_DATASET_ROW );
 
@@ -1844,7 +1844,7 @@ void CChatManager::tell2( const TDataSetRow& sender, const TDataSetRow& receiver
 //	tell
 //
 //-----------------------------------------------
-void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, const ucstring& ucstr )
+void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, const std::string& ucstr )
 {
 	TClientInfoCont::iterator itCl = _Clients.find( sender );
 	if( itCl == _Clients.end() )
@@ -1911,13 +1911,13 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 						SM_STATIC_PARAMS_1( vect, STRING_MANAGER::player );
 						vect[0].setEId( receiverInfos->EntityId );
 						uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_AFK", vect, &IosLocalSender );
-						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId, TDataSetRow(), receiverInfos->AfkCustomTxt );
+						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId, TDataSetRow(), receiverInfos->AfkCustomTxt.toUtf8() ); // bridge AfkCustomTxt ucstring to string param
 					}
 					if ( _UsersIgnoringTells.find( receiverInfos->EntityId ) != _UsersIgnoringTells.end() )
 					{
 						// send special message to user (same message as if the receiver was offline)
 						SM_STATIC_PARAMS_1( vect, STRING_MANAGER::literal );
-						vect[0].Literal = ucstring( receiver );
+						vect[0].Literal = std::string( receiver );
 						uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_UNKNOWN", vect, &IosLocalSender );
 						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId );
 						return;
@@ -1951,7 +1951,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 				}
 */
 
-				_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), "tell", ucstr.toString().c_str() );
+				_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), "tell", ucstr.c_str() );
 
 
 				// if the client doesn't know this dynamic string(name of sender), we send it to him
@@ -1966,14 +1966,14 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 				TDataSetIndex dsi = senderInfos->DataSetIndex.getCompressedIndex();
 				bms.serial( dsi );
 				bms.serial( senderInfos->NameIndex );
-				bms.serial( const_cast<ucstring&>(ucstr) );
+				bms.serial( const_cast<std::string&>(ucstr) );
 
 				msgout.serialBufferWithSize((uint8*)bms.buffer(), bms.length());
 				sendMessageViaMirror(TServiceId(receiverInfos->EntityId.getDynamicId()), msgout);
 
 				// log tell to PDS
 //				IOSPD::logTell(ucstr, senderInfos->EntityId, receiverInfos->EntityId);
-				log_Chat_Tell(senderInfos->EntityId, receiverInfos->EntityId, ucstr.toUtf8());
+				log_Chat_Tell(senderInfos->EntityId, receiverInfos->EntityId, ucstr);
 			}
 		}
 		else
@@ -2009,7 +2009,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 
 				// log tell to PDS
 //				IOSPD::logTell(ucstr, senderInfos->EntityId, it->second);
-				log_Chat_Tell(senderInfos->EntityId, it->second, ucstr.toUtf8());
+				log_Chat_Tell(senderInfos->EntityId, it->second, ucstr);
 			}
 			else
 			{
@@ -2017,7 +2017,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 				nlwarning("<CChatManager::tell> The receiver %s is unknown, no tell message sent",receiver.c_str());
 
 				SM_STATIC_PARAMS_1( vect, STRING_MANAGER::literal );
-				vect[0].Literal = ucstring( receiver );
+				vect[0].Literal = std::string( receiver );
 				uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_UNKNOWN", vect, &IosLocalSender );
 				sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId );
 			}
@@ -2034,14 +2034,13 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 			}
 			// there is no named group chat, try to send to SU
 			// send the tell to the chat unifier for eventual dispatch
-			ucstring destName;
-			destName.fromUtf8(receiver);
+			std::string destName = receiver; // receiver is already the UTF-8 name string
 			IChatUnifierClient::getInstance()->sendFarTell(senderInfos->EntityId, senderInfos->HavePrivilege, destName, ucstr);
 		}
 		else
 		{
 			SM_STATIC_PARAMS_1( vect, STRING_MANAGER::literal );
-			vect[0].Literal = ucstring( receiver );
+			vect[0].Literal = std::string( receiver );
 			uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_UNKNOWN", vect, &IosLocalSender );
 			sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId );
 		}
@@ -2049,7 +2048,7 @@ void CChatManager::tell( const TDataSetRow& sender, const string& receiverIn, co
 } // tell //
 
 
-void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const ucstring &senderName, bool havePrivilege, const ucstring& receiver, const ucstring& ucstr  )
+void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const std::string &senderName, bool havePrivilege, const std::string& receiver, const std::string& ucstr  )
 {
 	CCharacterInfos * receiverInfos = IOS->getCharInfos( receiver );
 	if( receiverInfos )
@@ -2061,8 +2060,8 @@ void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const ucstrin
 			if( receiverMuted && havePrivilege == false )
 			{
 				nldebug("IOSCM: tell The player %s have no privilege and %s is muted",
-					senderName.toUtf8().c_str(),
-					receiver.toUtf8().c_str());
+					senderName.c_str(),
+					receiver.c_str());
 				return;
 			}
 
@@ -2088,7 +2087,7 @@ void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const ucstrin
 //					{
 //						// send special message to user (same message as if the receiver was offline)
 //						SM_STATIC_PARAMS_1( vect, STRING_MANAGER::literal );
-//						vect[0].Literal = ucstring( receiver );
+//						vect[0].Literal = std::string( receiver );
 //						uint32 phraseId = STRING_MANAGER::sendStringToClient( senderInfos->DataSetIndex, "TELL_PLAYER_UNKNOWN", vect, &IosLocalSender );
 //						sendChat2Ex( CChatGroup::tell, senderInfos->DataSetIndex, phraseId );
 //						return;
@@ -2101,7 +2100,7 @@ void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const ucstrin
 				// info for log the chat message
 				string receiverName = receiverInfos->Name.toString();
 
-				_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.toUtf8().c_str(), receiverName.c_str(), "tell", ucstr.toString().c_str() );
+				_Log.displayNL("'%s' to '%s' (%s) : \t\"%s\"", senderName.c_str(), receiverName.c_str(), "tell", ucstr.c_str() );
 
 
 				// if the client doesn't know this dynamic string(name of sender), we send it to him
@@ -2123,7 +2122,7 @@ void CChatManager::farTell( const NLMISC::CEntityId &senderCharId, const ucstrin
 
 				// log tell to PDS
 //				IOSPD::logTell(ucstr, senderCharId, receiverInfos->EntityId);
-				log_Chat_Tell(senderCharId, receiverInfos->EntityId, ucstr.toUtf8());
+				log_Chat_Tell(senderCharId, receiverInfos->EntityId, ucstr);
 			}
 		}
 		else
@@ -2304,18 +2303,18 @@ void CChatManager::sendHistoric(const TDataSetRow &receiver, TChanID chanID)
 	for(uint k = 0; k < chan->Historic.getSize(); ++k)
 	{
 //		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String, chan->Historic[k].Sender, chanID);
-		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String, TDataSetRow(), chanID, chan->Historic[k].SenderString);
+		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String.toUtf8(), TDataSetRow(), chanID, chan->Historic[k].SenderString.toUtf8()); // bridge: Historic stores ucstring (chat wire/historic)
 	}
 }
 
 
 
-ucstring CChatManager::filterClientInputColorCode(ucstring &text)
+std::string CChatManager::filterClientInputColorCode(std::string &text)
 {
-	ucstring result;
+	std::string result;
 	result.reserve(text.size());
 
-	ucstring::size_type pos = 0;
+	std::string::size_type pos = 0;
 
 	for (; pos < text.size(); ++pos)
 	{
@@ -2333,12 +2332,12 @@ ucstring CChatManager::filterClientInputColorCode(ucstring &text)
 	return result;
 }
 
-ucstring CChatManager::filterClientInput(ucstring &text)
+std::string CChatManager::filterClientInput(std::string &text)
 {
-	ucstring result;
+	std::string result;
 	result.reserve(text.size());
 	// 1st, remove any beginning or ending white space
-	ucstring::size_type pos = 0;
+	std::string::size_type pos = 0;
 
 	// skip begin white spaces
 	while (pos < text.size() && (text[pos] == ' ' || text[pos] == '\t'))

@@ -29,7 +29,7 @@
 #include "nel/misc/types_nl.h"
 #include "nel/misc/bit_mem_stream.h"
 #include "nel/misc/sheet_id.h"
-#include "nel/misc/ucstring.h"
+#include "nel/misc/ucstring.h"  // temporary during 0.5 migration
 
 #include "game_share/characteristics.h"
 #include "game_share/character_summary.h"
@@ -91,7 +91,7 @@ public:
 class CCheckNameMsg
 {
 public:
-	ucstring	Name; // TODO: UTF-8 (serial)
+	std::string	Name; // TODO: UTF-8 (serial)
 	TSessionId	HomeSessionId;
 
 	void serialBitMemStream(NLMISC::CBitMemStream &f)
@@ -122,7 +122,7 @@ public:
 	NLMISC::CSheetId SheetId;
 
 	TSessionId	Mainland; //mainland where char is
-	ucstring	Name;	//character name choose by player
+	std::string	Name;	//character name choose by player
 	uint8		People; //use people.h enum
 	uint8		Sex;	//use gender.h enum
 
@@ -324,7 +324,7 @@ public:
 		nlinfo("Slot    = %d", Slot);
 		nlinfo("SheetId = %d", SheetId.asInt());
 		nlinfo("Mainland= %d", Mainland.asInt());
-		nlinfo("Name    = %s", Name.toString().c_str());
+		nlinfo("Name    = %s", Name.c_str());
 		nlinfo("People  = %d", People);
 		nlinfo("Sex     = %d", Sex);
 		nlinfo("StartPoint = %d", StartPoint);
@@ -638,7 +638,7 @@ public:
 	uint8			ChatMode;
 //	uint32			DynChatChanID;
 	NLMISC::CEntityId	DynChatChanID;
-	ucstring		Content; // FIXME: UTF-8 (serial)
+	std::string		Content; // FIXME: UTF-8 (serial)
 
 	CChatMsg()
 	{
@@ -674,7 +674,7 @@ public:
 	uint32			SenderNameId;
 	uint8			ChatMode;
 	uint32			PhraseId;
-	ucstring		CustomTxt; // FIXME: UTF-8 (serial)
+	std::string		CustomTxt; // FIXME: UTF-8 (serial)
 
 	CChatMsg2()
 	{
@@ -705,8 +705,8 @@ public:
 class CFarTellMsg
 {
 public:
-	ucstring		SenderName; // FIXME: UTF-8 (serial)
-	ucstring		Text; // FIXME: UTF-8 (serial)
+	std::string		SenderName; // FIXME: UTF-8 (serial)
+	std::string		Text; // FIXME: UTF-8 (serial)
 
 	void serial(NLMISC::CBitMemStream &f)
 	{

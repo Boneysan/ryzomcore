@@ -41,7 +41,7 @@ struct TPlayerInputForward
 {
 	TChanID		ChanID;
 	TDataSetRow	Sender;
-	ucstring	Content;
+	std::string	Content; // UTF-8 (0.5 ucstring migration)
 
 	void serial(NLMISC::IStream &f)
 	{
@@ -129,7 +129,7 @@ public:
 	NLMISC::CHistoric<CHistoricEntry>		Historic;		// historic of messages for IOS
 	uint									HistoricSize;   // Historic size for EGS
 	bool									Localized;      // for EGS only
-	ucstring								Title;          // gives the title of the channel when it is not translated (e.g Localized == false)
+	std::string								Title;          // UTF-8 (0.5 ucstring migration) // gives the title of the channel when it is not translated (e.g Localized == false)
 	bool									HideBubble;		// hide the display of bubble
 	bool									UniversalChannel;	// treat like universe channel
 public:

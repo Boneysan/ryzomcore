@@ -60,13 +60,13 @@ bool CPVPInterface::leavePVP(IPVP::TEndType type)
 		if (pvpZone)
 		{
 			egs_pvpinfo("PVP_DEBUG: player %s has really left PVP zone '%s' %s",
-				_Owner->getName().toString().c_str(), pvpZone->getName().c_str(), result ? "[ok]" : "[error]"
+				_Owner->getName().c_str(), pvpZone->getName().c_str(), result ? "[ok]" : "[error]"
 				);
 		}
 		else
 		{
 			egs_pvpinfo("PVP_DEBUG: player %s has really left PVP session %s",
-				_Owner->getName().toString().c_str(), result ? "[ok]" : "[error]"
+				_Owner->getName().c_str(), result ? "[ok]" : "[error]"
 				);
 		}
 #endif // PVP_DEBUG
@@ -160,10 +160,10 @@ bool CPVPInterface::canApplyAreaEffect(CEntityBase * areaTarget, bool offensive,
 
 #ifdef PVP_DEBUG
 	egs_pvpinfo("PVP_DEBUG: player %s %s apply his %s area effect on player %s",
-		_Owner->getName().toString().c_str(),
+		_Owner->getName().c_str(),
 		result ? "can" : "cannot",
 		offensive ? "offensive" : "defensive",
-		areaTarget->getName().toString().c_str()
+		areaTarget->getName().c_str()
 		);
 #endif // PVP_DEBUG
 

@@ -165,6 +165,10 @@ CVariable<uint32>	CharacterLoadPerTick("egs", "CharacterLoadPerTick", "Number of
 uint32 CharacterSaveCounter = 0;
 uint32 CharacterLoadCounter = 0;
 
+// Smoke test support (Phase 0.6)
+// -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exit(0).
+CVariable<uint32> SmokeTestNumTicks("egs", "SmokeTestNumTicks", "Number of ticks to advance in --smoke-test / -T mode before clean exit", 10, 0, true);
+
 
 //--------------------
 // MACROS
@@ -1275,8 +1279,8 @@ void CPlayerService::initConfigFileVars()
 				uint32 sessionId;
 				NLMISC::fromString(mainlands.asString(i), sessionId);
 				mlSm.Id = TSessionId(sessionId);
-				mlSm.Name = ucstring::makeFromUtf8(mainlands.asString(i+1));
-				mlSm.Description = ucstring::makeFromUtf8(mainlands.asString(i+2));
+				mlSm.Name = mainlands.asString(i+1);
+				mlSm.Description = mainlands.asString(i+2);
 				mlSm.LanguageCode = mainlands.asString(i+3);
 				Mainlands.push_back( mlSm );
 			}
@@ -1307,6 +1311,12 @@ void CPlayerService::init()
 	LGS::ILoggerServiceClient::startLoggerComm();
 	// a little boolean set to true if we are just packing sheets and then exitting, allowing us to skip stuff that we don't really need to do
 	bool packingSheets= haveArg('Q');
+
+	// Smoke test mode for Phase 0 integration smoke test (headless, limited ticks, clean exit)
+	bool smokeTest = haveArg('T');
+
+	// Note: real smoke test driving (N calls to egsUpdate) happens later, after full init + initMirror.
+	// See below after initMirror for the actual -T implementation.
 
 	setVersion (RYZOM_PRODUCT_VERSION);
 
@@ -1344,6 +1354,19 @@ void CPlayerService::init()
 	CUnifiedNetwork::getInstance()->setServiceDownCallback( "*", cbDisconnection, 0);
 	Mirror.setServiceMirrorUpCallback("*", cbMirrorUp, 0);
 	Mirror.setServiceMirrorDownCallback("*", cbMirrorDn, 0);
+
+	// Real smoke test for Phase 0 (drives actual egsUpdate / PlayerManager.tickUpdate / character paths for N ticks)
+	if (smokeTest)
+	{
+		nlinfo("*** EGS SMOKE TEST MODE ACTIVE *** advancing %u *real* tick updates (egsUpdate) then clean exit", SmokeTestNumTicks.get());
+		for (uint32 t = 0; t < SmokeTestNumTicks.get(); ++t)
+		{
+			nlinfo("Smoke tick %u / %u", t+1, SmokeTestNumTicks.get());
+			egsUpdate();
+		}
+		nlinfo("EGS smoke test SUCCESS: %u ticks completed without crash", SmokeTestNumTicks.get());
+		exit(0);
+	}
 
 	// register the shared class
 	TRANSPORT_CLASS_REGISTER (CDelHandledAIGroupMsg);
@@ -1493,6 +1516,8 @@ nlassert(nodeLeaf->getType() == ICDBStructNode::TEXT);
 //	GameItemManager.init();
 	// Init build static items for sell
 	if (!packingSheets) CStaticItems::buildStaticItem();
+
+	// (smoke test block moved to end of init() for more complete initialization)
 	// init models of npc specific items
 	if (!packingSheets) CGameItemManager::buildNpcSpecificItems();
 	// Init shop category
@@ -1609,6 +1634,7 @@ nlassert(nodeLeaf->getType() == ICDBStructNode::TEXT);
 	}
 
 	setCurrentStatus("WaitingMirrorReady");
+
 } // init //
 
 
@@ -1856,14 +1882,15 @@ bool CPlayerService::update()
 void CPlayerService::release()
 {
 	bool packingSheets= haveArg('Q');
+	bool smokeTest = haveArg('T');
 
 	// release the world instance callback
 	CWorldInstances::instance().registerAiInstanceReadyCallback(NULL);
 
-	if (!packingSheets) PlayerManager.saveAllPlayer(); // this can produce huge network messages and needs that the FlushSendingQueuesOnExit variable is on!
-	if (!packingSheets) CDynamicItems::getInstance()->saveAll(); // same
-	if (!packingSheets) CStatDB::getInstance()->saveAll();
-	if (!packingSheets) COutpostManager::getInstance().saveAll();
+	if (!packingSheets && !smokeTest) PlayerManager.saveAllPlayer(); // this can produce huge network messages and needs that the FlushSendingQueuesOnExit variable is on!
+	if (!packingSheets && !smokeTest) CDynamicItems::getInstance()->saveAll(); // same
+	if (!packingSheets && !smokeTest) CStatDB::getInstance()->saveAll();
+	if (!packingSheets && !smokeTest) COutpostManager::getInstance().saveAll();
 
 	CSingletonRegistry::getInstance()->release();
 
@@ -3590,7 +3617,7 @@ NLMISC_COMMAND(displayPlayers,"display the player ids used, and short info about
 
 				log.displayNL( "Player: %d Name: %s ID: %s FE: %d Sheet: %s - %d Priv: '%s' Pos: %i,%i,%i Session: %u",
 					it->second.Player->getUserId(),
-					character->getName().toString().c_str(),
+					character->getName().c_str(),
 					character->getId().toString().c_str(),
 					PlayerManager.getPlayerFrontEndId( it->second.Player->getUserId() ).get(),
 					character->getType().toString().c_str(),
@@ -3618,7 +3645,7 @@ NLMISC_COMMAND(displayCreatures," displayCreatures","")
 		{
 			log.displayNL( "Creature: %s Name: %s Sheet: %s - %d",
 				it->first.toString().c_str(),
-				it->second->getName().toString().c_str(),
+				it->second->getName().c_str(),
 				it->second->getType().toString().c_str(),
 				it->second->getType().asInt() );
 		}

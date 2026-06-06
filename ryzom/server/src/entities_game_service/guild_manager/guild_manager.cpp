@@ -416,7 +416,7 @@ void CGuildManager::cb_guildNameIdAvailable(CCDBSynchronised *syncDb, ICDBStruct
 
 
 //----------------------------------------------------------------------------
-CGuild *CGuildManager::createGuildProxy(uint32 guildId, const ucstring & guildName,const uint64 &icon,const ucstring & description, EGSPD::CPeople::TPeople race, NLMISC::TGameCycle creationDate)
+CGuild *CGuildManager::createGuildProxy(uint32 guildId, const std::string & guildName,const uint64 &icon,const std::string & description, EGSPD::CPeople::TPeople race, NLMISC::TGameCycle creationDate)
 {
 	H_AUTO(CreateGuildProxy);
 	CGuild * guild = EGS_PD_CAST<CGuild*>( EGSPD::CGuildPD::create(guildId) );
@@ -484,12 +484,12 @@ void CGuildManager::dumpGuilds( bool onlyLocal, NLMISC::CLog & log )const
 
 		EGS_PD_AST(guild);
 		count++;
-		const ucstring & name = guild->getName();
+		const std::string & name = guild->getName();
 		log.displayNL("  id = %s %s %s, name = '%s', %u members",
 			guildIdToString(it->first).c_str(),
 			(it->first)>>20 == IService::getInstance()->getShardId() ? "(Local)" : "(Foreign)",
 			guild->getEId().toString().c_str(),
-			name.toString().c_str(),
+			name.c_str(),
 			guild->getMembers().size());
 	}
 	log.displayNL("\n%u valid guilds dumped",count);
@@ -522,7 +522,7 @@ uint32 CGuildManager::getFreeGuildId()
 
 
 //----------------------------------------------------------------------------
-CGuild * CGuildManager::getGuildByName( const ucstring & name )
+CGuild * CGuildManager::getGuildByName( const std::string & name )
 {
 	if ( !_Container )
 	{
@@ -534,8 +534,8 @@ CGuild * CGuildManager::getGuildByName( const ucstring & name )
 		CGuild * guild = EGS_PD_CAST<CGuild*>( (*it).second );
 		EGS_PD_AST(guild);
 		string guildName, namesAsked;
-		guildName = guild->getName().toString();
-		namesAsked = name.toString();
+		guildName = guild->getName();
+		namesAsked = name;
 		if ( strlwr(guildName) == strlwr(namesAsked) )
 			return guild;
 	}
@@ -559,18 +559,18 @@ CGuild * CGuildManager::getGuildFromId( EGSPD::TGuildId id )
 }
 
 //----------------------------------------------------------------------------
-//bool CGuildManager::updateGuildStringIds( const ucstring & str )
+//bool CGuildManager::updateGuildStringIds( const std::string & str )
 //{
 //	if ( _Container == NULL )
 //	{
 //		nlwarning("<GUILD> container not initialized (4)");
 //		return false;
 //	}
-//	std::pair< std::map<ucstring,EGSPD::TGuildId>::iterator, std::map<ucstring,EGSPD::TGuildId>::iterator > thePair = _GuildsAwaitingString.equal_range( str );
+//	std::pair< std::map<std::string,EGSPD::TGuildId>::iterator, std::map<std::string,EGSPD::TGuildId>::iterator > thePair = _GuildsAwaitingString.equal_range( str );
 //	if ( thePair.first == thePair.second )
 //		return false;
 //
-//	for ( std::map<ucstring,EGSPD::TGuildId>::iterator it = thePair.first; it != thePair.second;++it )
+//	for ( std::map<std::string,EGSPD::TGuildId>::iterator it = thePair.first; it != thePair.second;++it )
 //	{
 //		TGuildId guildId = it->second;
 //		CGuild * guild = EGS_PD_CAST<CGuild*>( _Container->getGuilds( guildId ) );
@@ -686,7 +686,7 @@ bool CGuildManager::isGMGuild( const EGSPD::TGuildId & guildId )
 }
 
 //----------------------------------------------------------------------------
-void CGuildManager::createGuild(CGuildCharProxy & proxy,const ucstring & guildName,const uint64 &icon,const ucstring & description)
+void CGuildManager::createGuild(CGuildCharProxy & proxy,const std::string & guildName,const uint64 &icon,const std::string & description)
 {
 	if ( !_Container )
 	{
@@ -748,7 +748,7 @@ void CGuildManager::createGuild(CGuildCharProxy & proxy,const ucstring & guildNa
 }
 
 
-void CGuildManager::createGuildStep2(uint32 guildId, const ucstring &guildName, CHARSYNC::TCharacterNameResult result)
+void CGuildManager::createGuildStep2(uint32 guildId, const std::string &guildName, CHARSYNC::TCharacterNameResult result)
 {
 	// remove pending guild info
 	TPendingGuildCreateInfos::iterator it(_PendingGuildCreates.find(guildId));
@@ -859,7 +859,7 @@ void CGuildManager::createGuildStep2(uint32 guildId, const ucstring &guildName, 
 	/// end current bot chat
 	proxy.endBotChat();
 	proxy.updateTarget();
-	_ExistingGuildNames.insert( NLMISC::toCaseInsensitive( guild->getName().toUtf8() ) );
+	_ExistingGuildNames.insert( NLMISC::toCaseInsensitive( guild->getName() ) );
 
 	// ask the client to open it's guild interface
 	PlayerManager.sendImpulseToClient( proxy.getId(),"GUILD:OPEN_GUILD_WINDOW" );
@@ -898,7 +898,7 @@ void CGuildManager::deleteGuild(uint32 id)
 			++i;
 	}
 
-	string name = guild->getName().toUtf8();
+	std::string name = guild->getName();
 	if (!guild->isProxy())
 	{
 		CMailForumValidator::removeGuild(name);
@@ -906,7 +906,7 @@ void CGuildManager::deleteGuild(uint32 id)
 		CStatDB::getInstance()->removeGuild(id);
 	}
 
-	_ExistingGuildNames.erase( NLMISC::toCaseInsensitive( guild->getName().toUtf8() ) );
+	_ExistingGuildNames.erase( NLMISC::toCaseInsensitive( guild->getName() ) );
 	guild->unregisterGuild();
 
 	if (!guild->isProxy())
@@ -1114,7 +1114,7 @@ void CGuildManager::loadGuild(const std::string &fileName)
 	std::vector<CHARSYNC::CGuildInfo> guildInfos;
 	CHARSYNC::CGuildInfo gi;
 	gi.setGuildId(lastLoadedGuild->getId());
-	gi.setGuildName(lastLoadedGuild->getName());
+	gi.setGuildName(lastLoadedGuild->getName()); // 0.5 string
 
 	guildInfos.push_back(gi);
 
@@ -1414,7 +1414,7 @@ void CGuildManager::registerGuildAfterLoading(CGuild *guildToRegister)
 //			guildToRegister->onGuildStringUpdated();
 //		else
 //		{
-//			const ucstring & str = guildToRegister->getName();
+//			const std::string & str = guildToRegister->getName();
 //			_GuildsAwaitingString.insert( make_pair( str, guildToRegister->getId() ) );
 //		}
 //		// do the same for descriptions
@@ -1422,11 +1422,11 @@ void CGuildManager::registerGuildAfterLoading(CGuild *guildToRegister)
 //			guildToRegister->onGuildStringUpdated();
 //		else
 //		{
-//			const ucstring & str = guildToRegister->getDescription();
+//			const std::string & str = guildToRegister->getDescription();
 //			_GuildsAwaitingString.insert( make_pair( str, guildToRegister->getId() ) );
 //		}
 
-		_ExistingGuildNames.insert( NLMISC::toCaseInsensitive( guildToRegister->getName().toUtf8() ) );
+		_ExistingGuildNames.insert( NLMISC::toCaseInsensitive( guildToRegister->getName() ) );
 	}
 }
 
@@ -1468,7 +1468,7 @@ void CGuildManager::checkMemberConsistency(CGuild *guildToCheck)
 }
 
 //----------------------------------------------------------------------------
-bool CGuildManager::checkGuildStrings(CGuildCharProxy & proxy,const ucstring & name, const ucstring & description)
+bool CGuildManager::checkGuildStrings(CGuildCharProxy & proxy,const std::string & name, const std::string & description)
 {
 	if( name.empty() )
 		return false;
@@ -1480,7 +1480,7 @@ bool CGuildManager::checkGuildStrings(CGuildCharProxy & proxy,const ucstring & n
 		return false;
 	}
 	// check if name already exists in the guild list
-	if ( _ExistingGuildNames.find( NLMISC::toCaseInsensitive( name.toUtf8() ) ) != _ExistingGuildNames.end() )
+	if ( _ExistingGuildNames.find( NLMISC::toCaseInsensitive( name ) ) != _ExistingGuildNames.end() )
 	{
 		proxy.sendSystemMessage("GUILD_NAME_ALREADY_EXISTS");
 		return false;
@@ -1594,7 +1594,7 @@ void CGuildManager::fillGuildInfos(std::vector<CHARSYNC::CGuildInfo> &guildInfos
 
 		CHARSYNC::CGuildInfo gi;
 		gi.setGuildId(guild->getIdWrap());
-		gi.setGuildName(guild->getNameWrap().toUtf8());
+		gi.setGuildName(guild->getNameWrap());
 
 		guildInfos.push_back(gi);
 	}
@@ -1915,11 +1915,11 @@ NLMISC_CLASS_COMMAND_IMPL(CGuildManager, renameGuild)
 	}
 
 	// ok, rename it
-	ucstring newName;
-	newName.fromUtf8(args[1]);
+	std::string newName;
+	newName = args[1];
 	guild->setName(newName);
 
-	log.displayNL("Guild %s renamed as '%s'", guildIdToString(guildId).c_str(), newName.toUtf8().c_str());
+	log.displayNL("Guild %s renamed as '%s'", guildIdToString(guildId).c_str(), newName.c_str());
 
 	return true;
 }

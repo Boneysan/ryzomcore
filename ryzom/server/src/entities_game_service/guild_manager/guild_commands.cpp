@@ -106,7 +106,7 @@ using namespace NLNET;
 	} \
 	if (onlyLocal && guild->isProxy())\
 	{\
-		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().toString().c_str());\
+		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().c_str());\
 		return true;\
 	} \
 
@@ -312,8 +312,8 @@ NLMISC_COMMAND(guildCreate,"create a new guild","<userId><name><description><ico
 		return false;
 	CEntityId eId;
 	eId.fromString(args[0].c_str());
-	ucstring name = args[1];
-	ucstring description = args[2];
+	std::string name = args[1];
+	std::string description = args[2];
 	uint64 icon = NLMISC::atoiInt64( args[3].c_str() );
 	
 	// get the character and build a proxy from it

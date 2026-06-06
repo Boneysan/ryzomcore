@@ -43,6 +43,8 @@
 // Misc
 #include "nel/misc/string_conversion.h"
 
+#include <string_view>
+
 // EGS
 #include "entity_manager/entity_base.h"
 #include "character_structure/character_persistant_data.h"
@@ -82,8 +84,8 @@ namespace CHARSYNC
 	class TCharInfo;
 }
 
-typedef std::vector< std::pair< NLMISC::CSheetId, uint8 > > TMpIdQuality;
-typedef EGSPD::CMissionPD CMission;
+using TMpIdQuality = std::vector< std::pair< NLMISC::CSheetId, uint8 > >;
+using CMission = EGSPD::CMissionPD;
 
 // number of slot in a bot chat list page
 #define NB_SLOT_PER_PAGE		8
@@ -249,7 +251,7 @@ struct CWelcomeMissionDesc
 		BotAlias = CAIAliasTranslator::Invalid;
 	}
 
-	bool isValid() const
+	[[nodiscard]] bool isValid() const
 	{
 		return (MissionAlias != CAIAliasTranslator::Invalid && BotAlias != CAIAliasTranslator::Invalid);
 	}
@@ -259,7 +261,7 @@ struct CWelcomeMissionDesc
 };
 
 
-typedef float TSatiety;
+using TSatiety = float;
 const TSatiety SatietyNotInit = -9999.0f;
 
 
@@ -573,7 +575,7 @@ public:
 	uint32 getStartupInstance();
 
 	/** Set the name of the character */
-	void setName(const ucstring &name);
+	void setName(const std::string &name);
 
 	/***
 	 * Set character Title
@@ -655,7 +657,7 @@ public:
 	 * Get the enter flag 
 	 * \return true if the player entered the game, false if he left
 	 */
-	bool getEnterFlag() const;
+	[[nodiscard]] bool getEnterFlag() const;
 
 	/**
 	 * wrapper to CEntityBase
@@ -663,7 +665,7 @@ public:
 //	CEntityState& getState();
 //	const CEntityState& getState() const;
 	void setState( const COfflineEntityState& es );
-	bool isDead() const;
+	[[nodiscard]] bool isDead() const;
 	
 	/**
 	 * Serial: reading off-mirror, writing from mirror
@@ -737,7 +739,7 @@ public:
 	void addKnownBrickBonus( const NLMISC::CSheetId& brickId);
 
 	/// check if have brick
-	bool haveBrick( const NLMISC::CSheetId& brickId );
+	[[nodiscard]] bool haveBrick( const NLMISC::CSheetId& brickId );
 
 	/// remove a known brick
 	void removeKnownBrick( const NLMISC::CSheetId& brickId );
@@ -1026,7 +1028,7 @@ public:
 
 #ifdef RYZOM_FORGE_PET_NAME
 	// Set the name of the animal
-	void setAnimalName( uint8 petIndex, ucstring customName );
+	void setAnimalName( uint8 petIndex, const std::string &customName );
 
 	void sendPetCustomNameToClient(uint8 petIndex);
 #endif
@@ -1514,7 +1516,7 @@ public:
 	uint8 interfaceCounter() const;
 
 	/// Register character name in IOS
-	void registerName(const ucstring &newName = std::string());
+	void registerName(const std::string &newName = std::string());
 
 	/// Mount a mount
 	void mount( TDataSetRow PetRowId );
@@ -1726,7 +1728,7 @@ public:
 #endif
 
 	/// get the available phrases
-	void getAvailablePhrasesList(const std::string &brickFilter, std::vector<NLMISC::CSheetId> &selectedPhrases, EGSPD::CPeople::TPeople people = EGSPD::CPeople::Common, bool bypassBrickRequirements = false, bool includeNonRolemasterBricks = true );
+	void getAvailablePhrasesList(std::string_view brickFilter, std::vector<NLMISC::CSheetId> &selectedPhrases, EGSPD::CPeople::TPeople people = EGSPD::CPeople::Common, bool bypassBrickRequirements = false, bool includeNonRolemasterBricks = true );
 
 	/// spend Skill points
 	void spendSP(double sp, EGSPD::CSPType::TSPType type = EGSPD::CSPType::EndSPType);
@@ -1788,7 +1790,7 @@ public:
 	void revive();
 	
 	// Buy kami or karavan pact for a respawn point
-	void buyPact( const std::string& PactName ); 
+	void buyPact( std::string_view PactName ); 
 
 	/// set forbid aura use start and end dates
 	void setForbidAuraUseDates(NLMISC::TGameCycle startDate, NLMISC::TGameCycle endDate);
@@ -1956,10 +1958,10 @@ public:
 	// @{
 
 		/// add a player to friend list by name
-		void addPlayerToFriendList(const ucstring &name);
+		void addPlayerToFriendList(const std::string &name);
 
 		/// add a player to ignore list by name
-		void addPlayerToIgnoreList(const ucstring &name);
+		void addPlayerToIgnoreList(const std::string &name);
 
 		/// add a player to ignore list by Id
 		void addPlayerToIgnoreList(const NLMISC::CEntityId &id);
@@ -2249,8 +2251,8 @@ public:
 	bool setHairColor(uint32 colorValue);
 
 
-	typedef std::vector< TBrickParam::IIdPtr > CBrickPropertyValues;
-	typedef std::map< TBrickParam::TValueType, CBrickPropertyValues > CBrickProperties;
+	using CBrickPropertyValues = std::vector< TBrickParam::IIdPtr >;
+	using CBrickProperties = std::map< TBrickParam::TValueType, CBrickPropertyValues >;
 
 	/// Return the values of properties of the known bricks of the specified family (useful for bonus values)
 	void getPropertiesFromKnownBricks( BRICK_FAMILIES::TBrickFamily brickFamily,
@@ -3894,8 +3896,8 @@ public:
 };
 
 
-typedef NLMISC::CSmartPtr<CCharacter> CCharacterPtr;
-typedef NLMISC::CRefPtr<CCharacter> CCharacterRefPtr;
+using CCharacterPtr = NLMISC::CSmartPtr<CCharacter>;
+using CCharacterRefPtr = NLMISC::CRefPtr<CCharacter>;
 
 #include "character_inlines.h"
 

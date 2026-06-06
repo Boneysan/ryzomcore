@@ -21,7 +21,7 @@
 
 #include "nel/misc/entity_id.h"
 #include "nel/misc/sheet_id.h"
-#include "nel/misc/ucstring.h"
+#include "nel/misc/ucstring.h"  // kept for now during 0.5 migration (some legacy)
 #include "nel/net/message.h"
 #include "base_types.h"
 #include "chat_group.h"
@@ -97,7 +97,7 @@ namespace STRING_MANAGER
 		uint64				Money;
 		NLMISC::CSheetId	SheetId;
 		std::string			Identifier;
-		ucstring			Literal;
+		std::string			Literal; // UTF-8 (0.5 migration)
 
 		/// Serial with format control embedded
 		void serial(NLMISC::IStream &f);
@@ -123,8 +123,7 @@ namespace STRING_MANAGER
 			: Type(type), SheetId(sheetId){}
 		TParam(TParamType type, const std::string &ident)
 			: Type(type), Identifier(ident)	{}
-		TParam(TParamType type, const ucstring &literal)
-			: Type(type), Literal(literal)	{}
+		// Literal ctor removed during std::string migration (use TParam(type); p.Literal = ... or the ident ctor + assign)
 
 		NLMISC::CEntityId getEId() const;
 
@@ -225,7 +224,7 @@ namespace STRING_MANAGER
 	const std::string & paramTypeToString( TParamType type );
 
 	// Set a phrase in IOS for all languages
-	void	setPhrase(const std::string &phraseName, const ucstring &phraseContent);
+	void	setPhrase(const std::string &phraseName, const std::string &phraseContent); // UTF-8 (0.5)
 
 	// A vector that check size
 	class CVectorParamCheck : public std::vector<STRING_MANAGER::TParam>

@@ -987,7 +987,7 @@ NLMISC_COMMAND(getTarget, "get target of player", "<uid>")
 	{
 		CCharacter * cTarget = dynamic_cast<CCharacter*>(CEntityBaseManager::getEntityBasePtr(target));
 		if (cTarget) {
-			msg += cTarget->getName().toString()+"|";
+			msg += cTarget->getName()+"|";
 
 			if (c->getGuildId() != 0 && c->getGuildId() == cTarget->getGuildId())
 				msg += "g|";

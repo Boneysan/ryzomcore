@@ -501,7 +501,7 @@ NLMISC_COMMAND(outpostSetOutpostToPlayer, "set the player's guild as the owner o
 	{
 		if (!guild->canAddOutpost())
 		{
-			log.displayNL("the guild '%s' cannot get one more outpost", guild->getName().toUtf8().c_str());
+			log.displayNL("the guild '%s' cannot get one more outpost", guild->getName().c_str());
 			return true;
 		}
 		if (outpost->getState() != OUTPOSTENUMS::Peace)
@@ -544,7 +544,7 @@ NLMISC_COMMAND(outpostSetOutpostOwner, "set the owner of the outpost", "<outpost
 
 		if (!guild->canAddOutpost())
 		{
-			log.displayNL("the guild '%s' cannot get one more outpost", guild->getName().toUtf8().c_str());
+			log.displayNL("the guild '%s' cannot get one more outpost", guild->getName().c_str());
 			return true;
 		}
 	}

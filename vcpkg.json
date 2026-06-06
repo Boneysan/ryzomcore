@@ -34,7 +34,8 @@
     "opengl",
     "openssl",
     "zlib",
-    "gtest"
+    "gtest",
+    "cpp-httplib"
   ],
   "overrides": [
     {

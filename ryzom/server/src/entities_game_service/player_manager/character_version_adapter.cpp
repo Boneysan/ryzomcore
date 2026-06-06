@@ -1094,7 +1094,7 @@ void CCharacterVersionAdapter::adaptToVersion24(CCharacter &character) const
 	
 	if (character.getScorePermanentModifiers(SCORES::hit_points) < bonus)
 	{
-		nlinfo("RITE BONUS FIX: Player %s need %d (hp) but have %d !", character.getName().toString().c_str(), bonus, character.getScorePermanentModifiers(SCORES::hit_points));
+		nlinfo("RITE BONUS FIX: Player %s need %d (hp) but have %d !", character.getName().c_str(), bonus, character.getScorePermanentModifiers(SCORES::hit_points));
 		character.setScorePermanentModifiers(SCORES::hit_points, bonus);
 	}
 	
@@ -1118,7 +1118,7 @@ void CCharacterVersionAdapter::adaptToVersion24(CCharacter &character) const
 	
 	if (character.getScorePermanentModifiers(SCORES::sap) < bonus)
 	{
-		nlinfo("RITE BONUS FIX: Player %s need %d (sap) but have %d !", character.getName().toString().c_str(),bonus, character.getScorePermanentModifiers(SCORES::sap));
+		nlinfo("RITE BONUS FIX: Player %s need %d (sap) but have %d !", character.getName().c_str(),bonus, character.getScorePermanentModifiers(SCORES::sap));
 		character.setScorePermanentModifiers(SCORES::sap, bonus);
 	}
 	
@@ -1145,7 +1145,7 @@ void CCharacterVersionAdapter::adaptToVersion24(CCharacter &character) const
 	
 	if (character.getScorePermanentModifiers(SCORES::focus) < bonus)
 	{
-		nlinfo("RITE BONUS FIX: Player %s need %d (focus) but have %d !", character.getName().toString().c_str(),bonus, character.getScorePermanentModifiers(SCORES::focus));
+		nlinfo("RITE BONUS FIX: Player %s need %d (focus) but have %d !", character.getName().c_str(),bonus, character.getScorePermanentModifiers(SCORES::focus));
 		character.setScorePermanentModifiers(SCORES::focus, bonus);
 	}
 	
@@ -1170,7 +1170,7 @@ void CCharacterVersionAdapter::adaptToVersion24(CCharacter &character) const
 	
 	if (character.getScorePermanentModifiers(SCORES::stamina) < bonus)
 	{
-		nlinfo("RITE BONUS FIX: Player %s need %d (stamina) but have %d !", character.getName().toString().c_str(),bonus, character.getScorePermanentModifiers(SCORES::stamina));
+		nlinfo("RITE BONUS FIX: Player %s need %d (stamina) but have %d !", character.getName().c_str(),bonus, character.getScorePermanentModifiers(SCORES::stamina));
 		character.setScorePermanentModifiers(SCORES::stamina, bonus);
 	}
 #endif

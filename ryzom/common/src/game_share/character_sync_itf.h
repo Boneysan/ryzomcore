@@ -1098,7 +1098,7 @@ namespace CHARSYNC
 		//
 		uint8	_CharIndex;
 		//
-		ucstring	_FullName;
+		std::string	_FullName;
 	public:
 		//
 		TCharacterNameResult getResult() const
@@ -1131,12 +1131,12 @@ namespace CHARSYNC
 				_CharIndex = value;
 		}
 			//
-		const ucstring& getFullName() const
+		const std::string& getFullName() const
 		{
 			return _FullName;
 		}
 
-		void setFullName(const ucstring &value)
+		void setFullName(const std::string &value)
 		{
 				_FullName = value;
 		}
@@ -1177,23 +1177,23 @@ namespace CHARSYNC
 	{
 	protected:
 		//
-		ucstring	_GuildName;
+		std::string	_GuildName;
 		//
 		uint32	_GuildId;
 	public:
 		//
-		const ucstring &getGuildName() const
+		const std::string &getGuildName() const
 		{
 			return _GuildName;
 		}
 
-		ucstring &getGuildName()
+		std::string &getGuildName()
 		{
 			return _GuildName;
 		}
 
 
-		void setGuildName(const ucstring &value)
+		void setGuildName(const std::string &value)
 		{
 
 
@@ -1328,9 +1328,9 @@ namespace CHARSYNC
 		// a guildRenamed message to EGS.
 		virtual void registerLoadedGuildNames(NLNET::IModuleProxy *sender, uint32 chardId, const std::vector < CGuildInfo > &guildInfos) =0;
 		// EGS ask to the name unifier to validate a new guild name
-		virtual void validateGuildName(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &guildName) =0;
+		virtual void validateGuildName(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &guildName) =0;
 		// EGS add newly created guild info
-		virtual void addGuild(NLNET::IModuleProxy *sender, uint32 shardId, uint32 guildId, const ucstring &guildName) =0;
+		virtual void addGuild(NLNET::IModuleProxy *sender, uint32 shardId, uint32 guildId, const std::string &guildName) =0;
 		// EGS remove deleted guild info
 		virtual void removeGuild(NLNET::IModuleProxy *sender, uint32 shardId, uint32 guildId) =0;
 
@@ -1403,9 +1403,9 @@ namespace CHARSYNC
 		// a guildRenamed message to EGS.
 		void registerLoadedGuildNames(NLNET::IModule *sender, uint32 chardId, const std::vector < CGuildInfo > &guildInfos);
 		// EGS ask to the name unifier to validate a new guild name
-		void validateGuildName(NLNET::IModule *sender, uint32 guildId, const ucstring &guildName);
+		void validateGuildName(NLNET::IModule *sender, uint32 guildId, const std::string &guildName);
 		// EGS add newly created guild info
-		void addGuild(NLNET::IModule *sender, uint32 shardId, uint32 guildId, const ucstring &guildName);
+		void addGuild(NLNET::IModule *sender, uint32 shardId, uint32 guildId, const std::string &guildName);
 		// EGS remove deleted guild info
 		void removeGuild(NLNET::IModule *sender, uint32 shardId, uint32 guildId);
 
@@ -1425,10 +1425,10 @@ namespace CHARSYNC
 		static const NLNET::CMessage &buildMessageFor_registerLoadedGuildNames(NLNET::CMessage &__message, uint32 chardId, const std::vector < CGuildInfo > &guildInfos);
 
 		// Message serializer. Return the message received in reference for easier integration
-		static const NLNET::CMessage &buildMessageFor_validateGuildName(NLNET::CMessage &__message, uint32 guildId, const ucstring &guildName);
+		static const NLNET::CMessage &buildMessageFor_validateGuildName(NLNET::CMessage &__message, uint32 guildId, const std::string &guildName);
 
 		// Message serializer. Return the message received in reference for easier integration
-		static const NLNET::CMessage &buildMessageFor_addGuild(NLNET::CMessage &__message, uint32 shardId, uint32 guildId, const ucstring &guildName);
+		static const NLNET::CMessage &buildMessageFor_addGuild(NLNET::CMessage &__message, uint32 shardId, uint32 guildId, const std::string &guildName);
 
 		// Message serializer. Return the message received in reference for easier integration
 		static const NLNET::CMessage &buildMessageFor_removeGuild(NLNET::CMessage &__message, uint32 shardId, uint32 guildId);
@@ -1448,7 +1448,7 @@ namespace CHARSYNC
 		//
 		uint8	_CharIndex;
 		//
-		ucstring	_Name;
+		std::string	_Name;
 		//
 		std::string	_UserName;
 		//
@@ -1479,18 +1479,18 @@ namespace CHARSYNC
 
 		}
 			//
-		const ucstring &getName() const
+		const std::string &getName() const
 		{
 			return _Name;
 		}
 
-		ucstring &getName()
+		std::string &getName()
 		{
 			return _Name;
 		}
 
 
-		void setName(const ucstring &value)
+		void setName(const std::string &value)
 		{
 
 
@@ -1581,7 +1581,7 @@ namespace CHARSYNC
 		//
 		uint32	_CharId;
 		//
-		ucstring	_CharName;
+		std::string	_CharName;
 		//
 		uint32	_HomeSessionId;
 		//
@@ -1604,18 +1604,18 @@ namespace CHARSYNC
 
 		}
 			//
-		const ucstring &getCharName() const
+		const std::string &getCharName() const
 		{
 			return _CharName;
 		}
 
-		ucstring &getCharName()
+		std::string &getCharName()
 		{
 			return _CharName;
 		}
 
 
-		void setCharName(const ucstring &value)
+		void setCharName(const std::string &value)
 		{
 
 
@@ -1809,9 +1809,9 @@ namespace CHARSYNC
 		// but the character names are perhaps not good ?
 		virtual void userCharSyncFailed(NLNET::IModuleProxy *sender, uint32 userId) =0;
 		// The name unifier has renamed a guild to resolve a name conflict
-		virtual void guildRenamed(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &newName) =0;
+		virtual void guildRenamed(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &newName) =0;
 		// The name unifier respond to EGS about guild name validation request
-		virtual void validateGuildNameResult(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &guildName, TCharacterNameResult result) =0;
+		virtual void validateGuildNameResult(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &guildName, TCharacterNameResult result) =0;
 		// The unifier has detected an invalid guild/character association
 		// and ask to the EGS to remove the character from the guild
 		virtual void removeCharFromGuild(NLNET::IModuleProxy *sender, uint32 charId, uint32 guildId) =0;
@@ -1894,9 +1894,9 @@ namespace CHARSYNC
 		// but the character names are perhaps not good ?
 		void userCharSyncFailed(NLNET::IModule *sender, uint32 userId);
 		// The name unifier has renamed a guild to resolve a name conflict
-		void guildRenamed(NLNET::IModule *sender, uint32 guildId, const ucstring &newName);
+		void guildRenamed(NLNET::IModule *sender, uint32 guildId, const std::string &newName);
 		// The name unifier respond to EGS about guild name validation request
-		void validateGuildNameResult(NLNET::IModule *sender, uint32 guildId, const ucstring &guildName, TCharacterNameResult result);
+		void validateGuildNameResult(NLNET::IModule *sender, uint32 guildId, const std::string &guildName, TCharacterNameResult result);
 		// The unifier has detected an invalid guild/character association
 		// and ask to the EGS to remove the character from the guild
 		void removeCharFromGuild(NLNET::IModule *sender, uint32 charId, uint32 guildId);
@@ -1964,10 +1964,10 @@ namespace CHARSYNC
 		static const NLNET::CMessage &buildMessageFor_userCharSyncFailed(NLNET::CMessage &__message, uint32 userId);
 
 		// Message serializer. Return the message received in reference for easier integration
-		static const NLNET::CMessage &buildMessageFor_guildRenamed(NLNET::CMessage &__message, uint32 guildId, const ucstring &newName);
+		static const NLNET::CMessage &buildMessageFor_guildRenamed(NLNET::CMessage &__message, uint32 guildId, const std::string &newName);
 
 		// Message serializer. Return the message received in reference for easier integration
-		static const NLNET::CMessage &buildMessageFor_validateGuildNameResult(NLNET::CMessage &__message, uint32 guildId, const ucstring &guildName, TCharacterNameResult result);
+		static const NLNET::CMessage &buildMessageFor_validateGuildNameResult(NLNET::CMessage &__message, uint32 guildId, const std::string &guildName, TCharacterNameResult result);
 
 		// Message serializer. Return the message received in reference for easier integration
 		static const NLNET::CMessage &buildMessageFor_removeCharFromGuild(NLNET::CMessage &__message, uint32 charId, uint32 guildId);

@@ -66,7 +66,7 @@ public:
 	/// Fiche ID
 	CMirrorPropValueAlice< TYPE_SHEET, CPropLocationPacked<2> >	_SheetId;
 	/// name
-	ucstring								_Name;
+	std::string								_Name;
 	/// name (family)	
 //	ucstring								_Surname;
 	/// Race of entity 

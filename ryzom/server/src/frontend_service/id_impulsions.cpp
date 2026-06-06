@@ -371,7 +371,7 @@ void routeImpulsionIdFromClient( NLMISC::CBitMemStream& bms, const NLMISC::CEnti
 				} store;
 				CEntityId	e;
 				string		s;
-				ucstring	ucs;
+				string		str;  // was ucstring (now std::string after 0.5 UTF-8 migration)
 
 				uint	i;
 				// for each message field, serial in and serial out
@@ -450,8 +450,9 @@ void routeImpulsionIdFromClient( NLMISC::CBitMemStream& bms, const NLMISC::CEnti
 						msgout.serial(s);
 						break;
 					case CGenericXmlMsgHeaderManager::UCString:
-						bms.serial(ucs);
-						msgout.serial(ucs);
+						// 0.5: now serial as std::string (UTF-8)
+						bms.serial(str);
+						msgout.serial(str);
 						break;
 					}
 				}

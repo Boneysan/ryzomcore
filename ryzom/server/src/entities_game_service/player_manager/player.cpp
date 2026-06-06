@@ -398,7 +398,7 @@ void	CAsyncPlayerLoad::receivedCharacterFile(const CFileDescription& fileDescrip
 		}
 		else
 		{
-			egs_plinfo("LOADED User '%d' Character '%s' from BS stream file '%s'", UserId, Player->_Characters[charId]->getName().toUtf8().c_str(), fileDescription.FileName.c_str());
+			egs_plinfo("LOADED User '%d' Character '%s' from BS stream file '%s'", UserId, Player->_Characters[charId]->getName().c_str(), fileDescription.FileName.c_str());
 
 //			// create a valid backup (using backup service)
 //			CBackupMsgSaveFile msg( fileDescription.FileName+".last_good", CBackupMsgSaveFile::SaveFile, BsiGlobal );
@@ -688,7 +688,7 @@ void CPlayer::deleteCharacter( uint32 index )
 	}
 
 	// Remove the directory for player mail
-	string name = _Characters[ index ]->getName().toUtf8();
+	string name = _Characters[ index ]->getName();
 	CMailForumValidator::removeUser(_Characters[ index ]->getHomeMainlandSessionId(), name);
 
 	_Characters[ index ]->destroyCharacter();
@@ -810,7 +810,7 @@ void CPlayer::loadAllCharacters()
 					f.xmlPop();
 					_Characters[ i ] = pCh;
 					characterFound = true;
-					egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().toUtf8().c_str(),serialBinFileName.c_str());
+					egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().c_str(),serialBinFileName.c_str());
 				}
 				catch(const Exception &e)
 				{
@@ -846,7 +846,7 @@ void CPlayer::loadAllCharacters()
 				}
 				_Characters[ i ] = pCh;
 				characterFound = true;
-				egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().toUtf8().c_str(),pdrBinFileName.c_str());
+				egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().c_str(),pdrBinFileName.c_str());
 			}
 			break;
 
@@ -869,7 +869,7 @@ void CPlayer::loadAllCharacters()
 				}
 				_Characters[ i ] = pCh;
 				characterFound = true;
-				egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().toUtf8().c_str(),pdrXmlFileName.c_str());
+				egs_plinfo("LOADED Character '%s' from file: %s",pCh->getName().c_str(),pdrXmlFileName.c_str());
 			}
 			break;
 		}
@@ -1006,7 +1006,7 @@ void CPlayer::loadAllCharactersPdr()
 		// apply the loaded pdr record to the new character
 		_Characters[ i ]->apply(pdr);
 
-		egs_plinfo("LOADED Character '%s' from file: %s",_Characters[ i ]->getName().toUtf8().c_str(),fileName.c_str());
+		egs_plinfo("LOADED Character '%s' from file: %s",_Characters[ i ]->getName().c_str(),fileName.c_str());
 	}
 }
 

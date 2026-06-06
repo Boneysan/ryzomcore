@@ -1104,7 +1104,7 @@ namespace TM
 			return false;
 		}
 
-		std::auto_ptr<MSW::CStoreResult> result = connection.storeResult();
+		std::unique_ptr<MSW::CStoreResult> result = connection.storeResult();
 
 		// check that the data description is consistent with database content
 		nlassert(result->getNumRows() <= 1);
@@ -1638,7 +1638,7 @@ namespace TM
 			return false;
 		}
 
-		std::auto_ptr<MSW::CStoreResult> result = connection.storeResult();
+		std::unique_ptr<MSW::CStoreResult> result = connection.storeResult();
 
 		for (uint i=0; i<result->getNumRows(); ++i)
 		{
@@ -2180,7 +2180,7 @@ namespace TM
 			return false;
 		}
 
-		std::auto_ptr<MSW::CStoreResult> result = connection.storeResult();
+		std::unique_ptr<MSW::CStoreResult> result = connection.storeResult();
 
 		for (uint i=0; i<result->getNumRows(); ++i)
 		{

@@ -113,7 +113,7 @@ public:
 				const TPendingCharName &pcn = _PendingCharNames.front();
 				charNameInfos.push_back(TCharNameInfo());
 				charNameInfos.back().setCharEid(pcn.CharEid);
-				charNameInfos.back().setCharName(pcn.CharName);
+				charNameInfos.back().setCharName(pcn.CharName.toUtf8()); // 0.5 bridge
 
 				_PendingCharNames.pop_front();
 			}

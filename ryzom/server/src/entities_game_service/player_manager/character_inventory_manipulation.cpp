@@ -2389,8 +2389,8 @@ void CCharacter::sendItemInfos( uint16 slotId )
 				const R2::TMissionItem * itemDesc = CR2MissionItem::getInstance().getR2ItemDefinition( currentSessionId(), item->getSheetId() );
 				if( itemDesc != 0 )
 				{
-					infos.R2ItemDescription = itemDesc->Description.toUtf8();
-					infos.R2ItemComment = itemDesc->Comment.toUtf8();
+					infos.R2ItemDescription = itemDesc->Description;
+					infos.R2ItemComment = itemDesc->Comment;
 				}
 			}
 		}

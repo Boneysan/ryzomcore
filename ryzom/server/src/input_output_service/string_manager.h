@@ -133,9 +133,9 @@ public:
 		/// Format of the replacement (mainly refer to entities excel files columns names).
 		std::string				Format;
 		/// The first place for insertion of the replacement (opening $)
-		ucstring::size_type		InsertPlace;
+		size_t		InsertPlace;
 		/// The first continuation char after the replacement tag (after the closing $)
-		ucstring::size_type		ContinuePlace;
+		size_t		ContinuePlace;
 	};
 
 	/** Store a parameter during message decoding.
@@ -159,7 +159,7 @@ public:
 		uint32				StringId;
 		NLMISC::CSheetId	SheetId;
 		std::string			Identifier;
-		ucstring			Literal;
+		std::string			Literal;
 
 	};
 
@@ -204,9 +204,9 @@ public:
 		 */
 		std::vector<std::vector<TCondition> >	Conditions;
 		/// The text string as read in the string file.
-		ucstring					String;
+		std::string					String;
 		/// The text string build for the client.
-		ucstring					ClientString;
+		std::string					ClientString;
 		/// The client string id.
 		uint32						ClientStringId;
 		/// The parameters and format in order of apparency in the client string
@@ -437,9 +437,9 @@ private:
 	/// A name ordered container to store the phrases.
 	typedef std::map<std::string, CPhrase>		TPhrasesContainer;
 	/// A container to store string to id association
-	typedef std::map<ucstring, uint32>			TMappedUStringContainer;
+	typedef std::map<std::string, uint32>			TMappedUStringContainer;
 	/// A container to store the mapped string in order.
-	typedef std::vector<ucstring>				TUStringContainer;
+	typedef std::vector<std::string>				TUStringContainer;
 	/// A container to store the entity info.
 	typedef std::map<NLMISC::CSheetId, TSheetInfo>		TSheetInfoContainer;
 
@@ -506,7 +506,7 @@ private:
 
 public:
 	/// A temporary storage used to resolve clause strings indirection.
-	std::map<std::string, ucstring> TempClauseStrings;
+	std::map<std::string, std::string> TempClauseStrings;
 
 public:
 	/// Constructor.
@@ -551,7 +551,7 @@ public:
 	/**
 	 * reset entity word
 	 */
-	void					setEntityWord(const std::string& path, const ucstring& value);
+	void					setEntityWord(const std::string& path, const std::string& value);
 
 	/**
 	 * Load bot names file
@@ -562,7 +562,7 @@ public:
 	 * Set bot name
 	 * WARNING: this method is quite slow, because it remaps all bot names each time you call it!!
 	 */
-	void					setBotName(const ucstring& botname, const ucstring& translation);
+	void					setBotName(const std::string& botname, const std::string& translation);
 
 	/**
 	 * Remap bot names
@@ -591,14 +591,14 @@ public:
 	/** Translate a bot name using the shard global translation table.
 	*	This version take the unmapped string.
 	*/
-	uint32					translateShortName(const ucstring &shortName);
+	uint32					translateShortName(const std::string &shortName);
 
 	/** Translate a title/function.*/
 	uint32					translateTitle(const std::string &title, TLanguages language);
 
 	/** Translate an event faction.*/
 	uint32					translateEventFaction(uint32 eventFactionId);
-	uint32					translateEventFaction(const ucstring &eventFaction);
+	uint32					translateEventFaction(const std::string &eventFaction);
 
 	/** Return the entity word class for a given lang and a given parameter type.
 	 */
@@ -650,9 +650,9 @@ public:
 	NLMISC::CSheetId		getSheetServerId(const NLMISC::CEntityId &entityId);
 
 	/// Store the string in the string base en return an Id
-	uint32	storeString(const ucstring &str);
+	uint32	storeString(const std::string &str);
 	/// Retreive a string in the string base
-	const ucstring &getString(uint32 stringId);
+	const std::string &getString(uint32 stringId);
 
 	// TODO : temp, remove when dyndb removed.
 //	ucstring	getEntityDisplayName(const NLMISC::CEntityId &eid);
@@ -674,8 +674,8 @@ public:
 
 	void setPhrase(NLNET::CMessage &message);
 	void setPhraseLang(NLNET::CMessage &message);
-	void setPhrase(std::string const& phraseName, ucstring const& phraseContent);
-	void setPhrase(std::string const& phraseName, ucstring const& phraseContent, TLanguages language);
+	void setPhrase(std::string const& phraseName, const std::string &phraseContent);
+	void setPhrase(std::string const& phraseName, const std::string &phraseContent, TLanguages language);
 	/// Returns the language used in the setPhrase command.
 	/** NB_LANGUAGES for all.
 	*/
@@ -702,30 +702,30 @@ private:
 	//@{
 	//\name phrase parsing methods
 	/// Parse the clauses doc that contain all labeled indirect clause text.
-	bool parseClauseStrings(const ucstring &clausesStrings);
+	bool parseClauseStrings(const std::string &clausesStrings);
 	/// Parse the phrase doc contained in a string for the specified language
-	void parsePhraseDoc(ucstring &doc, uint langNum);
+	void parsePhraseDoc(std::string &doc, uint langNum);
 	/// Parse a block of the phrase doc. A bloc contain one phrase.
-	bool parseBlock(const ucstring &block, CPhrase &phrase);
+	bool parseBlock(const std::string &block, CPhrase &phrase);
 	/// Parse a string to extract the position, name and format of replacement ($xx$).
-	bool extractReplacement(const CPhrase &phrase, const ucstring &str, std::vector<TReplacement> &result);
+	bool extractReplacement(const CPhrase &phrase, const std::string &str, std::vector<TReplacement> &result);
 	/// Parse a replacement tag.
-	bool parseTag(const CPhrase &phrase, const ucstring &tag, TReplacement &rep);
+	bool parseTag(const CPhrase &phrase, const std::string &tag, TReplacement &rep);
 	/// Parse a clause
-	bool parseClauses(const CPhrase &phrase, ucstring::const_iterator &it, ucstring::const_iterator &last, std::vector<CClause> &clauses);
+	bool parseClauses(const CPhrase &phrase, const std::string &block, size_t &pos, std::vector<CClause> &clauses);
 	/// Parse a condition
-	bool parseCondition(const CPhrase &phrase, const ucstring &str, std::vector<TCondition> &result);
+	bool parseCondition(const CPhrase &phrase, const std::string &str, std::vector<TCondition> &result);
 	/// Parse a marked string, ie a string delimited by [ and ]
-//	bool parseMarkedString(ucchar openMark, ucchar closeMark, ucstring::const_iterator &it, ucstring::const_iterator &last, ucstring &result);
+//	bool parseMarkedString(ucchar openMark, ucchar closeMark, std::string::const_iterator &it, std::string::const_iterator &last, std::string &result);
 	/// Parse the param list. Param list are delimited by ( and ), param are separated by ','
-	bool parseParamList(ucstring::const_iterator &it, ucstring::const_iterator &last, std::vector<CParameterTraits*> &result);
+	bool parseParamList(const std::string &block, size_t &pos, std::vector<CParameterTraits*> &result);
 	/// Advance iterator to next non white space (tab, space, cr or lf)
-//	void skipWhiteSpace(ucstring::const_iterator &it, ucstring::const_iterator &last);
+//	void skipWhiteSpace(std::string::const_iterator &it, std::string::const_iterator &last);
 	/// Parse a label. Label are defined as in C.
-//	bool parseLabel(ucstring::const_iterator &it, ucstring::const_iterator &last, ucstring &result);
+//	bool parseLabel(std::string::const_iterator &it, std::string::const_iterator &last, std::string &result);
 	//@}
 
-	CEntityWords parseEntityWords(const ucstring &str);
+	CEntityWords parseEntityWords(const std::string &str);
 
 };
 

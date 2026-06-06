@@ -437,7 +437,7 @@ public:
 				break;
 			case CRingRewardPoints::grr_invalid:
 			default:
-				params[0].Literal = ucstring();
+				params[0].Literal = std::string(); // 0.5 migration (was ucstring)
 			}
 			if (!params[0].Literal.empty())
 				PHRASE_UTILITIES::sendDynamicSystemMessage( creatureRowId, "LITERAL", params );
@@ -477,12 +477,12 @@ public:
 			entityRowId == TDataSetRow()
 			)
 		{			
-			saip.onCharTargetReceived( this, eid, NLMISC::CEntityId::Unknown, CAIAliasTranslator::Invalid,TDataSetRow(), ucstring(), 0, params, alive);;
+			saip.onCharTargetReceived( this, eid, NLMISC::CEntityId::Unknown, CAIAliasTranslator::Invalid,TDataSetRow(), std::string(), 0, params, alive);;
 			return;
 		}
 
 		
-		saip.onCharTargetReceived( this, eid, creatureId, alias, entityRowId, ucName, nameId, params, alive);
+		saip.onCharTargetReceived( this, eid, creatureId, alias, entityRowId, ucName.toUtf8(), nameId, params, alive);
 	
 	}
 

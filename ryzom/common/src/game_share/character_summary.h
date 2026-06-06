@@ -20,8 +20,6 @@
 #ifndef CHARACTER_SUMMARY_H
 #define CHARACTER_SUMMARY_H
 
-#include "nel/misc/ucstring.h"
-
 #include "player_visual_properties.h"
 #include "people.h"
 #include "roles.h"
@@ -40,7 +38,7 @@ struct CCharacterSummary
 	CCharacterSummary()
 	{
 		Mainland = TSessionId(0);
-		Name.erase();
+		Name.clear();
 		Location = 0;
 		VisualPropA = 0;
 		VisualPropB = 0;
@@ -56,8 +54,8 @@ struct CCharacterSummary
 	/// mainland
 	TSessionId Mainland;
 
-	/// name
-	ucstring Name; // TODO: UTF-8 (serial)
+	/// name (UTF-8)
+	std::string Name;
 
 	/// Localisation
 	uint32 Location;

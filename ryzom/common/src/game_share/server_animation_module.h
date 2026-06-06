@@ -156,7 +156,7 @@ namespace R2
 		virtual void onCharTargetReceived( NLNET::IModuleProxy *senderModuleProxy,
 				const NLMISC::CEntityId& eid, const NLMISC::CEntityId&creatureId,
 				TAIAlias alias, TDataSetRow entityRowId,
-				const ucstring& ucName, uint32 nameId,
+				const std::string& ucName, uint32 nameId,
 				const std::vector<std::string> & params,
 				bool alived);
 		// EGS message to indicates that a character is ready in mirror

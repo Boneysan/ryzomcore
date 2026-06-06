@@ -164,8 +164,7 @@ void CGameEventManager::createEventChannel()
 {
 	if( !_Name.empty() )
 	{
-		ucstring title;
-		title.fromUtf8(_Name);
+		std::string title = _Name;
 		_ChannelEventId = DynChatEGS.addChan(_Name, title );
 		// set historic size of the newly created channel
 		DynChatEGS.setHistoricSize( _ChannelEventId, EventChannelHistoricSize );
@@ -173,16 +172,15 @@ void CGameEventManager::createEventChannel()
 
 	if( !_EventFaction1Name.empty() )
 	{
-		ucstring title;
-		title.fromUtf8(_EventFaction1Name);
+		std::string title = _EventFaction1Name;
 		_ChannelEventFaction1Id = DynChatEGS.addChan(_EventFaction1Name, title);
 		if( _EventFaction1ChannelName.empty() )
 		{
-			title.fromUtf8(_EventFaction1Name+"_event");
+			title = _EventFaction1Name+"_event";
 		}
 		else
 		{
-			title.fromUtf8( _EventFaction1ChannelName );
+			title = _EventFaction1ChannelName;
 		}
 		_ChannelGMEventFaction1Id = DynChatEGS.addChan(_EventFaction1Name+"_GM", title);
 		// set historic size of the newly GM created channel
@@ -191,16 +189,15 @@ void CGameEventManager::createEventChannel()
 
 	if( !_EventFaction2Name.empty() )
 	{
-		ucstring title;
-		title.fromUtf8(_EventFaction2Name);
+		std::string title = _EventFaction2Name;
 		_ChannelEventFaction2Id = DynChatEGS.addChan(_EventFaction2Name, title );
 		if( _EventFaction2ChannelName.empty() )
 		{
-			title.fromUtf8(_EventFaction2Name+"_event");
+			title = _EventFaction2Name+"_event";
 		}
 		else
 		{
-			title.fromUtf8( _EventFaction2ChannelName );
+			title = _EventFaction2ChannelName;
 		}
 		_ChannelGMEventFaction2Id = DynChatEGS.addChan(_EventFaction2Name+"_GM", title);
 		// set historic size of the newly GM created channel

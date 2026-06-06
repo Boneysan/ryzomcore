@@ -355,7 +355,8 @@ void CTransportClass::init ()
 //	nlassert (PropDataSetRow < PropUKN); DummyProp[PropDataSetRow] = new CTransportClass::CRegisteredProp<TDataSetRow>;
 //	nlassert (PropEntityId < PropUKN); DummyProp[PropEntityId] = new CTransportClass::CRegisteredProp<CEntityId>;
 	nlassert (PropSheetId < PropUKN); DummyProp[PropSheetId] = new CTransportClass::CRegisteredProp<CSheetId>;
-	nlassert (PropUCString < PropUKN); DummyProp[PropUCString] = new CTransportClass::CRegisteredProp<ucstring>;
+	// 0.5 ucstring migration: PropUCString now uses std::string (UTF-8)
+nlassert (PropUCString < PropUKN); DummyProp[PropUCString] = new CTransportClass::CRegisteredProp<std::string>;
 
 	// we have to know when a service comes, so add callback (put the callback before all other one because we have to send this message first)
 	CUnifiedNetwork::getInstance()->setServiceUpCallback("*", cbTCUpService, NULL, false);

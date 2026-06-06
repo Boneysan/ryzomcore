@@ -204,7 +204,7 @@ void CBuildingPhysicalCommon::dumpBuilding(NLMISC::CLog & log) const
 			continue;
 		}
 
-		const string charName = c->getName().toUtf8();
+		const string charName = c->getName();
 		const string charEId = c->getId().toString();
 
 		CMirrorPropValueRO<TYPE_CELL> mirrorCell(TheDataset, rowId, DSPropertyCELL);
@@ -409,7 +409,7 @@ void CBuildingPhysicalGuild::dumpBuilding(NLMISC::CLog & log) const
 			continue;
 		}
 
-		const string charName = c->getName().toUtf8();
+		const string charName = c->getName();
 		const string charEId = c->getId().toString();
 
 		CMirrorPropValueRO<TYPE_CELL> mirrorCell(TheDataset, rowId, DSPropertyCELL);
@@ -435,7 +435,7 @@ void CBuildingPhysicalGuild::dumpBuilding(NLMISC::CLog & log) const
 		string guildName;
 		CGuild * guild = CGuildManager::getInstance()->getGuildFromId( guildId );
 		if (guild)
-			guildName = guild->getName().toUtf8();
+			guildName = guild->getName();
 
 		log.displayNL("\tCharacter %s %s [guild name='%s' id=%u] is in cell %d, room desc: %s",
 			charName.c_str(), charEId.c_str(), guildName.c_str(), guildId, cell, room->getRoomDescription().c_str()
@@ -448,7 +448,7 @@ void CBuildingPhysicalGuild::dumpBuilding(NLMISC::CLog & log) const
 		string guildName;
 		CGuild * guild = CGuildManager::getInstance()->getGuildFromId( guildId );
 		if (guild)
-			guildName = guild->getName().toUtf8();
+			guildName = guild->getName();
 
 		log.displayNL("\t> Guild registered in building at index %u: %s", i, guildName.c_str());
 	}
@@ -587,7 +587,7 @@ void CBuildingPhysicalPlayer::dumpBuilding(NLMISC::CLog & log) const
 			continue;
 		}
 
-		const string charName = c->getName().toUtf8();
+		const string charName = c->getName();
 		const string charEId = c->getId().toString();
 
 		CMirrorPropValueRO<TYPE_CELL> mirrorCell(TheDataset, rowId, DSPropertyCELL);
@@ -624,7 +624,7 @@ void CBuildingPhysicalPlayer::dumpBuilding(NLMISC::CLog & log) const
 			continue;
 		}
 
-		const string charName = c->getName().toUtf8();
+		const string charName = c->getName();
 		const string charEId = c->getId().toString();
 
 		log.displayNL("\t> Player registered in building at index %u: %s %s", i, charName.c_str(), charEId.c_str());

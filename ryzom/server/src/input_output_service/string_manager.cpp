@@ -61,7 +61,7 @@ using namespace NLMISC;
 using namespace NLNET;
 using namespace std;
 
-const ucstring		nl("\r\n");
+const std::string		nl("\r\n");
 
 
 std::string CStringManager::_LanguageCode[NB_LANGUAGES] = 
@@ -81,9 +81,9 @@ std::string CStringManager::_LanguageCode[NB_LANGUAGES] =
 };
 
 /*
-ucstring	CStringManager::getEntityDisplayName(const NLMISC::CEntityId &eid)
+std::string	CStringManager::getEntityDisplayName(const NLMISC::CEntityId &eid)
 {
-	ucstring ret;
+	std::string ret;
 	NLMISC::CSheetId sid = SM->getSheetId(eid);
 	if (sid != NLMISC::CSheetId::Unknown)
 	{
@@ -95,7 +95,7 @@ ucstring	CStringManager::getEntityDisplayName(const NLMISC::CEntityId &eid)
 
 	// not found.
 	if (ret.empty())
-		ret = ucstring(eid.toString());
+		ret = eid.toString();
 
 	return ret;
 }
@@ -118,11 +118,11 @@ uint32	CStringManager::CEntityWords::getStringId(const std::string &rowName, con
 	}
 	// not found, return rowName.columnName.
 	if (DebugReplacementParameter)
-		return SM->storeString(ucstring(std::string("<")+rowName+"."+columnName+">"));
+		return SM->storeString(std::string("<")+rowName+"."+columnName+">");
 	else
 	{
-		ucstring s;
-		s += ucchar(8);
+		std::string s;
+		s += (char)8;
 		return SM->storeString(s);
 	}
 }
@@ -176,13 +176,13 @@ void CStringManager::loadCache()
 //			nldebug("Loaded from cache [%u][%s]", id, str.toString().c_str());
 			// create a new entry
 			std::pair<TMappedUStringContainer::iterator, bool> ret;
-			ret = _StringIdx.insert(std::make_pair(str, id));
+			ret = _StringIdx.insert(std::make_pair(str.toUtf8(), id)); // bridge: cache serial still ucstring, _StringIdx now string-keyed
 //			nlassert(ret.second);
 			if (!ret.second)
 			{
-				TMappedUStringContainer::iterator it = _StringIdx.find(str);
+				TMappedUStringContainer::iterator it = _StringIdx.find(str.toUtf8());
 				nlassert(it != _StringIdx.end());
-				nlwarning("String cache : string [%s][%u] already in the string map with id [%u] !", str.c_str(), id, it->second);
+				nlwarning("String cache : string [%s][%u] already in the string map with id [%u] !", str.toUtf8().c_str(), id, it->second);
 				if (id != it->second)
 				{
 					nlwarning(" !!! ID diff : string cache invalide.");
@@ -193,10 +193,10 @@ void CStringManager::loadCache()
 //				_StringBase.reserve(_StringBase.size()*2);
 //			}
 //			_StringBase.resize(id+1);
-//			_StringBase[id] = str;
+//			_StringBase[id] = str.toUtf8(); // bridge from cache ucstring serial to string base
 			while (_StringBase.size() <= id)
 				_StringBase.push_back(string());
-			_StringBase[id] = str;
+			_StringBase[id] = str.toUtf8(); // bridge from cache ucstring serial to string base
 
 			// some logging
 			uint32 now = CTime::getSecondsSince1970();
@@ -323,7 +323,7 @@ const CStringManager::TSheetInfo &CStringManager::getSheetInfo(const NLMISC::CSh
 void CStringManager::buildMissingPhraseStream(CCharacterInfos * charInfo, uint32 seqNum, NLMISC::CBitMemStream & bmsOut, const std::string &phraseName)
 {
 	// store a string for this error message.
-	uint32 id = storeString(ucstring("<missing:")+phraseName+">");
+	uint32 id = storeString(std::string("<missing:")+phraseName+">");
 	// now, build the message for the client.
 	GenericXmlMsgHeaderMngr.pushNameToStream( "STRING_MANAGER:PHRASE_SEND", bmsOut);
 	bmsOut.serial(seqNum);
@@ -669,7 +669,7 @@ void CStringManager::broadcastSystemMessage(NLNET::CMessage &message, bool debug
 
 //void CStringManager::requestString(const NLMISC::CEntityId &client, uint32 stringId)
 //{
-//	ucstring str = getString(stringId);
+//	std::string str = getString(stringId);
 //
 //	CCharacterInfos *charInfo = IOS->getCharInfos(client);
 //	if (charInfo == 0)
@@ -706,7 +706,7 @@ void CStringManager::broadcastSystemMessage(NLNET::CMessage &message, bool debug
 //	GenericXmlMsgHeaderMngr.pushNameToStream( "STRING_MANAGER:STRING_RESP", bmsOut);
 //	bmsOut.serial(stringId);
 //	// Send in utf8 format to save bandwith
-//	string	strUtf8= str.toUtf8();
+//	string	strUtf8= str; // str now string (0.5)
 //	bmsOut.serial(strUtf8);
 //	
 //	// send the message to Front End
@@ -755,14 +755,14 @@ void CStringManager::requestString(uint32 userId, uint32 stringId)
 		frontendId = itUser->second.FrontEndId;
 	}
 
-	ucstring str = getString(stringId);
-	LOG("Sending string %u as [%s] to user %u", stringId, str.toString().c_str(), userId);
+	std::string str = getString(stringId);
+	LOG("Sending string %u as [%s] to user %u", stringId, str.c_str(), userId);
 	// build the response message
 	NLMISC::CBitMemStream bmsOut;
 	GenericXmlMsgHeaderMngr.pushNameToStream( "STRING_MANAGER:STRING_RESP", bmsOut);
 	bmsOut.serial(stringId);
 	// Send in utf8 format to save bandwidth
-	string	strUtf8= str.toUtf8();
+	string	strUtf8= str; // str now string (0.5)
 	bmsOut.serial(strUtf8);
 	
 	// send the message to Front End
@@ -840,7 +840,7 @@ const std::string		&CStringManager::getLanguageCodeString(TLanguages language)
 
 
 
-uint32	CStringManager::storeString(const ucstring &str)
+uint32	CStringManager::storeString(const std::string &str)
 {
 //	TMappedUStringContainer				_StringIdx;
 //	TUStringContainer					_StringBase;
@@ -856,7 +856,7 @@ uint32	CStringManager::storeString(const ucstring &str)
 		// occasionally create a blank entry, 
 		// this lets us find out if someone is scanning the string cache
 		if ((rand() & 7) == 0)
-			_StringBase.push_back(ucstring());
+			_StringBase.push_back(std::string());
 
 		// create a new entry
 		std::pair<TMappedUStringContainer::iterator, bool> ret;
@@ -868,9 +868,9 @@ uint32	CStringManager::storeString(const ucstring &str)
 		{
 			// add the string in the cache file
 			NLMISC::COFile file(_CacheFilename, true);
-			LOGPARSE("Writing to cache [%u][%s]", ret.first->second, ret.first->first.toString().c_str());
+			LOGPARSE("Writing to cache [%u][%s]", ret.first->second, ret.first->first.c_str());
 			file.serial(ret.first->second);
-			ucstring temp = ret.first->first;
+			std::string temp = ret.first->first;
 			file.serial(temp);
 		}
 
@@ -878,7 +878,7 @@ uint32	CStringManager::storeString(const ucstring &str)
 	}
 }
 
-const ucstring &CStringManager::getString(uint32 stringId)
+const std::string &CStringManager::getString(uint32 stringId)
 {
 	if (stringId < _StringBase.size())
 		return _StringBase[stringId];
@@ -912,7 +912,7 @@ uint32	CStringManager::translateShortName(uint32 shortNameIndex)
 	return 0;
 }
 
-uint32	CStringManager::translateShortName(const ucstring &shortName)
+uint32	CStringManager::translateShortName(const std::string &shortName)
 {
 	//
 	return translateShortName(storeString(shortName));
@@ -932,7 +932,7 @@ uint32	CStringManager::translateTitle(const std::string  &title, TLanguages lang
 uint32	CStringManager::translateEventFaction(uint32 eventFactionId)
 {
 	if (VerboseStringManager)
-		nlinfo("Event faction translation asked for : '%s' (%u)", getString(eventFactionId).toString().c_str(), eventFactionId);
+		nlinfo("Event faction translation asked for : '%s' (%u)", getString(eventFactionId).c_str(), eventFactionId);
 
 	if (eventFactionId == 0)
 		return 0;
@@ -941,7 +941,7 @@ uint32	CStringManager::translateEventFaction(uint32 eventFactionId)
 	if (it != _EventFactionTranslation.end())
 	{
 		if (VerboseStringManager)
-			nlinfo("Found event faction translation : '%s' (%u)", getString(it->second).toString().c_str(), it->second);
+			nlinfo("Found event faction translation : '%s' (%u)", getString(it->second).c_str(), it->second);
 
 		return it->second;
 	}
@@ -949,7 +949,7 @@ uint32	CStringManager::translateEventFaction(uint32 eventFactionId)
 	return 0;
 }
 
-uint32	CStringManager::translateEventFaction(const ucstring &eventFaction)
+uint32	CStringManager::translateEventFaction(const std::string &eventFaction)
 {
 	if (eventFaction.empty())
 		return 0;
@@ -964,8 +964,9 @@ void	CStringManager::sendString( uint32 nameIndex, TServiceId serviceId )
 {
 	CMessage msgout( "RECV_STRING" );
 	msgout.serial( nameIndex );
-	const ucstring& ucs = getString( nameIndex );
-	msgout.serial( const_cast<ucstring&>(ucs) );
+	const std::string& s = getString( nameIndex );
+	ucstring ucs(s);
+	msgout.serial( ucs );
 	CUnifiedNetwork::getInstance()->send( serviceId, msgout ); // reply => not via mirror
 }
 
@@ -985,7 +986,7 @@ void	CStringManager::retrieveEntityNames( TServiceId serviceId )
 			CMirrorPropValueRO<TYPE_NAME_STRING_ID> nameIndex( TheDataset, entityIndex, DSPropertyNAME_STRING_ID );
 			if ( nameIndex() != 0 )
 			{
-				names.push_back( make_pair( entityIndex, getString(nameIndex).toString() ) );
+				names.push_back( make_pair( entityIndex, getString(nameIndex) ) );
 			}
 		}
 	}
@@ -1066,7 +1067,7 @@ void CStringManager::setPhrase(NLNET::CMessage &message)
 		nlwarning("<setPhrase> %s",e.what());
 		return;
 	}
-	setPhrase(phraseName, phraseContent);
+	setPhrase(phraseName, phraseContent.toUtf8());
 }
 
 /*
@@ -1090,13 +1091,13 @@ void CStringManager::setPhraseLang(NLNET::CMessage &message)
 	}
 
 	TLanguages lang = checkLanguageCode(langString);
-	setPhrase(phraseName, phraseContent, lang);
+	setPhrase(phraseName, phraseContent.toUtf8(), lang);
 }
 
 /*
  * Replace a phrase in default language(s)
  */
-void CStringManager::setPhrase(std::string const& phraseName, ucstring const& phraseContent)
+void CStringManager::setPhrase(std::string const& phraseName, const std::string &phraseContent)
 {
 	if (_DefaultSetPhraseLanguage==NB_LANGUAGES)
 		for (int i=0; i<NB_LANGUAGES; ++i)
@@ -1317,7 +1318,7 @@ NLMISC_CATEGORISED_COMMAND(stringmanager, setEntityWord, "set a word value","<la
 	while (wi < args.size()-1)
 		path += "."+args[wi++];
 
-	ucstring	word(args[wi]);
+	std::string	word = args[wi];
 
 	// get language
 	SM->setEntityWord(path, word);
@@ -1348,10 +1349,8 @@ NLMISC_CATEGORISED_COMMAND(stringmanager, setBotName, "set a bot name","<bot nam
 	if (args.size() != 2)
 		return false;
 
-	ucstring	botname, translation;
-
-	botname.fromUtf8(args[0]);
-	translation.fromUtf8(args[1]);
+	std::string	botname = args[0];
+	std::string	translation = args[1];
 
 	SM->setBotName(botname, translation);
 	return true;

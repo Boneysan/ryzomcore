@@ -1,0 +1,73 @@
+# Dockerfile.dev — Dev image for ryzom-dev compose (Phase 0+ smoke test and shard)
+#
+# Usage from project root (Ryzom/):
+#   docker compose -f docker-compose.dev.yml build nel-naming nel-egs
+#
+# Recommended: Build on host first for speed (large image otherwise):
+#   cd ryzomcore
+#   cmake --preset ryzom-modernize -DWITH_MSQUIC=ON
+#   cmake --build build/ --parallel
+#   # Then the compose can COPY the build artifacts or use bind mounts for dev.
+#
+# This Dockerfile is a skeleton. Full multi-stage build for each service target
+# (naming_service, entities_game_service, etc.) can be expanded later (see Phase 5.5).
+# For Phase 0 smoke test, prefer running the integration test directly via ctest
+# after host build, or override the service command to use host binaries via volume.
+
+FROM ubuntu:24.04 AS base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake ninja-build ccache \
+    pkg-config \
+    libssl-dev zlib1g-dev libpng-dev libjpeg-dev \
+    libxml2-dev libcurl4-openssl-dev \
+    libmysqlclient-dev \
+    liblua5.2-dev \
+    git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# vcpkg (optional, for full fidelity; in practice use host vcpkg or system deps)
+# For speed in dev, many libs are installed via apt above.
+
+WORKDIR /src
+
+# Default stage just for runtime-like (binaries expected to be provided)
+FROM base AS runtime
+
+# Placeholder binaries dir; in real use, either:
+# - docker build after host `cmake --build` and COPY build/... 
+# - or volume mount the build dir at runtime for fast iteration.
+
+RUN mkdir -p /app/bin /app/lib /app/etc
+ENV PATH="/app/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/app/lib:${LD_LIBRARY_PATH}"
+
+# --- Service targets (stubs for compose) ---
+# In a full version these would be:
+#   COPY --from=builder /src/build/bin/ryzom_naming_service /app/bin/
+#   etc, with proper install.
+
+FROM runtime AS naming_service
+# TODO(Phase 0/5.5): populate with built ryzom_naming_service + cfg
+# For now, this stage exists so `docker compose build nel-naming` succeeds.
+# Run with host build + volume for actual execution during early phases.
+CMD ["echo", "nel-naming: use host-built binary or expand this stage; see docker-compose.dev.yml comments"]
+
+FROM runtime AS entities_game_service
+CMD ["echo", "nel-egs: use host-built binary or expand this stage; headless mode via --noBg --headless (or equivalent)"]
+
+FROM runtime AS ai_service
+CMD ["echo", "nel-ai stub stage"]
+
+FROM runtime AS mirror_service
+CMD ["echo", "nel-mirror stub stage"]
+
+FROM runtime AS frontend_service
+CMD ["echo", "nel-frontend stub stage"]
+
+# Add more targets as services are needed.
+
+# To use with pre-built host artifacts (recommended for now):
+#   docker compose -f docker-compose.dev.yml up --no-build
+# Or mount: volumes: - ./ryzomcore/build:/src/build:ro
+# And adjust command in compose to use the mounted path.

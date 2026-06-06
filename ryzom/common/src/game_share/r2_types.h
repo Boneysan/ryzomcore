@@ -64,9 +64,9 @@ namespace R2
 	struct TMissionItem
 	{
 		NLMISC::CSheetId	SheetId;
-		ucstring			Name;
-		ucstring			Description;
-		ucstring			Comment;
+		std::string			Name; // UTF-8 (0.5)
+		std::string			Description; // UTF-8 (0.5)
+		std::string			Comment; // UTF-8 (0.5)
 
 		/// serial
 		void serial(NLMISC::IStream &f)

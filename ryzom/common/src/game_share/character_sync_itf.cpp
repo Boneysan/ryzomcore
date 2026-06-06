@@ -571,7 +571,7 @@ namespace CHARSYNC
 		H_AUTO(CNameUnifierSkel_validateGuildName_NU_VGN);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	guildName;
+		std::string	guildName;
 			nlRead(__message, serial, guildName);
 		validateGuildName(sender, guildId, guildName);
 	}
@@ -583,7 +583,7 @@ namespace CHARSYNC
 			nlRead(__message, serial, shardId);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	guildName;
+		std::string	guildName;
 			nlRead(__message, serial, guildName);
 		addGuild(sender, shardId, guildId, guildName);
 	}
@@ -698,7 +698,7 @@ namespace CHARSYNC
 		}
 	}
 		// EGS ask to the name unifier to validate a new guild name
-	void CNameUnifierProxy::validateGuildName(NLNET::IModule *sender, uint32 guildId, const ucstring &guildName)
+	void CNameUnifierProxy::validateGuildName(NLNET::IModule *sender, uint32 guildId, const std::string &guildName)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -716,7 +716,7 @@ namespace CHARSYNC
 		}
 	}
 		// EGS add newly created guild info
-	void CNameUnifierProxy::addGuild(NLNET::IModule *sender, uint32 shardId, uint32 guildId, const ucstring &guildName)
+	void CNameUnifierProxy::addGuild(NLNET::IModule *sender, uint32 shardId, uint32 guildId, const std::string &guildName)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -808,23 +808,23 @@ namespace CHARSYNC
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CNameUnifierProxy::buildMessageFor_validateGuildName(NLNET::CMessage &__message, uint32 guildId, const ucstring &guildName)
+	const NLNET::CMessage &CNameUnifierProxy::buildMessageFor_validateGuildName(NLNET::CMessage &__message, uint32 guildId, const std::string &guildName)
 	{
 		__message.setType("NU_VGN");
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (guildName));
+			nlWrite(__message, serial, const_cast < std::string& > (guildName));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CNameUnifierProxy::buildMessageFor_addGuild(NLNET::CMessage &__message, uint32 shardId, uint32 guildId, const ucstring &guildName)
+	const NLNET::CMessage &CNameUnifierProxy::buildMessageFor_addGuild(NLNET::CMessage &__message, uint32 shardId, uint32 guildId, const std::string &guildName)
 	{
 		__message.setType("NU_AG");
 			nlWrite(__message, serial, shardId);
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (guildName));
+			nlWrite(__message, serial, const_cast < std::string& > (guildName));
 
 
 		return __message;
@@ -991,7 +991,7 @@ namespace CHARSYNC
 		H_AUTO(CNameUnifierClientSkel_guildRenamed_NUC_GR);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	newName;
+		std::string	newName;
 			nlRead(__message, serial, newName);
 		guildRenamed(sender, guildId, newName);
 	}
@@ -1001,7 +1001,7 @@ namespace CHARSYNC
 		H_AUTO(CNameUnifierClientSkel_validateGuildNameResult_NUC_VGNR);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	guildName;
+		std::string	guildName;
 			nlRead(__message, serial, guildName);
 		TCharacterNameResult	result;
 			nlRead(__message, serial, result);
@@ -1159,7 +1159,7 @@ namespace CHARSYNC
 		}
 	}
 		// The name unifier has renamed a guild to resolve a name conflict
-	void CNameUnifierClientProxy::guildRenamed(NLNET::IModule *sender, uint32 guildId, const ucstring &newName)
+	void CNameUnifierClientProxy::guildRenamed(NLNET::IModule *sender, uint32 guildId, const std::string &newName)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -1177,7 +1177,7 @@ namespace CHARSYNC
 		}
 	}
 		// The name unifier respond to EGS about guild name validation request
-	void CNameUnifierClientProxy::validateGuildNameResult(NLNET::IModule *sender, uint32 guildId, const ucstring &guildName, TCharacterNameResult result)
+	void CNameUnifierClientProxy::validateGuildNameResult(NLNET::IModule *sender, uint32 guildId, const std::string &guildName, TCharacterNameResult result)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -1291,22 +1291,22 @@ namespace CHARSYNC
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CNameUnifierClientProxy::buildMessageFor_guildRenamed(NLNET::CMessage &__message, uint32 guildId, const ucstring &newName)
+	const NLNET::CMessage &CNameUnifierClientProxy::buildMessageFor_guildRenamed(NLNET::CMessage &__message, uint32 guildId, const std::string &newName)
 	{
 		__message.setType("NUC_GR");
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (newName));
+			nlWrite(__message, serial, const_cast < std::string& > (newName));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CNameUnifierClientProxy::buildMessageFor_validateGuildNameResult(NLNET::CMessage &__message, uint32 guildId, const ucstring &guildName, TCharacterNameResult result)
+	const NLNET::CMessage &CNameUnifierClientProxy::buildMessageFor_validateGuildNameResult(NLNET::CMessage &__message, uint32 guildId, const std::string &guildName, TCharacterNameResult result)
 	{
 		__message.setType("NUC_VGNR");
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (guildName));
+			nlWrite(__message, serial, const_cast < std::string& > (guildName));
 			nlWrite(__message, serial, result);
 
 

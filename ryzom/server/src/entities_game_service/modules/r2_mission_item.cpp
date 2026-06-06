@@ -162,11 +162,11 @@ void CR2MissionItem::giveMissionItem(const NLMISC::CEntityId &eid, TSessionId se
 			const CStaticItem* sitem = CSheets::getForm(items[j].SheetId);
 			if (sitem == NULL)
 			{
-				nlwarning("Attempted to give deprecated sitem sheet %s to player character %s in session %i", items[j].SheetId.toString().c_str(), c->getName().toUtf8().c_str(), sessionId.asInt());
+				nlwarning("Attempted to give deprecated sitem sheet %s to player character %s in session %i", items[j].SheetId.toString().c_str(), c->getName().c_str(), sessionId.asInt());
 			}
 			else if (sitem->Family != ITEMFAMILY::SCROLL_R2)
 			{
-				nlwarning("Attempted hack to give non-R2 item %s to player character %s in session %i", items[j].SheetId.toString().c_str(), c->getName().toUtf8().c_str(), sessionId.asInt());
+				nlwarning("Attempted hack to give non-R2 item %s to player character %s in session %i", items[j].SheetId.toString().c_str(), c->getName().c_str(), sessionId.asInt());
 			}
 			else
 			{
@@ -292,11 +292,11 @@ void CR2MissionItem::destroyMissionItem(const NLMISC::CEntityId &eid, const std:
 			const CStaticItem* sitem = CSheets::getForm(items[j].SheetId);
 			if (sitem == NULL)
 			{
-				nlwarning("Attempted to take deprecated sitem sheet %s from player character %s", items[j].SheetId.toString().c_str(), c->getName().toUtf8().c_str());
+				nlwarning("Attempted to take deprecated sitem sheet %s from player character %s", items[j].SheetId.toString().c_str(), c->getName().c_str());
 			}
 			else if (sitem->Family != ITEMFAMILY::SCROLL_R2)
 			{
-				nlwarning("Attempted hack to take non-R2 item %s from player character %s", items[j].SheetId.toString().c_str(), c->getName().toUtf8().c_str());
+				nlwarning("Attempted hack to take non-R2 item %s from player character %s", items[j].SheetId.toString().c_str(), c->getName().c_str());
 			}
 			else
 			{

@@ -112,17 +112,17 @@ public:
 
 		CChatUnifierProxy cuc(_ChatUnifierServer);
 
-		cuc.sendFarTell(this, senderCharId, havePrivilege, destName, text);
+		cuc.sendFarTell(this, senderCharId, havePrivilege, destName.toUtf8(), text.toUtf8()); // bridge: itf now string, local sigs still ucstring from unifier wire
 	}
 
 	void sendFarGuildChat(const ucstring &senderName, uint32 guildId, const ucstring &text)
 	{
-		CChatUnifierClientProxy::broadcast_farGuildChat(_Peers.begin(), _Peers.end(), this, senderName, guildId, text);
+		CChatUnifierClientProxy::broadcast_farGuildChat(_Peers.begin(), _Peers.end(), this, senderName.toUtf8(), guildId, text.toUtf8()); // bridge to string itf
 	}
 
 	void sendFarGuildChat2(const ucstring &senderName, uint32 guildId, const std::string &phraseName)
 	{
-		CChatUnifierClientProxy::broadcast_farGuildChat2(_Peers.begin(), _Peers.end(), this, senderName, guildId, phraseName);
+		CChatUnifierClientProxy::broadcast_farGuildChat2(_Peers.begin(), _Peers.end(), this, senderName.toUtf8(), guildId, phraseName); // bridge senderName (ucstring local) to string itf
 	}
 
 	void sendFarGuildChat2Ex(const ucstring &senderName, uint32 guildId, uint32 phraseId)

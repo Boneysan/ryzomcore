@@ -180,7 +180,7 @@ void CQueryEgsImp::callback (const std::string &name, NLNET::TServiceId id)
 		
 	
 
-		case CQueryEgs::Name: ret =  character->getName().toUtf8(); break;								
+		case CQueryEgs::Name: ret =  character->getName(); break;								
 		case CQueryEgs::Hp: ret = NLMISC::toString("%d", character->getCurrentScore(SCORES::hit_points)); break;
 		case CQueryEgs::Sap: ret =	NLMISC::toString("%d", character->getCurrentScore(SCORES::sap)); break;		
 		case CQueryEgs::Stamina: ret =	NLMISC::toString("%d", character->getCurrentScore(SCORES::stamina)); break;		

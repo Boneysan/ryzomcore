@@ -231,7 +231,7 @@ void CPositionFlagManager::sendFlagsList(const NLMISC::CEntityId & eid, bool sho
 
 		if (shortFormat)
 		{
-			params[0].Literal.fromUtf8( NLMISC::toString("&SYS&<CSR> %s", flagName.c_str()) );
+			params[0].Literal = NLMISC::toString("&SYS&<CSR> %s", flagName.c_str());
 		}
 		else
 		{
@@ -243,7 +243,7 @@ void CPositionFlagManager::sendFlagsList(const NLMISC::CEntityId & eid, bool sho
 				regionDesc = continent->getName() + ", " + region->getName();
 			}
 
-			params[0].Literal.fromUtf8( NLMISC::toString("&SYS&<CSR> %s : %d, %d, %d [%s]", flagName.c_str(), flagPos.X, flagPos.Y, flagPos.Z, regionDesc.c_str()) );
+			params[0].Literal = NLMISC::toString("&SYS&<CSR> %s : %d, %d, %d [%s]", flagName.c_str(), flagPos.X, flagPos.Y, flagPos.Z, regionDesc.c_str());
 		}
 
 		CCharacter::sendDynamicSystemMessage(eid, "LITERAL", params);

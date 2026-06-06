@@ -120,7 +120,7 @@ static TCallbackItem LSCallbackArray[] =
 	{ "SCS", cbShardChooseShard },
 };
 
-string CLoginClient::authenticate(const string &loginServiceAddr, const ucstring &login, const string &cpassword, const string &application)
+string CLoginClient::authenticate(const string &loginServiceAddr, const std::string &login, const string &cpassword, const string &application)
 {
 	string result = authenticateBegin(loginServiceAddr, login, cpassword, application);
 	if (!result.empty()) return result;
@@ -128,7 +128,7 @@ string CLoginClient::authenticate(const string &loginServiceAddr, const ucstring
 	return result;	
 }
 
-string CLoginClient::authenticateBegin(const string &loginServiceAddr, const ucstring &login, const string &cpassword, const string &application)
+string CLoginClient::authenticateBegin(const string &loginServiceAddr, const std::string &login, const string &cpassword, const string &application)
 {
 	VerifyLoginPasswordReason.clear();
 	VerifyLoginPassword = false;
@@ -159,7 +159,7 @@ string CLoginClient::authenticateBegin(const string &loginServiceAddr, const ucs
 	
 	// S02: create and send the "VLP" message
 	CMessage msgout("VLP");
-	msgout.serial(const_cast<ucstring&>(login));
+	msgout.serial(const_cast<std::string&>(login));
 	msgout.serial(const_cast<string&>(cpassword));
 	msgout.serial(const_cast<string&>(application));
 	_LSCallbackClient->send(msgout);

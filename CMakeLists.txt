@@ -67,6 +67,13 @@ ELSE()
 ENDIF()
 
 PROJECT(RyzomCore VERSION 4.1.0.0 LANGUAGES CXX C)
+
+# Phase 0.1 — Enforce C++17 project-wide (see Phase_Plans/Phase_0_Foundation_Hardening.md)
+# This enables std::optional, std::string_view, [[nodiscard]], etc. for modernization.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 SET(NL_VERSION_MAJOR ${RyzomCore_VERSION_MAJOR})
 SET(NL_VERSION_MINOR ${RyzomCore_VERSION_MINOR})
 SET(NL_VERSION_PATCH ${RyzomCore_VERSION_PATCH} CACHE STRING "Patch version")
@@ -317,9 +324,6 @@ ENDIF()
 
 IF(WITH_NEL_TESTS OR WITH_TESTING)
   ENABLE_TESTING()
-  # GoogleTest requires at least C++17 not the whole project depends on google test though
-  # set(CMAKE_CXX_STANDARD 17)
-  # set(CMAKE_CXX_STANDARD_REQUIRED ON)
   include(FetchContent)
   FetchContent_Declare(
           googletest

@@ -27,6 +27,9 @@
 
 #include "quic_selfsign.h"
 
+#include "nel/misc/file.h"
+#include "nel/misc/path.h"
+
 #if defined(NL_MSQUIC_AVAILABLE) && defined(NL_OS_WINDOWS)
 
 #include <msquic.h>
@@ -1086,6 +1089,76 @@ void FES_freeSelfSignedCertificate(void *cert)
 	}
 }
 
+#elif defined(NL_MSQUIC_AVAILABLE) && defined(NL_OS_UNIX)
+
+#include <cstdlib>
+#include <sys/stat.h>
+
+namespace /* anonymous */ {
+
+bool GenerateSelfSignedPem(const std::string &certPath, const std::string &keyPath)
+{
+	// Reuse if both files already present (dev certs are long-lived)
+	if (NLMISC::CFile::fileExists(certPath) && NLMISC::CFile::fileExists(keyPath))
+	{
+		nlinfo("Reusing existing QUIC self-signed dev cert: %s", certPath.c_str());
+		return true;
+	}
+
+	// Use openssl CLI for generation (standard on Linux dev boxes; keeps code simple, no lib dep beyond runtime PATH)
+	// Equivalent to the programmatic Windows CAPI path in spirit.
+	std::string cmd = "openssl req -x509 -newkey rsa:2048 -keyout '" + keyPath + "' -out '" + certPath +
+	                  "' -days 365 -nodes -subj '/CN=RyzomCoreDev' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' > /dev/null 2>&1";
+	int ret = std::system(cmd.c_str());
+	if (ret != 0)
+	{
+		nlwarning("openssl self-signed cert generation command failed (ret=%d)", ret);
+		return false;
+	}
+	if (!NLMISC::CFile::fileExists(certPath) || !NLMISC::CFile::fileExists(keyPath))
+	{
+		nlwarning("openssl produced no cert/key files at expected paths");
+		return false;
+	}
+
+	// Lock down private key
+	::chmod(keyPath.c_str(), 0600);
+
+	nlinfo("Generated QUIC self-signed dev cert (valid 1y): %s + %s", certPath.c_str(), keyPath.c_str());
+	return true;
+}
+
+} /* anonymous namespace */
+
+void *FES_findOrCreateSelfSignedCertificate(uint8 *certHash)
+{
+	// Not used on Unix; we use PEM files + CERTIFICATE_FILE instead. Return null so caller falls through.
+	return nullptr;
+}
+
+void FES_freeSelfSignedCertificate(void *cert)
+{
+	// no-op for Unix path
+}
+
+bool FES_generateSelfSignedCertificatePem(std::string &certFile, std::string &keyFile)
+{
+	std::string tempDir = NLMISC::CPath::getTemporaryDirectory();
+	// Ensure trailing slash for concatenation
+	if (!tempDir.empty() && tempDir.back() != '/' && tempDir.back() != '\\')
+		tempDir += '/';
+	std::string certPath = tempDir + "ryzom_core_dev_cert.pem";
+	std::string keyPath = tempDir + "ryzom_core_dev_key.pem";
+
+	if (GenerateSelfSignedPem(certPath, keyPath))
+	{
+		certFile = certPath;
+		keyFile = keyPath;
+		return true;
+	}
+	return false;
+}
+
 #else
 
 void *FES_findOrCreateSelfSignedCertificate(uint8 *certHash)
@@ -1095,6 +1168,11 @@ void *FES_findOrCreateSelfSignedCertificate(uint8 *certHash)
 
 void FES_freeSelfSignedCertificate(void *cert)
 {
+}
+
+bool FES_generateSelfSignedCertificatePem(std::string &certFile, std::string &keyFile)
+{
+	return false;
 }
 
 #endif

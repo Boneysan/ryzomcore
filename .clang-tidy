@@ -1,0 +1,14 @@
+Checks: >
+  -*,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-default-member-init,
+  modernize-loop-convert,
+  modernize-use-auto,
+  readability-braces-around-statements
+
+WarningsAsErrors: 'modernize-*'
+
+HeaderFilterRegex: '.*'
+
+FormatStyle: file

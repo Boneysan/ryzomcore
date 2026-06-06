@@ -165,7 +165,7 @@ void CDynamicMapService::translateAndForwardRequested(TDataSetRow senderId,CChat
 	_StringMgrModule->translateAndForward(senderId,groupType,id,sessionId);
 }
 
-void CDynamicMapService::forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence)
+void CDynamicMapService::forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence)
 {
 	_StringMgrModule->forwardIncarnChat(id, senderId,sentence);
 }

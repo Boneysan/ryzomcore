@@ -19,12 +19,20 @@
 
 #include "nel/misc/types_nl.h"
 
+#include <string>
+
 /// Find or create a self signed testing certificate
 /// Returns a PCCERT_CONTEXT, writes a 20 bytes hash to certHash
 extern void *FES_findOrCreateSelfSignedCertificate(uint8 *certHash);
 
 /// Frees the certificate
 extern void FES_freeSelfSignedCertificate(void *cert);
+
+/// Generate (or reuse) a self-signed dev certificate as PEM files suitable for
+/// QUIC_CREDENTIAL_TYPE_CERTIFICATE_FILE (Linux / OpenSSL MsQuic path).
+/// certFile and keyFile are populated with paths (in temp dir) on success.
+/// Returns true iff files are ready to use. Safe to call repeatedly (reuses).
+extern bool FES_generateSelfSignedCertificatePem(std::string &certFile, std::string &keyFile);
 
 #endif /* NL_QUIC_SELFSIGN_H */
 

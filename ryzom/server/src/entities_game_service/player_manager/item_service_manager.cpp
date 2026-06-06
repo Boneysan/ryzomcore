@@ -229,7 +229,7 @@ bool CItemServiceManager::provideService(const CStaticItem * form, CCharacter * 
 	nldebug("ITEM_SERVICE: item service '%s' of type '%s' has been provided to player '%s' [%s]",
 		form->SheetId.toString().c_str(),
 		ITEM_SERVICE_TYPE::toString(form->ItemServiceType).c_str(),
-		client->getName().toString().c_str(),
+		client->getName().c_str(),
 		(provider->persistent() ? "persistent" : "non persistent")
 		);
 #endif // ITEM_SERVICE_DEBUG

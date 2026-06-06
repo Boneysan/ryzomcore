@@ -617,7 +617,7 @@ public:
 		nu.renameCharacter(this, uint32(eid.getShortId()));
 	}
 
-	virtual void validateGuildName(uint32 guildId, const ucstring &guildName)
+	virtual void validateGuildName(uint32 guildId, const std::string &guildName)
 	{
 		if (_CharacterSynch == NULL)
 		{
@@ -628,7 +628,7 @@ public:
 
 		CNameUnifierProxy nu(_CharacterSynch);
 
-		nu.validateGuildName(this, guildId, guildName);
+		nu.validateGuildName(this, guildId, guildName); // 0.5 (string)
 
 	}
 
@@ -642,13 +642,13 @@ public:
 		nu.registerLoadedGuildNames(this, IService::getInstance()->getShardId(), guildInfos);
 	}
 
-	virtual void addGuild						(uint32 guildId, const ucstring &guildName)
+	virtual void addGuild						(uint32 guildId, const std::string &guildName)
 	{
 		if (_CharacterSynch == NULL)
 			return;
 		CNameUnifierProxy nu(_CharacterSynch);
 
-		nu.addGuild(this, IService::getInstance()->getShardId(), guildId, guildName);
+		nu.addGuild(this, IService::getInstance()->getShardId(), guildId, guildName); // 0.5 (string)
 	}
 
 	virtual void removeGuild					(uint32 guildId)
@@ -660,7 +660,7 @@ public:
 		nu.removeGuild(this, IService::getInstance()->getShardId(), guildId);
 	}
 
-	virtual void validateCharacterNameBeforeCreate(uint32 userId, uint8 charIndex, const ucstring &name, uint32 homeSessionId)
+	virtual void validateCharacterNameBeforeCreate(uint32 userId, uint8 charIndex, const std::string &name, uint32 homeSessionId)
 	{
 		if (DontUseSU.get() == 1)
 		{
@@ -674,19 +674,19 @@ public:
 			{
 				// oups, no character sync to validate the name, always fail
 				sendIfNameIsValide( userId, false );
-				nlinfo("VALID_NAME::SU::validateCharacterNameBeforeCreate name %s rejected because we have no character sync to validate the name with using SU", name.toString().c_str());
+				nlinfo("VALID_NAME::SU::validateCharacterNameBeforeCreate name %s rejected because we have no character sync to validate the name with using SU", name.c_str());
 				return;
 			}
 
 			CNameUnifierProxy nu(_CharacterSynch);
-			nu.validateCharacterName(this, userId, charIndex, name.toUtf8(), homeSessionId);
+			nu.validateCharacterName(this, userId, charIndex, name, homeSessionId);
 
 			// push a name validation list, waiting for name unifier response
 //			_PendingNameToValidate.push_back();
 			TCharacterNameValidationInfo charInfo; // = _PendingNameToValidate.back();
 			charInfo.UserId = userId;
 			charInfo.CharIndex = charIndex;
-			charInfo.Name = name.toUtf8();
+			charInfo.Name = name;
 			charInfo.HomeSessionId = homeSessionId;
 			_PendingNameToValidate.insert(make_pair((userId<<4)+charIndex, charInfo));
 		}
@@ -703,14 +703,14 @@ public:
 		// send a name assignment to SU name unifier
 		if ((_CharacterSynch == NULL) && (DontUseSU.get() == 0))
 		{
-			nlinfo("VALID_NAME::SU::validateCharacterCreation name %s rejected because we have no character sync to validate the name with using SU", createCharMsg.Name.toString().c_str());
+			nlinfo("VALID_NAME::SU::validateCharacterCreation name %s rejected because we have no character sync to validate the name with using SU", createCharMsg.Name.c_str());
 			return false;
 		}
 
 		if (_CharacterSynch != NULL)
 		{
 			CNameUnifierProxy nu(_CharacterSynch);
-			nu.assignNameToCharacter(this, (userId << 4)+charIndex, createCharMsg.Name.toUtf8(), createCharMsg.Mainland.asInt());
+			nu.assignNameToCharacter(this, (userId << 4)+charIndex, createCharMsg.Name, createCharMsg.Mainland.asInt());
 		}
 		
 		// store the pending assignement
@@ -945,10 +945,7 @@ public:
 
 		if (ich != NULL)
 		{
-			ucstring ucName;
-			ucName.fromUtf8(newName);
-
-			ich->setName(ucName);
+			ich->setName(newName);
 			ich->registerName();
 		}
 
@@ -1009,7 +1006,7 @@ public:
 
 
 	// The name unifier has renamed a guild to resolve a name conflict
-	virtual void guildRenamed(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &newName)
+	virtual void guildRenamed(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &newName)
 	{
 		IGuild *guild = IGuild::getGuildInterface(IGuildManager::getInstance().getGuildFromId(guildId));
 
@@ -1026,7 +1023,7 @@ public:
 	}
 
 	// The name unifier respond to EGS about guild name validation request
-	virtual void validateGuildNameResult(NLNET::IModuleProxy *sender, uint32 guildId, const ucstring &guildName, TCharacterNameResult result)
+	virtual void validateGuildNameResult(NLNET::IModuleProxy *sender, uint32 guildId, const std::string &guildName, TCharacterNameResult result)
 	{
 		// callback the guild manager
 

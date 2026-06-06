@@ -75,7 +75,8 @@ inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const std::stri
 }
 inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const ucstring &value, bool forceSending = false)
 {
-	db.x_setPropString(node, value, forceSending);
+	// legacy bridge
+	_setProp(db, node, value.toUtf8(), forceSending);
 }
 inline void _setProp(CCDBSynchronised &db, ICDBStructNode *node, const NLMISC::CSheetId &value, bool forceSending = false)
 {
@@ -125,7 +126,9 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, std::stri
 }
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, ucstring &value)
 {
-	value = db.x_getPropUcstring(node);
+	std::string s;
+	_getProp(db, node, s);
+	value.fromUtf8(s);
 }
 inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::CSheetId &value)
 {
@@ -4554,18 +4557,21 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 		}
 
 		
-		void setNAME(CCDBSynchronised &dbGroup, ucstring value, bool forceSending = false)
+		void setNAME(CCDBSynchronised &dbGroup, const std::string &value, bool forceSending = false)
 		{
-			
-
 			_setProp(dbGroup, _NAME, value, forceSending);
 		}
 
-		ucstring getNAME(const CCDBSynchronised &dbGroup)
+		// legacy bridge
+		void setNAME(CCDBSynchronised &dbGroup, const ucstring &value, bool forceSending = false)
 		{
-			ucstring value;
-			_getProp(dbGroup, _NAME, value);
+			_setProp(dbGroup, _NAME, value.toUtf8(), forceSending);
+		}
 
+		std::string getNAME(const CCDBSynchronised &dbGroup)
+		{
+			std::string value;
+			_getProp(dbGroup, _NAME, value);
 			return value;
 		}
 		
@@ -6309,16 +6315,14 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			return _RESALE_TIME_LEFT;
 		}
 	
-		void setVENDOR_NAMEID(CCDBSynchronised &dbGroup, ucstring value, bool forceSending = false)
+		void setVENDOR_NAMEID(CCDBSynchronised &dbGroup, const std::string &value, bool forceSending = false)
 		{
-			
-
 			_setProp(dbGroup, _VENDOR_NAMEID, value, forceSending);
 		}
 
-		ucstring getVENDOR_NAMEID(const CCDBSynchronised &dbGroup)
+		std::string getVENDOR_NAMEID(const CCDBSynchronised &dbGroup)
 		{
-			ucstring value;
+			std::string value;
 			_getProp(dbGroup, _VENDOR_NAMEID, value);
 
 			return value;
@@ -7370,16 +7374,14 @@ inline void _getProp(const CCDBSynchronised &db, ICDBStructNode *node, NLMISC::C
 			return _STA_COST;
 		}
 	
-		void setTARGET_NAME(CCDBSynchronised &dbGroup, ucstring value, bool forceSending = false)
+		void setTARGET_NAME(CCDBSynchronised &dbGroup, const std::string &value, bool forceSending = false)
 		{
-			
-
 			_setProp(dbGroup, _TARGET_NAME, value, forceSending);
 		}
 
-		ucstring getTARGET_NAME(const CCDBSynchronised &dbGroup)
+		std::string getTARGET_NAME(const CCDBSynchronised &dbGroup)
 		{
-			ucstring value;
+			std::string value;
 			_getProp(dbGroup, _TARGET_NAME, value);
 
 			return value;

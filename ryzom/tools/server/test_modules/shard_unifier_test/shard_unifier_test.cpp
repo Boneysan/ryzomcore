@@ -37,7 +37,7 @@ class CGuildManagerPH : public IGuildManager
 	{
 //	nlstop;
 	}
-	virtual void	createGuildStep2		(uint32 guildId, const ucstring &guildName, CHARSYNC::TCharacterNameResult result) 
+	virtual void	createGuildStep2		(uint32 guildId, const std::string &guildName, CHARSYNC::TCharacterNameResult result) 
 	{
 	nlstop;
 	}
@@ -103,7 +103,7 @@ IGuild *IGuild::getGuildInterface(::CGuild *guild)
 	return NULL;
 }
 
-void	IGuild::setNameWrap(const ucstring &name)
+void	IGuild::setNameWrap(const std::string &name)
 {
 	nlstop;
 }

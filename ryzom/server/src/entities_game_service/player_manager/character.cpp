@@ -231,7 +231,7 @@ const string randomStrings = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
 //const uint32 StartCharacteristicsValue = 10;
 
 
-//CCharacter::CCharacterDbReminder*	CCharacter::_DataIndexReminder = NULL;
+//CCharacter::CCharacterDbReminder*	CCharacter::_DataIndexReminder = nullptr;
 
 #include "cdb_struct_banks.h"
 #include "cdb_group.h"
@@ -250,8 +250,8 @@ uint8 getLeftTrailValue(uint16 refValue)
 
 ICharacter *ICharacter::getInterface(CCharacter *character, bool onlyOnline)
 {
-	if (character != NULL && onlyOnline && !character->getEnterFlag())
-		return NULL;
+	if (character != nullptr && onlyOnline && !character->getEnterFlag())
+		return nullptr;
 
 	return static_cast<ICharacter*>(character);
 }
@@ -260,8 +260,8 @@ ICharacter *ICharacter::getInterface(uint32 charId, bool onlyOnline)
 {
 	CCharacter *character = CPlayerManager::getInstance().getChar(charId >> 4, charId & 0xf);
 
-	if (character != NULL && onlyOnline && !character->getEnterFlag() )
-		return NULL;
+	if (character != nullptr && onlyOnline && !character->getEnterFlag() )
+		return nullptr;
 
 	return character;
 }
@@ -271,8 +271,8 @@ ICharacter *ICharacter::getInterface(NLMISC::CEntityId charEId, bool onlyOnline)
 	uint32 charId = uint32(charEId.getShortId());
 	CCharacter *character = CPlayerManager::getInstance().getChar(charId >> 4, charId & 0xf);
 
-	if (character != NULL && onlyOnline && !character->getEnterFlag() )
-		return NULL;
+	if (character != nullptr && onlyOnline && !character->getEnterFlag() )
+		return nullptr;
 
 	return character;
 }
@@ -281,8 +281,8 @@ ICharacter *ICharacter::getInterfaceFromUser(uint32 userId, bool onlyOnline)
 {
 	CCharacter *character = CPlayerManager::getInstance().getActiveChar(userId);
 
-	if (character != NULL && onlyOnline && !character->getEnterFlag() )
-		return NULL;
+	if (character != nullptr && onlyOnline && !character->getEnterFlag() )
+		return nullptr;
 
 	return character;
 }
@@ -336,17 +336,17 @@ void		ICharacter::setStateWrap( const COfflineEntityState& es )
 CCharacter::CCharacter():	CEntityBase(false),
 							_StartupInstance(INVALID_AI_INSTANCE),
 							_InventoryUpdater(&_PropertyDatabase),
-							_PVPInterface(NULL),
-							_EncycloChar(NULL),
-							_GameEvent(NULL),
-							_RespawnPoints(NULL),
-							_PlayerRoom(NULL),
-							_ItemsInShopStore(NULL),
-							_AdminProperties(NULL),
-							_DeathPenalties(NULL),
-							_GearLatency(NULL),
-							_Missions(NULL),
-							_Fames(NULL),
+							_PVPInterface(nullptr),
+							_EncycloChar(nullptr),
+							_GameEvent(nullptr),
+							_RespawnPoints(nullptr),
+							_PlayerRoom(nullptr),
+							_ItemsInShopStore(nullptr),
+							_AdminProperties(nullptr),
+							_DeathPenalties(nullptr),
+							_GearLatency(nullptr),
+							_Missions(nullptr),
+							_Fames(nullptr),
 							RingRewardPoints(this),
 							_PersistentEffects(this),
 							_Invisibility(false),
@@ -401,13 +401,13 @@ CCharacter::CCharacter():	CEntityBase(false),
 	_DepositSearchSkill = SKILLS::unknown;
 
 	// forage
-	_ForageProgress = NULL;
-	_ProspectionLocateDepositEffect = NULL;
+	_ForageProgress = nullptr;
+	_ProspectionLocateDepositEffect = nullptr;
 	_ForageBonusExtractionTime = 0;
 
 	// bot chat
 	_CurrentBotChatListPage = 0;
-	_BotGift = NULL;
+	_BotGift = nullptr;
 
 	//no exchange proposition
 	_ExchangeAsker = CEntityId::Unknown;
@@ -426,8 +426,8 @@ CCharacter::CCharacter():	CEntityBase(false),
 	// init money to zero
 	_Money = 0;
 
-	for (uint i = 0 ; i < (PVP_CLAN::EndClans-PVP_CLAN::BeginClans+1); ++i)
-		_FactionPoint[i] = 0;
+	for (auto &pt : _FactionPoint)
+		pt = 0;
 
 #ifdef RYZOM_FORGE
 	_PvpPoint = 0;
@@ -521,24 +521,24 @@ CCharacter::CCharacter():	CEntityBase(false),
 
 	// init combat flags
 	_CombatEventFlagTicks.resize(32);
-	for( uint i=0; i<32; ++i )
+	for( auto &flag : _CombatEventFlagTicks )
 	{
-		_CombatEventFlagTicks[i].StartTick = 0;
-		_CombatEventFlagTicks[i].EndTick = 0;
-		_CombatEventFlagTicks[i].OldStartTick = 0;
-		_CombatEventFlagTicks[i].OldEndTick = 0;
+		flag.StartTick = 0;
+		flag.EndTick = 0;
+		flag.OldStartTick = 0;
+		flag.OldEndTick = 0;
 	}
 
 	// init power and aura flags
 	_ForbidAuraUseStartDate = 0;
 	_ForbidAuraUseEndDate = 0;
 	_PowerFlagTicks.resize(32);
-	for( uint i=0; i<32; ++i )
+	for( auto &flag : _PowerFlagTicks )
 	{
-		_PowerFlagTicks[i].StartTick = 0;
-		_PowerFlagTicks[i].EndTick = 0;
-		_PowerFlagTicks[i].OldStartTick = 0;
-		_PowerFlagTicks[i].OldEndTick = 0;
+		flag.StartTick = 0;
+		flag.EndTick = 0;
+		flag.OldStartTick = 0;
+		flag.OldEndTick = 0;
 	}
 
 	// resize charac vector
@@ -569,15 +569,14 @@ CCharacter::CCharacter():	CEntityBase(false),
 	_RingXpCatalyserSlot	= INVENTORIES::INVALID_INVENTORY_SLOT;
 
 	// init _Sp
-	for (uint i = 0 ; i < EGSPD::CSPType::EndSPType ; ++i)
-	{
-		_SpType[i] = 0.0f;
-		_SpentSpType[i] = 0;
-	}
+	for (auto &sp : _SpType)
+		sp = 0.0f;
+	for (auto &spent : _SpentSpType)
+		spent = 0;
 
 	// init permanent modifiers on scores
-	for (uint i = 0 ; i < SCORES::NUM_SCORES ; ++i)
-		_ScorePermanentModifiers[i] = 0;
+	for (auto &mod : _ScorePermanentModifiers)
+		mod = 0;
 
 	// init owner character for CItemsForSale class member
 	_ItemsInShopStore = new CItemsForSale;
@@ -629,8 +628,8 @@ CCharacter::CCharacter():	CEntityBase(false),
 	/** \todo Handle PDS code a MUCH BETTER WAY */
 	//_Missions = new EGSPD::CMissionContainerPD;
 	//_Fames = new EGSPD::CFameContainerPD;
-	_Missions = NULL;
-	_Fames = NULL;
+	_Missions = nullptr;
+	_Fames = nullptr;
 
 	_HairCuteDiscount = false;
 
@@ -639,8 +638,8 @@ CCharacter::CCharacter():	CEntityBase(false),
 	_EnterCriticalZoneProposalQueueId = 0;
 
 	_NbNonNullClassificationTypesSkillMod = 0;
-	for (uint i = 0 ; i < (uint)EGSPD::CClassificationType::EndClassificationType ; ++i)
-		_ClassificationTypesSkillModifiers[i] = 0;
+	for (auto &mod : _ClassificationTypesSkillModifiers)
+		mod = 0;
 
 	// log stats init
 	_FirstConnectedTime = 0;
@@ -656,7 +655,7 @@ CCharacter::CCharacter():	CEntityBase(false),
 
 	_ChannelAdded = false;
 
-	_DuelOpponent = NULL;
+	_DuelOpponent = nullptr;
 
 	_LastCivPointWriteDB = ~0;
 	_LastCultPointWriteDB = ~0;
@@ -680,8 +679,8 @@ CCharacter::CCharacter():	CEntityBase(false),
 	_inRoomOfPlayer = CEntityId::Unknown;
 #endif
 
-	for(uint i = 0; i < BRICK_FAMILIES::NbFamilies; ++i )
-		_BrickFamilyBitField[i] = 0;
+	for (auto &bf : _BrickFamilyBitField)
+		bf = 0;
 	_InterfacesFlagsBitField = 0;
 	_RingSeason = 0;
 
@@ -786,7 +785,7 @@ void CCharacter::clear()
 	_StartingCharacteristicValues.resize(startingCharacteristicValuesSize);
 
 //	for(uint32 i=0;i<INVENTORIES::NUM_INVENTORY;++i)
-//		if (_Inventory[i]!=NULL)
+//		if (_Inventory[i]!=nullptr)
 //			_Inventory[i].deleteItem();
 
 	for(uint32 i=0;i<INVENTORIES::NUM_INVENTORY;++i)
@@ -1449,18 +1448,18 @@ uint32 CCharacter::tickUpdate()
 			H_AUTO(CharacterUpdateItemsPrerequisit);
 
 			CInventoryPtr bagInv = getInventory( INVENTORIES::bag );
-			if( bagInv != NULL )
+			if( bagInv != nullptr )
 				bagInv->updateAllItemPrerequisit();
 
 			for( uint i=INVENTORIES::pet_animal; i<INVENTORIES::max_pet_animal; ++i )
 			{
 				CInventoryPtr petInv = getInventory( (INVENTORIES::TInventory)i );
-				if( petInv != NULL )
+				if( petInv != nullptr )
 					petInv->updateAllItemPrerequisit();
 			}
 
 			CInventoryPtr roomInv = getInventory( INVENTORIES::player_room );
-			if( roomInv != NULL )
+			if( roomInv != nullptr )
 				roomInv->updateAllItemPrerequisit();
 
 			_HaveToUpdateItemsPrerequisit = false;
@@ -1621,387 +1620,16 @@ void CCharacter::saveCharacter()
 //-----------------------------------------------
 // CCharacter::kill
 //-----------------------------------------------
-void CCharacter::kill(TDataSetRow killerRowId)
-{
-	if (_IsDead)
-		return;
+// Death / resurrection methods (kill, deathOccurs, respawn, applyRespawnEffects, resurrected, revive)
+// extracted to character_death.cpp (Phase 0.3, pure mechanical move, no logic change).
+// See player_manager/character_death.cpp
 
-	// force player to unmount
-	if( TheDataset.isAccessible(_EntityMounted()) )
-	{
-		unmount();
-	}
-
-	std::vector< uint16 > usableRespawnPoints;
-	getRespawnPoints().getUsableRespawnPoints(getCurrentContinent(), usableRespawnPoints);
-	if ( usableRespawnPoints.empty() )
-	{
-		getRespawnPoints().addDefaultRespawnPoint(getCurrentContinent());
-	}
-
-	_IsDead = true;
-	_Mode = MBEHAV::DEATH;
-
-	removeAllSpells();
-	_ForbidPowerDates.clearConsumable();
-
-	_PhysScores._PhysicalScores[SCORES::hit_points].Current = -_PhysScores._PhysicalScores[SCORES::hit_points].Max / 2;
-	setBars();
-
-	_TimeDeath = CTickEventHandler::getGameTime() + 5.0;
-
-	// stop all temp inventory actions
-	sendCloseTempInventoryImpulsion();
-
-	// end quartering if in progress
-	endHarvest();
-
-	// stop all temp inventory actions
-	clearTempInventory();
-
-	// Testing tools report
-	if( TTSIsUp )
-	{
-		CMessage msgout("TTS_REPORT_ACTOR_DEAD");
-		msgout.serial( _Id );
-		CUnifiedNetwork::getInstance()->send( "TTS", msgout );
-	}
-
-	_ContextualProperty.directAccessForStructMembers().talkableTo( false );
-	_ContextualProperty.setChanged();
-
-	CPhraseManager::getInstance().removeEntity(_EntityRowId, false);
-
-	if (_TpTicketSlot != INVENTORIES::INVALID_INVENTORY_SLOT)
-	{
-		unLockItem(INVENTORIES::bag, _TpTicketSlot,1);
-		resetTpTicketSlot();
-	}
-
-	// Output Stats
-	string placeName = string("None");
-	string regionName = string("None");
-	if ( !_Places.empty() )
-	{
-		CPlace * p = CZoneManager::getInstance().getPlaceFromId( _Places[0] );
-		if( p )
-			placeName = p->getName();
-	}
-
-	const CRegion * r=NULL;
-	CZoneManager::getInstance().getRegion( this, &r);
-	if( r )
-	{
-		regionName = r->getName();
-	}
-
-	// if best skill of player is too low then he doesn't get death penalty
-	if( getBestChildSkillValue(SKILLS::any) < DeathPenaltyMinLevel )
-	{
-		setNextDeathPenaltyFactor(0.0f);
-	}
-
-	// check killer and do things accordingly
-	CEntityId killerId;
-	CSheetId killerSheet;
-	CEntityBase * e = CEntityBaseManager::getEntityBasePtr(killerRowId);
-	if( e )
-	{
-		// clear XP gain for this player
-		PROGRESSIONPVE::CCharacterProgressionPVE::getInstance()->clearAllXpForPlayer(_EntityRowId, _TeamId, false);
-		if( e->getId().getType() == RYZOMID::player )
-		{
-			PROGRESSIONPVP::CCharacterProgressionPVP::getInstance()->playerDeath(this, (CCharacter*)e);
-		}
-
-		killerId = e->getId();
-		killerSheet = e->getType();
-
-		if ( ! (getPVPInterface().isValid() &&
-			    getPVPInterface().killedBy( e )) )
-		{
-			// if killed by a creature, check if death penalty should be applied or not
-			if ( killerId.getType() == RYZOMID::creature || killerId.getType() == RYZOMID::npc )
-			{
-				CCreature *creature = dynamic_cast<CCreature*> (e);
-				if (creature && creature->getForm())
-				{
-					if ( creature->getForm()->getXPGainOnCreature() == 0 )
-					{
-						setNextDeathPenaltyFactor(0.0f);
-					}
-				}
-			}
-		}
-
-		if( killerId.getType() == RYZOMID::player )
-		{
-			if( getDuelOpponent() )
-			{
-				if( getDuelOpponent()->getId() != killerId )
-				{
-					setNextDeathPenaltyFactor(0.0f);
-				}
-			}
-			else
-			{
-				setNextDeathPenaltyFactor(0.0f);
-			}
-		}
-	}
-	//Bsi.append( StatPath, NLMISC::toString("[PJM] %s %s %s %s %s %s", _Id.toString().c_str(), CONTINENT::toString(_CurrentContinent).c_str(), regionName.c_str(), placeName.c_str(), KillerId.toString().c_str(), KillerSheet.toString().c_str()) );
-	//EgsStat.displayNL("[PJM] %s %s %s %s %s %s", _Id.toString().c_str(), CONTINENT::toString(_CurrentContinent).c_str(), regionName.c_str(), placeName.c_str(), KillerId.toString().c_str(), KillerSheet.toString().c_str());
-//	EGSPD::pCDead(_Id, CONTINENT::toString(_CurrentContinent), regionName, placeName, killerId, killerSheet.toString());
-} // kill //
-
-
-//---------------------------------------------------
-// character is dead
-//
-//---------------------------------------------------
-void CCharacter::deathOccurs( void )
-{
-	H_AUTO(DeathOccursCharacter);
-
-	if( currentHp() > 0 )
-	{
-		resurrected();
-		return;
-	}
-
-	if ( getPVPInterface().isValid() )
-	{
-		// ignore PVP death
-		const bool cancelRespawn = getPVPInterface().doCancelRespawn();
-
-		getPVPInterface().leavePVP(IPVP::Death);
-
-		if (cancelRespawn)
-			return;
-	}
-
-	CPVPManager2::getInstance()->playerDies(this);
-
-	CBuildingManager::getInstance()->removeTriggerRequest(getEntityRowId());
-
-	if( _TimeDeath < CTickEventHandler::getGameTime() )
-	{
-		if (_Mode.getValue().Mode == MBEHAV::DEATH)
-		{
-			// Cancel all action during death
-			cancelStaticActionInProgress();
-
-			if( _Mode.getValue().Mode == MBEHAV::DEATH && _IsDead == true )
-			{
-				_TimeDeath = CTickEventHandler::getGameTime() + CommaDelayBeforeDeath;
-				CPhraseManager::getInstance().removeEntity(TheDataset.getDataSetRow(_Id), false);
-			}
-			else
-			{
-				//todo make necessary for stop vision of character
-			}
-		}
-	}
-
-	// update regen
-	if( !_IsInAComa )
-	{
-		resetCharacterModifier();
-		computeMaxValue();
-
-		// negative regen giving healing times for resurrect character
-		for( uint32 i = 0; i < SCORES::NUM_SCORES; ++i )
-		{
-			if( i == SCORES::hit_points )
-			{
-				float currentRegen = - _PhysScores._PhysicalScores[ i ].Max / (CommaDelayBeforeDeath * 0.2f );
-				_PhysScores._PhysicalScores[ i ].CurrentRegenerate = currentRegen;
-				_PhysScores._PhysicalScores[ i ].Current = - _PhysScores._PhysicalScores[ i ].Max / 2;
-			}
-			else
-			{
-				float currentRegen = - _PhysScores._PhysicalScores[ i ].Current / ( CommaDelayBeforeDeath * 0.1f );
-				_PhysScores._PhysicalScores[ i ].CurrentRegenerate = currentRegen;
-			}
-		}
-		_IsInAComa = true;
-	}
-
-	for( uint32 i = 0; i < SCORES::NUM_SCORES; ++i )
-	{
-		sint32 oldCurrent = _PhysScores._PhysicalScores[ i ].Current;
-		if( i == SCORES::hit_points )
-		{
-			if( _PhysScores._PhysicalScores[ i ].Current > - _PhysScores._PhysicalScores[ i ].Max )
-			{
-				_PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal += _PhysScores._PhysicalScores[ i ].CurrentRegenerate * ( CTickEventHandler::getGameCycle() - _PhysScores._PhysicalScores[ i ].RegenerateTickUpdate ) / 10.0f;
-				_PhysScores._PhysicalScores[ i ].Current = (sint32) ( _PhysScores._PhysicalScores[ i ].Current + (sint32) _PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal );
-				_PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal -= (sint32) _PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal;
-			}
-			if( _PhysScores._PhysicalScores[ i ].Current < -_PhysScores._PhysicalScores[ i ].Max )
-			{
-				_PhysScores._PhysicalScores[ i ].Current = - _PhysScores._PhysicalScores[ i ].Max;
-			}
-			_PhysScores._PhysicalScores[ i ].RegenerateTickUpdate = CTickEventHandler::getGameCycle();
-		}
-		else
-		{
-			if( _PhysScores._PhysicalScores[ i ].Current > 0 )
-			{
-				_PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal += _PhysScores._PhysicalScores[ i ].CurrentRegenerate * ( CTickEventHandler::getGameCycle() - _PhysScores._PhysicalScores[ i ].RegenerateTickUpdate ) / 10.0f;
-				_PhysScores._PhysicalScores[ i ].Current = (sint32) ( _PhysScores._PhysicalScores[ i ].Current + (sint32) _PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal );
-				_PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal -= (sint32) _PhysScores._PhysicalScores[ i ].KeepRegenerateDecimal;
-			}
-			if( _PhysScores._PhysicalScores[ i ].Current < 0 )
-			{
-				_PhysScores._PhysicalScores[ i ].Current = 0;
-			}
-			_PhysScores._PhysicalScores[ i ].RegenerateTickUpdate = CTickEventHandler::getGameCycle();
-		}
-	}
-	setBars();
-}
-
-
-//---------------------------------------------------
-// player choose a re-spawn for his death character
-//
-//---------------------------------------------------
-void CCharacter::respawn( uint16 index )
-{
-	// ignore message if player isn't dead
-	if (!_IsDead)
-	{
-		return;
-	}
-
-	PROGRESSIONPVP::CCharacterProgressionPVP::getInstance()->playerRespawn(this);
-
-	sint32 x,y,z;
-	float heading;
-
-	if( getRespawnPoints().getRingAdventuresRespawnPoint( x, y ) )
-	{
-		z = 0;
-		heading = 0.0f;
-	}
-	else
-	{
-		vector<uint16> points;
-		getRespawnPoints().getUsableRespawnPoints(getCurrentContinent(), points);
-		if ( index >= points.size() )
-		{
-			nlwarning("<RESPAWN_POINT> invalid point %u for user %s ( count = %u)",index,_Id.toString().c_str(),points.size());
-			index = 0;
-			getRespawnPoints().addDefaultRespawnPoint(getCurrentContinent());
-			getRespawnPoints().getUsableRespawnPoints(getCurrentContinent(), points);
-
-			if ( index >= points.size() )
-			{
-				nlwarning("<RESPAWN_POINT> invalid default point %u for user %s. CurrentContinent %d x = %d, y = %d",index,_Id.toString().c_str(), getCurrentContinent(), getState().X(),getState().Y() );
-				return;
-			}
-		}
-
-		// get the tp coords
-		const CTpSpawnZone* zone = CZoneManager::getInstance().getTpSpawnZone( points[index] );
-		if ( !zone )
-		{
-			nlwarning("<RESPAWN_POINT> invalid point %u for user %s ( count = %u) ( NULL zone returned )",index,_Id.toString().c_str(),points.size());
-			return;
-		}
-		zone->getRandomPoint(x,y,z,heading);
-	}
-
-	// remove character of vision of other PC
-	CMessage msgout("ENTITY_TELEPORTATION");
-	msgout.serial( _Id );
-	if (IsRingShard)
-	{
-		nlinfo("Asking GPMS to TP character %s to (0,0) for respawn",_Id.toString().c_str());
-	}
-	sendMessageViaMirror("GPMS", msgout);
-
-	forbidNearPetTp();
-
-	// set player to intangible state
-	_IntangibleEndDate = ~0;
-
-	applyRespawnEffects();
-
-	// tpWanted() sends message CAIPlayerRespawnMsg to AIS
-	tpWanted( x, y, z, true, heading );
-
-	// give spire effect if needed
-	CPVPFactionRewardManager::getInstance().giveTotemsEffects( this );
-
-	_RegionKilledInPvp = 0xffff;
-}
-
-//---------------------------------------------------
-// apply respawn effects
-//
-//---------------------------------------------------
-void CCharacter::applyRespawnEffects()
-{
-	if ( _NextDeathPenaltyFactor != 0 )
-		_DeathPenalties->addDeath(*this, _NextDeathPenaltyFactor);
-	resetNextDeathPenaltyFactor();
-
-	_PhysScores._PhysicalScores[ SCORES::hit_points ].Current = _PhysScores._PhysicalScores[ SCORES::hit_points ].Base / 10;
-	_PhysScores._PhysicalScores[ SCORES::stamina ].Current = _PhysScores._PhysicalScores[ SCORES::stamina ].Base / 10;
-	_PhysScores._PhysicalScores[ SCORES::sap ].Current = _PhysScores._PhysicalScores[ SCORES::sap ].Base / 10;
-	_PhysScores._PhysicalScores[ SCORES::focus ].Current = _PhysScores._PhysicalScores[ SCORES::focus ].Base / 10;
-	_Mode = MBEHAV::NORMAL;
-	_Behaviour = MBEHAV::IDLE;
-	_IsDead = false;
-	_IsInAComa = false;
-}
-
-//---------------------------------------------------
-// player accept resurrection by other character
-//
-//---------------------------------------------------
-void CCharacter::resurrected()
-{
-	_Mode = MBEHAV::NORMAL;
-	_Behaviour = MBEHAV::IDLE;
-	_IsDead = false;
-	_IsInAComa = false;
-	resetNextDeathPenaltyFactor();
-
-	PROGRESSIONPVP::CCharacterProgressionPVP::getInstance()->playerResurrected(this);
-
-	// give spire effect if needed
-	CPVPFactionRewardManager::getInstance().giveTotemsEffects( this );
-
-	_RegionKilledInPvp = 0xffff;
-}
-
-
-//---------------------------------------------------
-// revive
-// player revives at full health at his location without death penalty
-//---------------------------------------------------
-void CCharacter::revive()
-{
-	_Mode = MBEHAV::NORMAL;
-	_Behaviour = MBEHAV::IDLE;
-	_IsDead = false;
-	_IsInAComa = false;
-	_RegionKilledInPvp = 0xffff;
-
-	_PhysScores._PhysicalScores[ SCORES::hit_points ].Current = _PhysScores._PhysicalScores[ SCORES::hit_points ].Base;
-	_PhysScores._PhysicalScores[ SCORES::stamina ].Current = _PhysScores._PhysicalScores[ SCORES::stamina ].Base;
-	_PhysScores._PhysicalScores[ SCORES::sap ].Current = _PhysScores._PhysicalScores[ SCORES::sap ].Base;
-	_PhysScores._PhysicalScores[ SCORES::focus ].Current = _PhysScores._PhysicalScores[ SCORES::focus ].Base;
-}
 
 //---------------------------------------------------
 // Buy kami or karavan pact for a respawn point
 //
 //---------------------------------------------------
-void CCharacter::buyPact( const std::string& PactName )
+void CCharacter::buyPact( std::string_view PactName )
 {
 	///TODO RESPAWN
 }
@@ -2248,7 +1876,7 @@ void CCharacter::unmount( bool changeMountedState, uint petIndex )
 
 
 /*
- * Return the mount if the player is mounted, otherwise NULL
+ * Return the mount if the player is mounted, otherwise nullptr
  */
 CEntityBase *CCharacter::getMountEntity()
 {
@@ -2553,7 +2181,7 @@ void CCharacter::processStaticAction()
 
 					// Special case if it is an outpost building
 					CCreature *c = dynamic_cast<CCreature*>(entity);
-					if ((c != NULL) && (c->getOutpostBuilding() != NULL))
+					if ((c != nullptr) && (c->getOutpostBuilding() != nullptr))
 						stopAction = ( sqrDistance > (MaxTalkingOutpostBuildingDistSquare * 1000.0 * 1000.0 ) );
 					else
 						stopAction = ( sqrDistance > (MaxTalkingDistSquare * 1000.0 * 1000.0 ) );
@@ -2577,7 +2205,7 @@ void CCharacter::processStaticAction()
 						if ( entityPhrases )
 						{
 							const CSPhrasePtr currentAction = entityPhrases->getCurrentActionConst();
-							if ( (currentAction != NULL) && (currentAction->mustOverrideCancelStaticAction()) )
+							if ( (currentAction != nullptr) && (currentAction->mustOverrideCancelStaticAction()) )
 								stopAction = false;
 						}
 					}
@@ -2602,7 +2230,7 @@ void CCharacter::processStaticAction()
 			else
 			{
 				CEntityBase* entity = CEntityBaseManager::getEntityBasePtr( _CurrentInterlocutor );
-				if (entity != NULL)
+				if (entity != nullptr)
 				{
 					if (isDead())
 					{
@@ -2632,7 +2260,7 @@ void CCharacter::compassDatabaseUpdate()
 	if (TheDataset.isAccessible( _CompassTarget ) )
 	{
 		CEntityBase * e = CEntityBaseManager::getEntityBasePtr( _CompassTarget );
-		if( e == NULL )
+		if( e == nullptr )
 		{
 			_CompassTarget = invalidRow;
 			e = CEntityBaseManager::getEntityBasePtr( _Target );
@@ -2779,7 +2407,7 @@ CCharacter::~CCharacter()
 			TeamManager.removeCharacter( _Id );
 		}
 
-		if( _LootContainer!=NULL )
+		if( _LootContainer!=nullptr )
 		{
 			pickUpItemClose();
 		}
@@ -2815,9 +2443,9 @@ CCharacter::~CCharacter()
 	if ( _MpSourceId != CEntityId::Unknown )
 	{
 		CCreature *creature = CreatureManager.getCreature( _MpSourceId );
-		if (creature != NULL)
+		if (creature != nullptr)
 		{
-			//creature->harvester( NULL );
+			//creature->harvester( nullptr );
 			creature->resetHarvesterRowId();
 		}
 	}
@@ -2894,10 +2522,10 @@ void CCharacter::postLoadTreatment()
 	uint32 userId = PlayerManager.getPlayerId( getId() );
 
 	// enter the name in the eid translator
-	BOMB_IF(PlayerManager.getPlayer(userId) == NULL, "postLoadTreatment : can't find CPlayer instance for user "<<userId, return);
+	BOMB_IF(PlayerManager.getPlayer(userId) == nullptr, "postLoadTreatment : can't find CPlayer instance for user "<<userId, return);
 	if (!CEntityIdTranslator::getInstance()->isEntityRegistered(getId()))
 	{
-		std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), getName().toUtf8());
+		std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), getName());
 		CEntityIdTranslator::getInstance()->registerEntity( getId(), capitalize( fullName ), charIndex, userId, PlayerManager.getPlayer(userId)->getUserName(), IService::getInstance()->getShardId() );
 		ICharNameMapperClient::getInstance()->mapCharacterName(getId(), fullName);
 	}
@@ -2932,22 +2560,23 @@ void CCharacter::postLoadTreatment()
 	tickets.resize( INVENTORIES::NbPackerSlots, false );
 	for( uint i = 0; i < _PlayerPets.size(); ++i )
 	{
-		if( _PlayerPets[ i ].PetStatus != CPetAnimal::not_present )
+		auto &pa = _PlayerPets[i];
+		if( pa.PetStatus != CPetAnimal::not_present )
 		{
-			if( _PlayerPets[ i ].Slot >= 0 && _PlayerPets[ i ].Slot < INVENTORIES::NbPackerSlots )
+			if( pa.Slot >= 0 && pa.Slot < INVENTORIES::NbPackerSlots )
 			{
-				if( tickets[ _PlayerPets[ i ].Slot ] )
+				if( tickets[ pa.Slot ] )
 				{
-					_PlayerPets[ i ].Slot = INVENTORIES::INVALID_INVENTORY_SLOT;
+					pa.Slot = INVENTORIES::INVALID_INVENTORY_SLOT;
 				}
 				else
 				{
-					tickets[ _PlayerPets[ i ].Slot ] = true;
+					tickets[ pa.Slot ] = true;
 				}
 			}
 			else
 			{
-				_PlayerPets[ i ].Slot = INVENTORIES::INVALID_INVENTORY_SLOT;
+				pa.Slot = INVENTORIES::INVALID_INVENTORY_SLOT;
 			}
 
 #ifdef RYZOM_FORGE_PET_NAME
@@ -3053,7 +2682,7 @@ void CCharacter::postLoadTreatment()
 		/* Call the postLoad methods for the loaded missions */
 		for ( map<TAIAlias, CMission*>::iterator it = getMissionsBegin(); it != getMissionsEnd(); ++it )
 		{
-			BOMB_IF( (*it).second == NULL, "Mission is NULL after load", continue );
+			BOMB_IF( (*it).second == nullptr, "Mission is nullptr after load", continue );
 			(*it).second->onLoad();
 		}
 	}
@@ -3109,7 +2738,7 @@ void CCharacter::lockTicketInInventory()
 			{
 				// check if source slot is not empty
 				CGameItemPtr item = inv->getItem(i);
-				if (item != NULL && item->getStaticForm() != NULL )
+				if (item != nullptr && item->getStaticForm() != nullptr )
 				{
 					if(item->getStaticForm()->Family == ITEMFAMILY::PET_ANIMAL_TICKET
 					|| item->getStaticForm()->Family == ITEMFAMILY::TELEPORT)
@@ -3124,7 +2753,7 @@ void CCharacter::lockTicketInInventory()
 
 void CCharacter::validateContactList()
 {
-	if (IShardUnifierEvent::getInstance() == NULL)
+	if (IShardUnifierEvent::getInstance() == nullptr)
 		return;
 
 	// if EId translator has been initialized by SU, check contact list
@@ -3342,526 +2971,8 @@ void CCharacter::unprocessMiscBonusBrick( const CStaticBrick *brick )
 //---------------------------------------------------
 //   :
 //---------------------------------------------------
-void CCharacter::setTarget( const CEntityId &targetId, bool sendMessage )
-{
-	// If target is the same, do not send message
-	if ( _Target() == TheDataset.getDataSetRow( targetId ) && !IsRingShard )
-		return;
-
-	CR2GiveItem::getInstance().onUntarget( this, _Target() );
-
-	removeTargetingChar( _Target() );
-
-	CEntityBase * target = CEntityBaseManager::getEntityBasePtr( targetId );
-	if( target )
-	{
-		if( !R2_VISION::isEntityVisibleToPlayers(target->getWhoSeesMe()) )
-			return;
-	}
-
-	//check entity exists and is targetable
-	if (targetId != CEntityId::Unknown)
-	{
-		// get data set row
-		TDataSetRow rowId = TheDataset.getDataSetRow(targetId);
-		if ( TheDataset.isAccessible( rowId ) )
-		{
-			addTargetingChar(rowId);
-			// get contextual properties and check targetable
-			const CMirrorPropValue<TYPE_CONTEXTUAL> contextualProperties(TheDataset, rowId, DSPropertyCONTEXTUAL );
-			const CProperties prop(contextualProperties.getValue());
-			if (!prop.selectable())
-			{
-				return;
-			}
-		}
-	}
-
-	//if targeting an entity which is already targeted, set the mirror value to "invalid" before, so that
-	// the onTarget callback is sent.
-	// On a RingShard,We want that a targeted entity can be targeted again without selecting another entity.
-	if (IsRingShard)
-	{
-		CEntityId invalidTarget = CEntityId::Unknown;
-		CEntityBase::setTarget( invalidTarget );
-	}
-
-	CEntityBase::setTarget( targetId );
-
-	// Forage source are not handled by CEntityBaseManager
-	if ( targetId.getType() == RYZOMID::forageSource )
-	{
-		CEntityBase::setTarget( targetId );
-		// TODO: mission event?
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.UID, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-		CBankAccessor_PLR::getTARGET().getBARS().setUID(_PropertyDatabase, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.HP, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setHP(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.SAP, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setSAP(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.STA, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setSTA(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.FOCUS, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setFOCUS(_PropertyDatabase, 0 );
-
-		//_PropertyDatabase.setProp( "TARGET:AGGRESSIVE", 0 );
-//		_PropertyDatabase.setProp( "TARGET:FORCE_RATIO", 0 );
-		CBankAccessor_PLR::getTARGET().setFORCE_RATIO(_PropertyDatabase, 0 );
-		return;
-	}
-
-	//uint agressiveness = 0;
-	uint rangeLevel = 0;
-
-	// reset combat event flags
-	resetCombatEventFlags();
-
-	// Get target, his Hp, and set TARGET HP in the database
-	target = CEntityBaseManager::getEntityBasePtr( _Target() );
-	if( target )
-	{
-		CCreature * creature = dynamic_cast< CCreature *>(target);
-		if( creature )
-		{
-			const CStaticCreatures * form = creature->getForm();
-			if( form )
-			{
-				if (form->getLevel() == 0)
-					rangeLevel = 0;
-				else
-				{
-					rangeLevel = ( ((form->getLevel() - 1) / 5) << 1) + ( ((form->getLevel()-1) % 5) >= 2 ? 2 : 1 );
-
-					if (rangeLevel > 11)
-						rangeLevel = 11;
-				}
-			}
-		}
-
-		if ( sendMessage )
-		{
-			if (targetId == _Id)
-			{
-				PHRASE_UTILITIES::sendDynamicSystemMessage( _EntityRowId, "TARGET_SELF");
-			}
-			else if( targetId != CEntityId::Unknown )
-			{
-				SM_STATIC_PARAMS_1(params, STRING_MANAGER::entity);
-				params[0].setEIdAIAlias( targetId, CAIAliasTranslator::getInstance()->getAIAlias(targetId) );
-				PHRASE_UTILITIES::sendDynamicSystemMessage( _EntityRowId, "TARGET_NEW", params);
-			}
-		}
-
-		// Process mission event "target" until all steps "target" of all missions have been processed
-		CMissionEventTarget event( target->getEntityRowId() );
-		processMissionMultipleEvent( event );
-
-		// set botchat programm and enable filter is needed
-		setTargetBotchatProgramm( target, targetId );
-
-		// UID
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.UID, target->getEntityRowId().getCompressedIndex() );
-		CBankAccessor_PLR::getTARGET().getBARS().setUID(_PropertyDatabase, target->getEntityRowId().getCompressedIndex() );
-
-		sint8 percent;
-		// Hp
-		if( target->getPhysScores()._PhysicalScores[ SCORES::hit_points ].Max == 0 )
-		{
-			percent = 0;
-		}
-		else
-		{
-			percent = sint8( (127.0 * ( target->getPhysScores()._PhysicalScores[ SCORES::hit_points ].Current ) ) / ( target->getPhysScores()._PhysicalScores[ SCORES::hit_points ].Max ) );
-		}
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.HP, percent );
-		CBankAccessor_PLR::getTARGET().getBARS().setHP(_PropertyDatabase, percent );
-
-		// Sap
-		if( target->getPhysScores()._PhysicalScores[ SCORES::sap ].Max == 0 )
-		{
-			percent = 0;
-		}
-		else
-		{
-			sint8 percentTmp = sint8( (127.0 * ( target->getPhysScores()._PhysicalScores[ SCORES::sap ].Current ) ) / ( target->getPhysScores()._PhysicalScores[ SCORES::sap ].Max ) );
-			if( percentTmp < 0 )
-				percent = 0;
-			else
-				percent = percentTmp;
-		}
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.SAP, percent );
-		CBankAccessor_PLR::getTARGET().getBARS().setSAP(_PropertyDatabase, percent );
-
-		// Stamina
-		if( target->getPhysScores()._PhysicalScores[ SCORES::stamina ].Max == 0 )
-		{
-			percent = 0;
-		}
-		else
-		{
-			sint8 percentTmp = sint8( (127.0 * ( target->getPhysScores()._PhysicalScores[ SCORES::stamina ].Current ) ) / ( target->getPhysScores()._PhysicalScores[ SCORES::stamina ].Max ) );
-			if( percentTmp < 0 )
-				percent = 0;
-			else
-				percent = percentTmp;
-		}
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.STA, percent );
-		CBankAccessor_PLR::getTARGET().getBARS().setSTA(_PropertyDatabase, percent );
-
-		// Focus
-		if( target->getPhysScores()._PhysicalScores[ SCORES::focus].Max == 0 )
-		{
-			percent = 0;
-		}
-		else
-		{
-			sint8 percentTmp = sint8( (127.0 * ( target->getPhysScores()._PhysicalScores[ SCORES::focus ].Current ) ) / ( target->getPhysScores()._PhysicalScores[ SCORES::focus ].Max ) );
-			if( percentTmp < 0 )
-				percent = 0;
-			else
-				percent = percentTmp;
-		}
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.FOCUS, percent );
-		CBankAccessor_PLR::getTARGET().getBARS().setFOCUS(_PropertyDatabase, percent );
-
-		// Validate properties of target
-		CProperties prop;
-		// set all flags to true as this bifield is used as a AND mask on the client side
-		prop.setAllFlags();
-		// set the mountable property
-		if( target->getContextualProperty().directAccessForStructMembers().mountable() )
-		{
-			if( (getPlayerPet( target->getEntityRowId() ) == -1) || TheDataset.getEntityId( _EntityMounted() ) == target->getId() )
-			{
-				prop.mountable( false );
-			}
-		}
-		if ( target->getId().getType() == RYZOMID::player )
-		{
-			CCharacter * c = dynamic_cast<CCharacter *>(target);
-			if (c)
-			{
-				// Set the invitable property
-				if ( ! TeamManager.isInvitableBy(c, this) )
-					prop.invitable( false );
-				// if any of the character is god, don't allow to team
-				if (c->godMode() || godMode())
-					prop.invitable( false );
-
-				// Set the level in database for ForceRegion/ForceLevel deduction
-				sint32 skillBaseValue = c->getSkillBaseValue( c->getBestSkill() );
-//				_PropertyDatabase.setProp( _DataIndexReminder->TARGET.PLAYER_LEVEL, skillBaseValue );
-				CBankAccessor_PLR::getTARGET().getBARS().setPLAYER_LEVEL(_PropertyDatabase, checkedCast<uint8>(skillBaseValue) );
-			}
-			else
-			{
-				nlwarning("Entity %s type is player but dynamic_cast in CCharacter * returns NULL ?!", target->getId().toString().c_str());
-			}
-		}
-
-		if ( CPVPFactionRewardManager::getInstance().isAttackable( this, target ) )
-		{
-			prop.attackable( true );
-		}
-
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.CONTEXT_VAL, (uint16) prop );
-		CBankAccessor_PLR::getTARGET().setCONTEXT_VAL(_PropertyDatabase, prop );
-
-//*** Removed by Sadge ***
-//		// Ask information about target to AI service
-//		CreatureNpcInformation.Character.push_back( _EntityRowId );
-//		CreatureNpcInformation.Creature.push_back( target->getEntityRowId() );
-//*** ***
-	}
-	else // target == NULL
-	{
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.UID, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-		CBankAccessor_PLR::getTARGET().getBARS().setUID(_PropertyDatabase, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.HP, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setHP(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.SAP, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setSAP(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.STA, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setSTA(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( _DataIndexReminder->TARGET.FOCUS, 0 );
-		CBankAccessor_PLR::getTARGET().getBARS().setFOCUS(_PropertyDatabase, 0 );
-
-//		PHRASE_UTILITIES::sendDynamicSystemMessage( _Id, "TARGET_NONE");
-	}
-	//_PropertyDatabase.setProp( "TARGET:AGGRESSIVE", agressiveness );
-//	_PropertyDatabase.setProp( "TARGET:FORCE_RATIO", rangeLevel );
-	CBankAccessor_PLR::getTARGET().setFORCE_RATIO(_PropertyDatabase, rangeLevel );
-} // setTarget //
-
-
+// Targeting methods (setTarget + setTargetBotchatProgramm) extracted to character_targeting.cpp (Phase 0.3 pure move).
 //---------------------------------------------------
-// setTargetBotchatProgramm:
-//---------------------------------------------------
-void CCharacter::setTargetBotchatProgramm( CEntityBase * target, const CEntityId& targetId )
-{
-	uint32 programm = 0;
-	// set bot chat programms and npcs special options
-	CCreature * c = NULL;
-	if (targetId.getType() == RYZOMID::npc)
-	{
-		c = dynamic_cast<CCreature *>(target);
-		if (c == NULL)
-		{
-			nlwarning("This dynamic_cast should not return NULL");
-		}
-	}
-	if (c)
-	{
-		programm = c->getBotChatProgram();
-		if( programm & ( (uint32)1 << uint32(BOTCHATTYPE::TradeItemFlag) ) )
-		{
-			enableAppropriateFiltersForSeller( c );
-		}
-
-		// guild special features
-		if (_GuildId != 0)
-		{
-			programm &= ~( (uint32)1 << uint32(BOTCHATTYPE::CreateGuildFlag) );
-		}
-		if (c->getOutpostBuilding() != NULL)
-		{
-			bool hasRightsToTradeOutpostBuilding = false;
-			// if the target is an outpost building check we have rights to build/construct
-			CGuild *pGuild = CGuildManager::getInstance()->getGuildFromId(_GuildId);
-			if (pGuild != NULL)
-			{
-				CGuildMember *pMember = pGuild->getMemberFromEId(_Id);
-				if (pMember != NULL)
-				{
-					if ((pMember->getGrade() == EGSPD::CGuildGrade::Leader) ||
-						(pMember->getGrade() == EGSPD::CGuildGrade::HighOfficer))
-					{
-						// Ok the user is a leader or a high officer
-						// check that the outpost belongs to its guild
-						const COutpost *pO = c->getOutpostBuilding()->getParent();
-						if (pO != NULL)
-							if ((pO->isBelongingToAGuild()) &&
-								(pO->getOwnerGuild() == _GuildId))
-								hasRightsToTradeOutpostBuilding = true;
-					}
-				}
-			}
-			if (!hasRightsToTradeOutpostBuilding)
-				programm &= ~( (uint32)1 << uint32(BOTCHATTYPE::TradeOutpostBuilding) );
-		}
-		// solo mission
-		uint i  = 0;
-		for ( map<TAIAlias, CMission*>::iterator it = getMissionsBegin(); it != getMissionsEnd(); ++it )
-		{
-			vector< pair< bool, uint32 > > texts;
-			(*it).second->sendContextTexts( _EntityRowId, c->getEntityRowId(),texts );
-			for ( uint k = 0; k < texts.size(); k++)
-			{
-				if(i >= NB_CONTEXT_DYN_TEXTS) break; // no more room in the context menu, don't fill more or it'll assert
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:TITLE",i) , texts[k].second );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setTITLE(_PropertyDatabase, texts[k].second );
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PLAYER_GIFT_NEEDED",i),texts[k].first  );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPLAYER_GIFT_NEEDED(_PropertyDatabase, texts[k].first );
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PRIORITY",i), 3  );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPRIORITY(_PropertyDatabase, 3 );
-				i++;
-			}
-		}
-
-		// group mission
-		CTeam * team = TeamManager.getRealTeam(_TeamId);
-		if ( team )
-		{
-			for (uint j = 0 ; j < team->getMissions().size(); j++ )
-			{
-				vector< pair< bool, uint32 > > texts;
-				team->getMissions()[j]->sendContextTexts( _EntityRowId, c->getEntityRowId(),texts );
-				for ( uint k = 0; k < texts.size(); k++)
-				{
-					if(i >= NB_CONTEXT_DYN_TEXTS) break; // no more room in the context menu, don't fill more or it'll assert
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:TITLE",i) , texts[k].second );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setTITLE(_PropertyDatabase, texts[k].second );
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PLAYER_GIFT_NEEDED",i),texts[k].first  );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPLAYER_GIFT_NEEDED(_PropertyDatabase, texts[k].first );
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PRIORITY",i), 3  );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPRIORITY(_PropertyDatabase, 3 );
-					i++;
-				}
-			}
-		}
-
-		//send special contextual texts
-		if ( !c->getContextTexts().empty() )
-		{
-			TVectorParamCheck vect;
-			STRING_MANAGER::TParam param;
-
-			param.Type = STRING_MANAGER::player;
-			param.setEIdAIAlias( _Id, CAIAliasTranslator::getInstance()->getAIAlias( _Id) );
-			vect.push_back( param );
-
-			param.Type = STRING_MANAGER::bot;
-			param.setEIdAIAlias( targetId, CAIAliasTranslator::getInstance()->getAIAlias( targetId) );
-
-			vect.push_back( param );
-
-			for ( uint j = 0; j < c->getContextTexts().size(); j++ )
-			{
-				if(i >= NB_CONTEXT_DYN_TEXTS) break; // no more room in the context menu, don't fill more or it'll assert
-				uint32 text = STRING_MANAGER::sendStringToClient(_EntityRowId, c->getContextTexts()[j].first.c_str(),vect );
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:TITLE",i) , text );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setTITLE(_PropertyDatabase, text);
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PLAYER_GIFT_NEEDED",i) , 0 );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPLAYER_GIFT_NEEDED(_PropertyDatabase, 0 );
-//				_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PRIORITY",i), 0  );
-				CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPRIORITY(_PropertyDatabase, 2 );
-				i++;
-			}
-		}
-
-		// send auto missions
-		for ( uint j = 0; j < c->getMissionVector().size(); j++ )
-		{
-			const CMissionTemplate * templ = CMissionManager::getInstance()->getTemplate( c->getMissionVector()[j] );
-			if ( (templ != NULL) && !templ->AutoText.empty() )
-			{
-				if (templ->testPrerequisits(this, false) == MISSION_DESC::PreReqSuccess)
-				{
-					if(i >= NB_CONTEXT_DYN_TEXTS) break; // no more room in the context menu, don't fill more or it'll assert
-					uint32 text = templ->sendAutoText(_EntityRowId,_CurrentInterlocutor);
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:TITLE",i) , text );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setTITLE(_PropertyDatabase, text );
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PLAYER_GIFT_NEEDED",i) , 0 );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPLAYER_GIFT_NEEDED(_PropertyDatabase, 0 );
-//					_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PRIORITY",i), 3 );
-					CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPRIORITY(_PropertyDatabase, 3 );
-					i++;
-				}
-			}
-		}
-
-		for (; i < NB_CONTEXT_DYN_TEXTS; i++ )
-		{
-//			_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:TITLE",i) , 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setTITLE(_PropertyDatabase, 0 );
-//			_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PLAYER_GIFT_NEEDED",i) , 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPLAYER_GIFT_NEEDED(_PropertyDatabase, 0 );
-//			_PropertyDatabase.setProp( toString("TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:%u:PRIORITY",i), 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(i).setPRIORITY(_PropertyDatabase, 0 );
-		}
-
-		// WebPage Title
-		if( programm & (1<<BOTCHATTYPE::WebPageFlag) )
-		{
-			// send the web page title
-			uint32 text;
-			if (NLMISC::startsWith(c->getWebPageName(), "MENU_")) // TODO: What is this?
-			{
-				text = STRING_MANAGER::sendStringToClient(_EntityRowId, c->getWebPageName(), TVectorParamCheck() );
-			}
-			else
-			{
-				SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-				params[0].Literal= c->getWebPageName();
-				text = STRING_MANAGER::sendStringToClient(_EntityRowId, "LITERAL", params );
-			}
-//          _PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:WEB_PAGE_TITLE" , text );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setWEB_PAGE_TITLE(_PropertyDatabase, text );
-
-			// send the web page url
-			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-#ifdef RYZOM_FORGE
-			params[0].Literal = c->getWebPage();
-#else
-			string url = c->getWebPage();
-
-			url += "&player_eid="+getId().toString();
-
-			// add cheksum : pnj eid
-			url += "&teid="+c->getId().toString();
-
-			string defaultSalt = toString(getLastConnectedDate());
-			nlinfo(defaultSalt.c_str());
-			nlinfo(url.c_str());
-			string control = "&hmac="+NLMISC::getHMacSHA1((uint8*)&url[0], (uint32)url.size(), (uint8*)&defaultSalt[0], (uint32)defaultSalt.size()).toString();
-
-			params[0].Literal = url + control;
-#endif
-
-			text = STRING_MANAGER::sendStringToClient(_EntityRowId, "LITERAL", params );
-//			_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:WEB_PAGE_URL" , text );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setWEB_PAGE_URL(_PropertyDatabase, text );
-		}
-		else
-		{
-//			_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:WEB_PAGE_TITLE" , 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setWEB_PAGE_TITLE(_PropertyDatabase, 0 );
-//			_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:WEB_PAGE_URL" , 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setWEB_PAGE_URL(_PropertyDatabase, 0 );
-		}
-		// Outpost
-		if( programm & (1<<BOTCHATTYPE::OutpostFlag) )
-		{
-//			_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:OUTPOST" , c->getBotChatOutpost().asInt() );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setOUTPOST(_PropertyDatabase, c->getBotChatOutpost() );
-		}
-		else
-		{
-//			_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:OUTPOST" , 0 );
-			CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setOUTPOST(_PropertyDatabase, CSheetId::Unknown );
-		}
-	}
-	else
-	{
-		if ( target->getId().getType() == RYZOMID::player )
-		{
-			CCharacter * c = dynamic_cast<CCharacter *>(target);
-			if (c)
-			{
-				CGuildMemberModule * module;
-				if ( _ModulesCont->getModule( module ) )
-				{
-					if ( c->getGuildId() == 0 && module->canInvite() )
-						programm |= 1 << BOTCHATTYPE::GuildInviteFlag;
-				}
-			}
-			else
-			{
-				nlwarning("Entity %s type is player but dynamic_cast in CCharacter * returns NULL ?!", target->getId().toString().c_str());
-			}
-		}
-//		_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:PROGRAMMES", programm );
-		CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setPROGRAMMES(_PropertyDatabase, programm );
-//		_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:0:TITLE", 0 );
-		CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(0).setTITLE(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:0:PLAYER_GIFT_NEEDED", 0 );
-		CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(0).setPLAYER_GIFT_NEEDED(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:MISSIONS_OPTIONS:0:PRIORITY", 0 );
-		CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().getMISSIONS_OPTIONS().getArray(0).setPRIORITY(_PropertyDatabase, 0 );
-	}
-
-	// Can attack another player or a npc/creature helping players?
-	bool invulnerable = target->getContextualProperty().directAccessForStructMembers().invulnerable();
-	if( CPVPManager2::getInstance()->isOffensiveActionValid( this, target, true ) && !invulnerable )
-	{
-		programm |= 1 << BOTCHATTYPE::Attackable;
-	}
-	// otherwise if target is a creature/npc, check fame attackable
-	else if( c && c->checkFactionAttackable(_Id) )
-	{
-		programm |= 1 << BOTCHATTYPE::Attackable;
-	}
-	else if( isEntityAnOutpostEnemy(targetId) && !invulnerable )
-	{
-		programm |= 1 << BOTCHATTYPE::Attackable;
-	}
-
-	if ( CPVPFactionRewardManager::getInstance().isAttackable( this, target ) )
-		programm |= 1 << BOTCHATTYPE::Attackable;
-
-//	_PropertyDatabase.setProp( "TARGET:CONTEXT_MENU:PROGRAMMES", programm, true );
-	CBankAccessor_PLR::getTARGET().getCONTEXT_MENU().setPROGRAMMES(_PropertyDatabase, programm, true );
-}
 
 //-----------------------------------------------------------------------------
 void CCharacter::enableAppropriateFiltersForSeller( CCreature * c )
@@ -3873,18 +2984,18 @@ void CCharacter::enableAppropriateFiltersForSeller( CCreature * c )
 	bool rawMaterialSeller = false;
 	uint64 itemTypeSelled64 = 0;
 	uint64 itemTypeSelled128 = 0;
-	for( uint32 i = 0; i < botChatCategory.size(); ++i )
+	for( auto cat : botChatCategory )
 	{
-		if( botChatCategory[ i ] < CShopTypeManager::getCategoryName().size() )
+		if( cat < CShopTypeManager::getCategoryName().size() )
 		{
-			if( botChatCategory[ i ] > CShopTypeManager::getRmStart() && botChatCategory[ i ] < CShopTypeManager::getRmEnd() )
+			if( cat > CShopTypeManager::getRmStart() && cat < CShopTypeManager::getRmEnd() )
 			{
 				rawMaterialSeller = true;
 			}
 
-			if( botChatCategory[ i ] > CShopTypeManager::getItemStart() && botChatCategory[ i ] < CShopTypeManager::getItemEnd() )
+			if( cat > CShopTypeManager::getItemStart() && cat < CShopTypeManager::getItemEnd() )
 			{
-				ITEM_TYPE::TItemType itemType = ITEM_TYPE::stringToItemType( CShopTypeManager::getCategoryName()[ botChatCategory[ i ] ] );
+				ITEM_TYPE::TItemType itemType = ITEM_TYPE::stringToItemType( CShopTypeManager::getCategoryName()[ cat ] );
 				if( itemType != ITEM_TYPE::UNDEFINED )
 				{
 					if( itemType < ITEM_TYPE::LIMIT_64 )
@@ -3933,7 +3044,7 @@ CRingRewardPoints &CCharacter::getRingRewardPoints()
 void CCharacter::sendBetaTesterStatus()
 {
 	CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-	if (p == NULL)
+	if (p == nullptr)
 		return;
 
 	sendReservedTitleStatus( CHARACTER_TITLE::FBT, p->isBetaTester() );
@@ -3951,7 +3062,7 @@ void CCharacter::sendBetaTesterStatus()
 void CCharacter::sendWindermeerStatus()
 {
 	CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-	if (p == NULL)
+	if (p == nullptr)
 		return;
 
 	sendReservedTitleStatus( CHARACTER_TITLE::WIND, p->isWindermeerCommunity() );
@@ -4101,220 +3212,9 @@ void CCharacter::fillHandshake( CBitMemStream& bms )
 //---------------------------------------------------
 // initDatabase :
 //---------------------------------------------------
-void CCharacter::initDatabase()
-{
-	// Load the database, and prepare database outbox
-//	_PropertyDatabase.init( CDBPlayer );
-	_PropertyDatabase.init( );
-
-	// Target
-//	_PropertyDatabase.setProp( _DataIndexReminder->TARGET.UID, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-	CBankAccessor_PLR::getTARGET().getBARS().setUID(_PropertyDatabase, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
 
 
-	// set player max bulk
-//	_PropertyDatabase.setProp( "STATIC_DATA:BAG_BULK_MAX", MaxPlayerBulk / 1000 );
-	CBankAccessor_PLR::getSTATIC_DATA().setBAG_BULK_MAX(_PropertyDatabase, MaxPlayerBulk / 1000 );
-
-	// set player room max bulk
-//	_PropertyDatabase.setProp( "INVENTORY:ROOM:BULK_MAX", BasePlayerRoomBulk / 1000 );
-	CBankAccessor_PLR::getINVENTORY().getROOM().setBULK_MAX(_PropertyDatabase, BasePlayerRoomBulk / 1000 );
-
-	// GROUP is empty
-	for (uint i = 0 ; i < 8 ; ++i)
-	{
-//		_PropertyDatabase.setProp( NLMISC::toString("GROUP:%d:PRESENT",i), 0 );
-		CBankAccessor_PLR::getGROUP().getArray(i).setPRESENT(_PropertyDatabase, false );
-//		_PropertyDatabase.setProp( NLMISC::toString("GROUP:%d:NAME",i), 0 );
-		CBankAccessor_PLR::getGROUP().getArray(i).setNAME(_PropertyDatabase, 0 );
-//		_PropertyDatabase.setProp( NLMISC::toString("GROUP:%d:UID",i), CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-		CBankAccessor_PLR::getGROUP().getArray(i).setUID(_PropertyDatabase, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-	}
-
-	// PACK_ANIMAL is empty
-	for (uint i = 0 ; i < MAX_INVENTORY_ANIMAL; ++i)
-	{
-//		_PropertyDatabase.setProp( NLMISC::toString("PACK_ANIMAL:BEAST%d:UID",i), CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-		CBankAccessor_PLR::getPACK_ANIMAL().getBEAST(i).setUID(_PropertyDatabase, CLFECOMMON::INVALID_CLIENT_DATASET_INDEX );
-	}
-
-//	_PropertyDatabase.setPropButDontSend( "BUILDING_SENTENCE:COUNTER", 0 );
-
-	// modifiers
-	for (uint i = 0 ; i < MaxBonusMalusDisplayed ; ++i)
-	{
-		CBankAccessor_PLR::TMODIFIERS::TMALUS::TArray &malusElem = CBankAccessor_PLR::getMODIFIERS().getMALUS().getArray(i);
-		CBankAccessor_PLR::TMODIFIERS::TBONUS::TArray &bonusElem = CBankAccessor_PLR::getMODIFIERS().getBONUS().getArray(i);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Malus.Sheet[i], 0);
-		malusElem.setSHEET(_PropertyDatabase, CSheetId::Unknown);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Malus.Disable[i], 0);
-		malusElem.setDISABLED(_PropertyDatabase, false);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Malus.DisableTime[i], 0);
-		malusElem.setDISABLED_TIME(_PropertyDatabase, 0);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Bonus.Sheet[i], 0);
-		bonusElem.setSHEET(_PropertyDatabase, CSheetId::Unknown);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Bonus.Disable[i], 0);
-		bonusElem.setDISABLED(_PropertyDatabase, false);
-//		_PropertyDatabase.setProp( _DataIndexReminder->Modifiers.Bonus.DisableTime[i], 0);
-		bonusElem.setDISABLED_TIME(_PropertyDatabase, 0);
-	}
-
-	//money
-//	_PropertyDatabase.setProp( "INVENTORY:MONEY", _Money );
-	CBankAccessor_PLR::getINVENTORY().setMONEY( _PropertyDatabase, _Money );
-
-	//Temporary until managed by AI
-//	_PropertyDatabase.setProp( _DataIndexReminder->TARGET.CONTEXT_VAL, 0xffff );
-	CBankAccessor_PLR::getTARGET().setCONTEXT_VAL(_PropertyDatabase, 0xffff );
-
-	// interfaces flags
-//	_PropertyDatabase.setProp( "INTERFACES:FLAGS", 0);
-	CBankAccessor_PLR::getINTERFACES().setFLAGS(_PropertyDatabase, 0);
-
-	// combat flags
-	//_ForbidPowerDates.writeUsablePowerFlags(_UsablePowerFlags);
-	setPowerFlagDates();
-	setAuraFlagDates();
-	updateBrickFlagsDBEntry();
-
-	// defense interface
-	for (uint i = 0 ; i < 6 ; ++i)
-	{
-//		_PropertyDatabase.setProp( NLMISC::toString("DEFENSE:SLOTS:%d:MODIFIER",i), 0 );
-		CBankAccessor_PLR::getDEFENSE().getSLOTS().getArray(i).setMODIFIER(_PropertyDatabase, 0 );
-	}
-
-	// init death malus
-//	_PropertyDatabase.setProp( "USER:DEATH_XP_MALUS", 255 );
-	CBankAccessor_PLR::getUSER().setDEATH_XP_MALUS(_PropertyDatabase, 255 );
-
-	// dodge and parry levels
-//	_PropertyDatabase.setProp(_DataIndexReminder->CHARACTER_INFO.DodgeBase, _BaseDodgeLevel);
-	CBankAccessor_PLR::getCHARACTER_INFO().getDODGE().setBase(_PropertyDatabase, checkedCast<uint16>(_BaseDodgeLevel));
-//	_PropertyDatabase.setProp(_DataIndexReminder->CHARACTER_INFO.DodgeCurrent, _CurrentDodgeLevel);
-	CBankAccessor_PLR::getCHARACTER_INFO().getDODGE().setCurrent(_PropertyDatabase, checkedCast<uint16>(_CurrentDodgeLevel));
-//	_PropertyDatabase.setProp(_DataIndexReminder->CHARACTER_INFO.ParryBase, _BaseParryLevel);
-	CBankAccessor_PLR::getCHARACTER_INFO().getPARRY().setBase(_PropertyDatabase, checkedCast<uint16>(_BaseParryLevel));
-//	_PropertyDatabase.setProp(_DataIndexReminder->CHARACTER_INFO.ParryCurrent, _CurrentParryLevel);
-	CBankAccessor_PLR::getCHARACTER_INFO().getPARRY().setCurrent(_PropertyDatabase, checkedCast<uint16>(_CurrentParryLevel));
-
-//	_PropertyDatabase.setProp( "USER:SPEED_FACTOR", sint64(100) );
-	CBankAccessor_PLR::getUSER().setSPEED_FACTOR(_PropertyDatabase, 100 );
-
-	// consumable modifiers
-	parrySuccessModifier(0);
-	dodgeSuccessModifier(0);
-	craftSuccessModifier(0);
-	meleeSuccessModifier(0);
-	rangeSuccessModifier(0);
-	magicSuccessModifier(0);
-	_ForageSuccessModifiers.resize( ECOSYSTEM::NUM_ECOSYSTEM );
-	for(uint8 i = 0; i < (uint8)ECOSYSTEM::NUM_ECOSYSTEM; ++i )
-		forageSuccessModifier((ECOSYSTEM::EECosystem)i,0);
-
-//	_PropertyDatabase.setProp("USER:DEFAULT_WEIGHT_HANDS", DefaultWeightHands);
-	CBankAccessor_PLR::getUSER().setDEFAULT_WEIGHT_HANDS(_PropertyDatabase, DefaultWeightHands);
-} // initDatabase //
-
-
-extern CBitMemStream DBOutput; // global to avoid reallocation
-
-//---------------------------------------------------
-// databaseUpdate :
-// Send	a delta message to the client for changed properties
-//---------------------------------------------------
-void CCharacter::databaseUpdate()
-{
-	// Write the inventory updates
-	_InventoryUpdater.sendAllUpdates( _Id ); // must be before the sending of _PropertyDatabase, because it tests _PropertyDatabase.notSentYet()
-
-	// Write the character's database delta (for comment numbers, see tutorial in cdb_group.h)
-	if ( _PropertyDatabase.getChangedPropertyCount() != 0 ) // ensures writeDelta() will return true
-	{
-		DBOutput.resetBufPos();
-		bool hasContentToSend = true;
-		if ( _PropertyDatabase.notSentYet() )
-		{
-			// The first message has a different name, because the client must know that it's the
-			// first message to inhibit its oberver callbacks, although it is not garanteed that
-			// it's the first message to arrive on the client (see impulsion channels on the FS).
-			GenericMsgManager.pushNameToStream( "DB_INIT:PLR", DBOutput );
-			// write the server tick, to ensure old DB update are not applied after newer
-			TGameCycle	serverTick= CTickEventHandler::getGameCycle();
-			DBOutput.serial(serverTick);
-			// write the delta DB
-			_PropertyDatabase.writeDelta( DBOutput, ~0 ); // no size limit for first sending
-			//egs_chinfo( "Sending 1st database packet" );
-		}
-		else
-		{
-			uint16 databaseImpulseWindowBitSize = _AvailImpulseBitsize.isReadable() ? _AvailImpulseBitsize() : 91*8;
-			sint32 characterBankMaxBitSize = ((sint32)databaseImpulseWindowBitSize);
-			if ( characterBankMaxBitSize > 0 )
-			{
-				// Write using bandwith limit
-				GenericMsgManager.pushNameToStream( "DB_UPD_PLR", DBOutput );
-				// write the server tick, to ensure old DB update are not applied after newer
-				TGameCycle	serverTick= CTickEventHandler::getGameCycle();
-				DBOutput.serial(serverTick);
-				// write the delta DB
-				_PropertyDatabase.writeDelta( DBOutput, (uint32)characterBankMaxBitSize );
-			}
-			else
-				hasContentToSend = false;
-		}
-
-		// "Client only" property changes
-		/*bool hasCOPropChanges = _PropertyDatabase.hasClientonlyPropertyChanges();
-		DBOutput.serialBit( hasCOPropChanges );
-		if ( hasCOPropChanges )
-			_PropertyDatabase.writeClientonlyPropertyChanges( DBOutput );*/
-
-		// Send impulsion to front-end service
-		if ( hasContentToSend )
-		{
-			CMessage msgout( "CDB_IMPULSION" );
-			msgout.serial( _Id );
-			msgout.serialBufferWithSize( (uint8*)DBOutput.buffer(), DBOutput.length() );
-			CUnifiedNetwork::getInstance()->send( NLNET::TServiceId(_Id.getDynamicId()), msgout );
-		}
-	}
-
-} // databaseUpdate //
-
-
-/** Fill the TCharInfo struct used to send info to SU
- */
-void CCharacter::fillCharInfo(CHARSYNC::TCharInfo &charInfo) const
-{
-	charInfo.setCharEId(getId());
-	charInfo.setCharName(getName().toUtf8());
-	charInfo.setHomeSessionId(getHomeMainlandSessionId());
-	charInfo.setBestCombatLevel(max(getBestChildSkillValue(SKILLS::SF), getBestChildSkillValue(SKILLS::SMO)));
-	charInfo.setGuildId(getGuildId());
-	charInfo.setRace((CHARSYNC::TRace::TValues)getRace());
-	std::pair<PVP_CLAN::TPVPClan, PVP_CLAN::TPVPClan> allegiance = getAllegiance();
-	std::pair<CHARSYNC::TCult, CHARSYNC::TCivilisation> charSyncAll = IShardUnifierEvent::convertAllegiance(allegiance);
-	charInfo.setCult(charSyncAll.first);
-	charInfo.setCivilisation(charSyncAll.second);
-	charInfo.setRespawnPoints(getRespawnPoints().buildRingPoints());
-	charInfo.setNewcomer(isNewbie());
-}
-
-//---------------------------------------------------
-// setId :
-//---------------------------------------------------
-void CCharacter::setId( const CEntityId& id )
-{
-	_Id = id;
-
-	// set the Team
-	//const uint16 teamId = (uint16) _UserId / 10;
-	//TeamManager.addCharacterToTeam( this, teamId );
-} // setId //
-
-
-void CCharacter::setName(const ucstring &name)
+void CCharacter::setName(const std::string &name)
 {
 	// update only if different
 	if(_Name!=name)
@@ -4325,7 +3225,7 @@ void CCharacter::setName(const ucstring &name)
 		CPlayer * player = PlayerManager.getPlayer(PlayerManager.getPlayerId(getId()));
 		if(player)
 		{
-			CEntityIdTranslator::getInstance()->updateEntity( getId(), capitalize( getName().toUtf8() ), sint8(PlayerManager.getCharIndex(getId())), PlayerManager.getPlayerId(getId()), player->getUserName(), getHomeMainlandSessionId().asInt() );
+			CEntityIdTranslator::getInstance()->updateEntity( getId(), capitalize( getName() ), sint8(PlayerManager.getCharIndex(getId())), PlayerManager.getPlayerId(getId()), player->getUserName(), getHomeMainlandSessionId().asInt() );
 			ICharNameMapperClient::getInstance()->mapCharacterName(getId(), getName());
 		}
 	}
@@ -4732,7 +3632,7 @@ bool CCharacter::fillFaberMaterialArray( vector<CFaberMsgItem>& materialsSelecte
 	for( uint s = 0; s < materialsSelectedForFaber.size(); ++s )
 	{
 		bool bOk = false;
-		CInventoryPtr pInv = NULL;
+		CInventoryPtr pInv = nullptr;
 		if( materialsSelectedForFaber[ s ].getInvId() >= INVENTORIES::NUM_INVENTORY )
 		{
 			// Also allow crafting from player's room
@@ -4961,7 +3861,7 @@ void CCharacter::updateVisualInformation( uint16 InventoryEmpty, uint16 SlotEmpt
 			switch( SlotEmpty )
 			{
 			case SLOT_EQUIPMENT::HEAD:
-				// keep a NULL form and update visual information with custom properties
+				// keep a nullptr form and update visual information with custom properties
 				SET_STRUCT_MEMBER( _VisualPropertyA, PropertySubData.HatModel, _HairType );
 				SET_STRUCT_MEMBER( _VisualPropertyA, PropertySubData.HatColor, _HairColor );
 				break;
@@ -5056,7 +3956,7 @@ void CCharacter::updateVisualInformation( uint16 InventoryEmpty, uint16 SlotEmpt
 	else if( InventoryFull == INVENTORIES::equipment )
 	{
 		const CStaticItem* srcForm = CSheets::getForm( IdSheetItem );
-		if( ( srcForm != 0 ) && ( Item != NULL ) )
+		if( ( srcForm != 0 ) && ( Item != nullptr ) )
 		{
 			setVisualPropertyForEquipment( SlotFull, srcForm, Item->quality(), Item->color() );
 		}
@@ -5068,7 +3968,7 @@ void CCharacter::updateVisualInformation( uint16 InventoryEmpty, uint16 SlotEmpt
 //-----------------------------------------------
 void CCharacter::setVisualPropertyForEquipment( uint16 slot, const CStaticItem* srcForm, uint16 quality, uint8 color )
 {
-	if( srcForm == NULL )
+	if( srcForm == nullptr )
 	{
 		nlwarning("<CCharacter::setVisualPropertyForEquipment> Character %s Try to set visual properties with null form");
 		return;
@@ -5182,7 +4082,7 @@ void CCharacter::teleportCharacter( sint32 x, sint32 y, sint32 z, bool teleportW
 		{
 			// if player is a GM or DEV or better, also TP mounted creature
 			CPlayer * player = PlayerManager.getPlayer( PlayerManager.getPlayerId(_Id) );
-			if (player != NULL)
+			if (player != nullptr)
 			{
 				if ( player->havePriv(TeleportWithMektoubPriv) )
 				{
@@ -5481,7 +4381,7 @@ bool CCharacter::checkAnimalCount( const CSheetId& PetTicket, bool sendMessage, 
 		}
 
 		CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-		BOMB_IF(p == NULL,"Failed to find player record for character: "<<getId().toString(),return 0.0);
+		BOMB_IF(p == nullptr,"Failed to find player record for character: "<<getId().toString(),return 0.0);
 		if ( p->isTrialPlayer() )
 		{
 			if( sendMessage )
@@ -5915,7 +4815,7 @@ bool CCharacter::onAnimalHungry( uint petIndex, bool justBecameHungry )
 	{
 		uint32 itemSlot;
 		CGameItemPtr foodItem = getItemByFamily( (INVENTORIES::TInventory)(INVENTORIES::pet_animal+petIndex), ITEMFAMILY::FOOD, itemSlot );
-		if ( foodItem != NULL )
+		if ( foodItem != nullptr )
 		{
 			// Food found
 			float caloriesPerUnit;
@@ -5993,7 +4893,7 @@ void CCharacter::checkAnimalInRange( uint petIndex )
 }
 
 /*
- * Set satiety directly (if corresponding petCreature is NULL, will do a lookup)
+ * Set satiety directly (if corresponding petCreature is nullptr, will do a lookup)
  */
 void CCharacter::setAnimalSatiety( uint petIndex, float value, CCreature *petCreature )
 {
@@ -6306,7 +5206,7 @@ void CCharacter::removeAnimalIndex( uint32 beastIndex, CPetCommandMsg::TCommand 
 	msg.CharacterMirrorRow = _EntityRowId;
 	msg.PetMirrorRow = _PlayerPets[ beastIndex ].SpawnedPets;
 
-	CCreature *c = NULL;
+	CCreature *c = nullptr;
 
 	switch( commande )
 	{
@@ -6525,7 +5425,7 @@ void CCharacter::removePetCharacterAfterDeath( uint32 index )
 		if( packInv < INVENTORIES::max_pet_animal )
 		{
 			CInventoryPtr petInv = _Inventory[packInv];
-			if (petInv != NULL)
+			if (petInv != nullptr)
 				petInv->clearInventory();
 		}
 	}
@@ -6626,7 +5526,7 @@ void CCharacter::updateOnePetDatabase( uint petIndex, bool mustUpdateHungerDb )
 						// from a stable, a player can only access inventory of animals which are in a stable of the same main place (same town)
 						CPlace * place = CZoneManager::getInstance().getPlaceFromId(_PlaceOfCurrentStable);
 						CVector stablePos(stableData.StableExitX/1000.f, stableData.StableExitY/1000.f, stableData.StableExitZ/1000.f);
-						if (place != NULL && place->contains(stablePos))
+						if (place != nullptr && place->contains(stablePos))
 						{
 							_PlayerPets[ i ].AnimalStatus |= ANIMAL_STATUS::InventoryAvailableFlag;
 						}
@@ -6950,7 +5850,7 @@ void CCharacter::setAnimalPosition(uint8 petIndex, sint32 x, sint32 y)
 	animal.setPosition(x, y);
 }
 
-void CCharacter::setAnimalName(uint8 petIndex, ucstring customName)
+void CCharacter::setAnimalName(uint8 petIndex, const std::string &customName)
 {
 	if (petIndex < 0 || petIndex >= MAX_INVENTORY_ANIMAL)
 	{
@@ -6965,7 +5865,8 @@ void CCharacter::setAnimalName(uint8 petIndex, ucstring customName)
 	TDataSetRow row = animal.SpawnedPets;
 	NLNET::CMessage msgout("CHARACTER_NAME");
 	msgout.serial(row);
-	msgout.serial(customName);
+	ucstring ucCustom(customName); // bridge for msg serial
+	msgout.serial(ucCustom);
 	sendMessageViaMirror("IOS", msgout);
 }
 
@@ -7019,10 +5920,10 @@ bool CCharacter::addCatalyserXpBonus( uint32& slot, SSkill * skill, double xpGai
 									 uint32& catalyserLvl, uint32& catalyserCount )
 {
 	CGameItemPtr item = _Inventory[INVENTORIES::bag]->getItem( slot );
-	if ( item != NULL )
+	if ( item != nullptr )
 	{
 		const CStaticItem * form = item->getStaticForm();
-		if ( form != NULL )
+		if ( form != nullptr )
 		{
 			catalyserLvl = item->quality();
 			if( catalyserLvl > (uint32)skill->Base )
@@ -7059,12 +5960,12 @@ bool CCharacter::addCatalyserXpBonus( uint32& slot, SSkill * skill, double xpGai
 		}
 		else
 		{
-			nlwarning("<CCharacter::addCatalyserXpBonus>%s item in slot %u has a NULL form count = %u",_Id.toString().c_str(),slot,_Inventory[INVENTORIES::bag]->getSlotCount());
+			nlwarning("<CCharacter::addCatalyserXpBonus>%s item in slot %u has a nullptr form count = %u",_Id.toString().c_str(),slot,_Inventory[INVENTORIES::bag]->getSlotCount());
 		}
 	}
 	else
 	{
-		nlwarning("<CCharacter::addCatalyserXpBonus>%s NULL item in slot %u count = %u",_Id.toString().c_str(),slot,_Inventory[INVENTORIES::bag]->getSlotCount());
+		nlwarning("<CCharacter::addCatalyserXpBonus>%s nullptr item in slot %u count = %u",_Id.toString().c_str(),slot,_Inventory[INVENTORIES::bag]->getSlotCount());
 	}
 
 	return false;
@@ -7131,7 +6032,7 @@ double CCharacter::addXpToSkillInternal( double XpGain, const std::string& ContS
 	// check whether this character is on a free trial account
 	bool bFreeTrialLimitReached = false;
 	CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-	BOMB_IF(p == NULL,"Failed to find player record for character: "<<getId().toString(),return 0.0);
+	BOMB_IF(p == nullptr,"Failed to find player record for character: "<<getId().toString(),return 0.0);
 	if (p->isTrialPlayer())
 	{
 		// prevent free trial players from gaining XP beyond level FreeTrialSkillLimit
@@ -7743,7 +6644,7 @@ bool CCharacter::isNewbie() const
 	{
 		const COfflineEntityState& state = (PositionStack[0].SessionId == sessionId()) ? getState() : PositionStack[0].PosState;
 		CContinent *homeCont= CZoneManager::getInstance().getContinent(state.X, state.Y);
-		if (homeCont != NULL)
+		if (homeCont != nullptr)
 			newbie = (((CONTINENT::TContinent)homeCont->getId()) == CONTINENT::NEWBIELAND) ? 1 : 0;
 	}
 
@@ -7921,7 +6822,7 @@ void CCharacter::harvestAsked( uint16 mpIndex , uint16 quantity )
 	{
 		// get harvested creature
 		CCreature *creature = CreatureManager.getCreature( _MpSourceId );
-		if (creature != NULL)
+		if (creature != nullptr)
 		{
 			// Check if PJ have loot right
 			if ( ForceQuarteringRight.get() || (std::find( creature->getLootRight().begin(),creature->getLootRight().end(),_EntityRowId ) != creature->getLootRight().end()) )
@@ -7963,7 +6864,7 @@ void CCharacter::harvest( uint8 mpIndex, uint16 quantity )
 	if (quantity == 0)
 	{
 		nlwarning("<CCharacter::harvest> Player %s tried to harvest 0 element, do nothing",  _Id.toString().c_str());
-		//sendMessageToClient( _Id, "OPS_HARVEST_NULL_QTY");
+		//sendMessageToClient( _Id, "OPS_HARVEST_nullptr_QTY");
 		return;
 	}
 
@@ -7975,7 +6876,7 @@ void CCharacter::harvest( uint8 mpIndex, uint16 quantity )
 
 	// get the harvested entity
 	CCreature * creature = CreatureManager.getCreature( _MpSourceId );
-	if (creature != NULL)
+	if (creature != nullptr)
 	{
 		// check the quantity is good
 		if ( quantity > creature->getQuantity( mpIndex ) )
@@ -7992,7 +6893,7 @@ void CCharacter::harvest( uint8 mpIndex, uint16 quantity )
 
 	// get the mp wanted
 	const CRawMaterial *mp = creature->getRawMaterial( mpIndex );
-	if (mp == NULL)
+	if (mp == nullptr)
 	{
 		nlwarning("<CCharacter::harvest> Invalid MP index %u, cancel", mpIndex);
 		return;
@@ -8034,7 +6935,7 @@ void CCharacter::endHarvest(bool sendCloseTempImpulsion)
 	{
 		//get harvested creature if any
 		CCreature *creature = CreatureManager.getCreature( _MpSourceId );
-		if (creature != NULL)
+		if (creature != nullptr)
 		{
 			creature->resetHarvesterRowId();
 			// only send interupt message if some rm remains on the corpse
@@ -8064,7 +6965,7 @@ void CCharacter::endHarvest(bool sendCloseTempImpulsion)
 void CCharacter::clearHarvestDB()
 {
 	CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-	nlassert(invTemp != NULL);
+	nlassert(invTemp != nullptr);
 	// init the database
 	for (uint i = 0 ; i < invTemp->getSlotCount(); ++i)
 	{
@@ -8082,7 +6983,7 @@ bool CCharacter::checkCreateParams( const CCreateCharMsg& createCharMsg, CCreate
 	const CStaticRaceStats* staticRaceStats = 0;
 
 	CPlayer *player = PlayerManager.getPlayer(userId);
-	if (player == NULL)
+	if (player == nullptr)
 	{
 		returnValue = false;
 		egs_chinfo("<CCharacter::checkCreateParams> Can't find the player for user %u", userId);
@@ -8098,7 +6999,7 @@ bool CCharacter::checkCreateParams( const CCreateCharMsg& createCharMsg, CCreate
 	}
 
 	// check if slot is free
-	if( PlayerManager.getChar( userId, createCharMsg.Slot ) != NULL )
+	if( PlayerManager.getChar( userId, createCharMsg.Slot ) != nullptr )
 	{
 		createCharErrorMsg.Slot = false;
 		returnValue = false;
@@ -8110,14 +7011,14 @@ bool CCharacter::checkCreateParams( const CCreateCharMsg& createCharMsg, CCreate
 	{
 		createCharErrorMsg.Name = false;
 		returnValue = false;
-		egs_chinfo("<CCharacter::checkCreateParams> Name %s is refused because it's contains spaces", createCharMsg.Name.toString().c_str() );
+		egs_chinfo("<CCharacter::checkCreateParams> Name %s is refused because it's contains spaces", createCharMsg.Name.c_str() );
 	}
 
 	if( CEntityIdTranslator::getInstance()->entityNameExists( createCharMsg.Name ) )
 	{
 		createCharErrorMsg.Name = false;
 		returnValue = false;
-		egs_chinfo("<CCharacter::checkCreateParams> Name %s is refused because it's already registered", createCharMsg.Name.toString().c_str());
+		egs_chinfo("<CCharacter::checkCreateParams> Name %s is refused because it's already registered", createCharMsg.Name.c_str());
 	}
 
 	for( map< CSheetId, CStaticRaceStats >::const_iterator it = CSheets::getRaceStatsContainer().begin(); it != CSheets::getRaceStatsContainer().end(); ++it )
@@ -8148,7 +7049,7 @@ bool CCharacter::checkCreateParams( const CCreateCharMsg& createCharMsg, CCreate
 #ifdef NL_DEBUG
 	egs_chinfo("<CCharacter::checkCreateParams> CCreateCharMsg Content:");
 	egs_chinfo("-------		Mainland         %d", createCharMsg.Mainland.asInt());
-	egs_chinfo("-------		Name             %s", createCharMsg.Name.toString().c_str());
+	egs_chinfo("-------		Name             %s", createCharMsg.Name.c_str());
 	egs_chinfo("-------		People           %s", EGSPD::CPeople::toString((EGSPD::CPeople::TPeople)createCharMsg.People).c_str());
 	egs_chinfo("-------		Sex              %s", GSGENDER::toString((GSGENDER::EGender)createCharMsg.Sex).c_str());
 	egs_chinfo("-------		NBPointFighter   %d", createCharMsg.NbPointFighter);
@@ -8183,7 +7084,7 @@ void CCharacter::setStartStatistics( const CCreateCharMsg& createCharMsg )
 
 	_SheetId= people_sheet.asInt();
 
-	_Name				= createCharMsg.Name;
+	_Name				= createCharMsg.Name; // msg Name now std::string (UTF-8)
 	_Race				= (EGSPD::CPeople::TPeople) createCharMsg.People;
 	_Gender				= createCharMsg.Sex;
 	_Title				= CHARACTER_TITLE::Refugee;
@@ -8200,7 +7101,7 @@ void CCharacter::setStartStatistics( const CCreateCharMsg& createCharMsg )
 	//Bsi.append( StatPath, NLMISC::toString("[CPJ] %s %s %s %d %d %d %d %s", _Id.toString().c_str(), EGSPD::CPeople::toString(_Race).c_str(), GSGENDER::toString((GSGENDER::EGender)_Gender).c_str(), createCharMsg.NbPointFighter, createCharMsg.NbPointCaster, createCharMsg.NbPointCrafter, createCharMsg.NbPointHarvester, RYZOM_STARTING_POINT::toString(createCharMsg.StartPoint).c_str()) );
 	//EgsStat.displayNL("[CPJ] %s %s %s %d %d %d %d %s", _Id.toString().c_str(), EGSPD::CPeople::toString(_Race).c_str(), GSGENDER::toString((GSGENDER::EGender)_Gender).c_str(), createCharMsg.NbPointFighter, createCharMsg.NbPointCaster, createCharMsg.NbPointCrafter, createCharMsg.NbPointHarvester, RYZOM_STARTING_POINT::toString(createCharMsg.StartPoint).c_str());
 //	EGSPD::createPlayerCharacter(_Id, _Race, (uint8)_Gender, createCharMsg.NbPointFighter, createCharMsg.NbPointCaster, createCharMsg.NbPointCrafter, createCharMsg.NbPointHarvester, RYZOM_STARTING_POINT::toString(createCharMsg.StartPoint));
-	log_Character_Create(uint32(_Id.getShortId()>>4), _Id, _Name.toUtf8());
+	log_Character_Create(uint32(_Id.getShortId()>>4), _Id, _Name);
 
 	// Set Characteristics
 	int i;
@@ -8419,7 +7320,7 @@ void CCharacter::setStartStatistics( const CCreateCharMsg& createCharMsg )
 	vpa.PropertySubData.Sex = createCharMsg.Sex;
 
 	// Default equipment
-	const CStaticRaceStats::SDefaultEquipment * pDefaultEquipment = NULL;
+	const CStaticRaceStats::SDefaultEquipment * pDefaultEquipment = nullptr;
 	switch( _Gender )
 	{
 		case GSGENDER::male:
@@ -8531,7 +7432,7 @@ void CCharacter::setStartStatistics( const CCreateCharMsg& createCharMsg )
 	// give item reserved for pre-order players
 	bool preOrder = false;
 	CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-	if (p != NULL)
+	if (p != nullptr)
 		preOrder = p->isPreOrder();
 
 	if (preOrder)
@@ -9186,7 +8087,7 @@ void CCharacter::startTradeItemSession( uint16 session )
 
 	// get the bot trade list
 	CCreature * bot = CreatureManager.getCreature( _CurrentInterlocutor );
-	if ( bot == NULL )
+	if ( bot == nullptr )
 	{
 		nlwarning( "<CCharacter startTradeItemSession> Invalid bot %s",_CurrentInterlocutor.toString().c_str() );
 		return;
@@ -9294,7 +8195,7 @@ void CCharacter::startTradePhrases(uint16 session)
 
 	// get the bot creature
 	CCreature * bot = CreatureManager.getCreature( _CurrentInterlocutor );
-	if ( bot == NULL )
+	if ( bot == nullptr )
 	{
 		nlwarning( "<CCharacter startTradePhrases> Invalid bot %s",_CurrentInterlocutor.toString().c_str() );
 		return;
@@ -9647,7 +8548,7 @@ void CCharacter::buyItem( uint16 itemNumber, uint16 quantity )
 {
 	if( _ShoppingList == 0 )
 	{
-		nlwarning( "<buyItem> Character %s Receive a BOTCHAT:BUY message but _ShoppingList of character are NULL", _Id.toString().c_str() );
+		nlwarning( "<buyItem> Character %s Receive a BOTCHAT:BUY message but _ShoppingList of character are nullptr", _Id.toString().c_str() );
 		return;
 	}
 	_ShoppingList->buyItem( itemNumber, quantity );
@@ -9662,7 +8563,7 @@ void CCharacter::destroySaleItem( uint16 itemNumber, uint16 quantity )
 	TLogContext_Item_DestroySaleStore logContext(_Id);
 	if( _ShoppingList == 0 )
 	{
-		nlwarning( "<destroyItem> Character %s Receive a BOTCHAT:DESTROY message but _ShoppingList of character are NULL", _Id.toString().c_str() );
+		nlwarning( "<destroyItem> Character %s Receive a BOTCHAT:DESTROY message but _ShoppingList of character are nullptr", _Id.toString().c_str() );
 		return;
 	}
 	_ShoppingList->destroyItem( itemNumber, quantity );
@@ -9711,7 +8612,7 @@ bool CCharacter::buyRolemasterPhrase( const NLMISC::CSheetId &phraseId, uint16 k
 	if (testRestrictions)
 	{
 		CCreature * bot = CreatureManager.getCreature( _CurrentInterlocutor );
-		if ( bot == NULL )
+		if ( bot == nullptr )
 		{
 			nlwarning( "Invalid bot %s",_CurrentInterlocutor.toString().c_str() );
 			return false;
@@ -9853,7 +8754,7 @@ void CCharacter::buyPhraseByIndex( uint8 botChatIndex, uint16 knownPhraseIndex )
 		phrase.SheetId = CSheetId::Unknown;
 
 		CCreature * bot = CreatureManager.getCreature( _CurrentInterlocutor );
-		if ( bot == NULL )
+		if ( bot == nullptr )
 		{
 			nlwarning( "<CCharacter buyPhraseByIndex> Invalid bot %s",_CurrentInterlocutor.toString().c_str() );
 			return;
@@ -10098,7 +8999,7 @@ void CCharacter::sellItem( INVENTORIES::TInventory inv, uint32 slot, uint32 quan
 	}
 
 	CInventoryPtr child = _Inventory[ inv ];
-	if( child->getSlotCount() > slot && child->getItem( slot ) != NULL )
+	if( child->getSlotCount() > slot && child->getItem( slot ) != nullptr )
 	{
 		CSheetId sheet;
 		uint16 quality;
@@ -10106,7 +9007,7 @@ void CCharacter::sellItem( INVENTORIES::TInventory inv, uint32 slot, uint32 quan
 		float wornFactor = 1.0f;
 
 		item = child->getItem(slot);
-		if (item == NULL)
+		if (item == nullptr)
 			return;
 		if ( item->getLockCount() )
 			return;
@@ -10166,7 +9067,7 @@ void CCharacter::sellItem( INVENTORIES::TInventory inv, uint32 slot, uint32 quan
 		{
 
 			CGameItemPtr tempItem = removeItemFromInventory(inv, slot, quantity);
-			if (tempItem == NULL)
+			if (tempItem == nullptr)
 			{
 				nlwarning("Failed to remove %u item from inventory %u", quantity, inv);
 				return;
@@ -10389,7 +9290,7 @@ void CCharacter::setFactionPoint(PVP_CLAN::TPVPClan clan, uint32 nbPt, bool fact
 	{
 		nlinfo("FactionPoint: player %s '%s' has now %u points for faction '%s' (delta=%+d)",
 			_Id.toString().c_str(),
-			_Name.toUtf8().c_str(),
+			_Name.c_str(),
 			nbPt,
 			PVP_CLAN::toString(clan).c_str(),
 			delta
@@ -10508,8 +9409,8 @@ CSBrickParamJewelAttrs CCharacter::getJewelAttrs(const string &attribute, SLOT_E
 
 	string contName;
 	string regionName;
-	const CRegion *region = NULL;
-	const CContinent *cont = NULL;
+	const CRegion *region = nullptr;
+	const CContinent *cont = nullptr;
 	CZoneManager::getInstance().getRegion(getState().X, getState().Y, &region, &cont);
 	if (region)
 		regionName = region->getName();
@@ -10517,7 +9418,7 @@ CSBrickParamJewelAttrs CCharacter::getJewelAttrs(const string &attribute, SLOT_E
 		contName = cont->getName();
 
 	CSBrickParamJewelAttrs returnSBrickParam;
-	CSBrickParamJewelAttrs *boostSBrickParam = NULL;
+	CSBrickParamJewelAttrs *boostSBrickParam = nullptr;
 
 	CInventoryPtr inv = getInventory(INVENTORIES::equipment);
 	if (inv)
@@ -10527,7 +9428,7 @@ CSBrickParamJewelAttrs CCharacter::getJewelAttrs(const string &attribute, SLOT_E
 			for (uint8 s = 0; s < SLOT_EQUIPMENT::NB_SLOT_EQUIPMENT; ++s)
 			{
 				const CGameItemPtr item = inv->getItem(s);
-				if (item != NULL)
+				if (item != nullptr)
 				{
 					vector<CSheetId> enchant = item->getEnchantment();
 					for (uint i = 0; i < enchant.size(); i++)
@@ -10589,7 +9490,7 @@ CSBrickParamJewelAttrs CCharacter::getJewelAttrs(const string &attribute, SLOT_E
 		else
 		{
 			const CGameItemPtr item = inv->getItem(slot);
-			if (item != NULL)
+			if (item != nullptr)
 			{
 				vector<CSheetId> enchant = item->getEnchantment();
 				for (uint i = 0; i < enchant.size(); i++)
@@ -11006,7 +9907,7 @@ void CCharacter::abortExchange()
 {
 	CCharacter * c = PlayerManager.getChar(_CurrentInterlocutor);
 
-	if (isExchanging() && c != NULL)
+	if (isExchanging() && c != nullptr)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::player);
 		params[0].setEIdAIAlias( _Id, CAIAliasTranslator::getInstance()->getAIAlias(_Id) );
@@ -11024,32 +9925,32 @@ void CCharacter::abortExchange()
 //-----------------------------------------------
 void CCharacter::resetExchange()
 {
-	if (_ExchangeView == NULL)
+	if (_ExchangeView == nullptr)
 		return;
 
 	// interlocutor player
-	CCharacter * c = NULL;
-	if (_ExchangeView->getInterlocutorView() != NULL)
+	CCharacter * c = nullptr;
+	if (_ExchangeView->getInterlocutorView() != nullptr)
 		c = _ExchangeView->getInterlocutorView()->getCharacter();
 
 
 	_ExchangeView->clearExchangeView();
-	if (c != NULL && c->_ExchangeView != NULL)
+	if (c != nullptr && c->_ExchangeView != nullptr)
 		c->_ExchangeView->clearExchangeView();
 
 	_ExchangeView->unbindFromInventory();
-	_ExchangeView->setInterlocutorView(NULL);
-	if (c != NULL && c->_ExchangeView != NULL)
+	_ExchangeView->setInterlocutorView(nullptr);
+	if (c != nullptr && c->_ExchangeView != nullptr)
 	{
 		c->_ExchangeView->unbindFromInventory();
-		c->_ExchangeView->setInterlocutorView(NULL);
+		c->_ExchangeView->setInterlocutorView(nullptr);
 	}
 
 	// this should be last reference to the exchange views
 	// they are deleted here
-	_ExchangeView = NULL;
-	if (c != NULL && c->_ExchangeView != NULL)
-		c->_ExchangeView = NULL;
+	_ExchangeView = nullptr;
+	if (c != nullptr && c->_ExchangeView != nullptr)
+		c->_ExchangeView = nullptr;
 
 //	_PropertyDatabase.setProp("EXCHANGE:BEGUN", 0);
 	CBankAccessor_PLR::getEXCHANGE().setBEGUN(_PropertyDatabase, false);
@@ -11063,7 +9964,7 @@ void CCharacter::resetExchange()
 	if (_CurrentInterlocutor.getType() == RYZOMID::player)
 		_CurrentInterlocutor = CEntityId::Unknown;
 
-	if (c != NULL)
+	if (c != nullptr)
 	{
 //		c->_PropertyDatabase.setProp("EXCHANGE:BEGUN", 0);
 		CBankAccessor_PLR::getEXCHANGE().setBEGUN(c->_PropertyDatabase, 0);
@@ -11087,15 +9988,15 @@ CCreature *  CCharacter::startBotChat(BOTCHATTYPE::TBotChatFlags chatType)
 	if (!bot)
 	{
 		nlwarning("<CCharacter startBotChat> invalid bot %s", _Target().toString().c_str());
-		return NULL;
+		return nullptr;
 	}
 	// Special case if it is an outpost building
-	if (bot->getOutpostBuilding() != NULL)
+	if (bot->getOutpostBuilding() != nullptr)
 	{
 		const double distanceSquare = pow(float( bot->getState().X - _EntityState.X )/1000.0f,2) + pow(float( bot->getState().Y - _EntityState.Y )/1000,2);
 		if( distanceSquare > MaxTalkingOutpostBuildingDistSquare )
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 	else
@@ -11103,7 +10004,7 @@ CCreature *  CCharacter::startBotChat(BOTCHATTYPE::TBotChatFlags chatType)
 		const double distanceSquare = pow(float( bot->getState().X - _EntityState.X )/1000.0f,2) + pow(float( bot->getState().Y - _EntityState.Y )/1000,2);
 		if( distanceSquare > MaxTalkingDistSquare )
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 	_CurrentBotChatType = (uint8)chatType;
@@ -11130,7 +10031,7 @@ void CCharacter::endBotChat(bool newBotChat, bool closeDynChat)
 		_ShoppingList = 0;
 	}
 
-	if ( _BotGift != NULL )
+	if ( _BotGift != nullptr )
 		clearBotGift();
 
 	if ( (!_CurrentInterlocutor.isUnknownId()) && _CurrentInterlocutor.getType() != RYZOMID::player)
@@ -11209,14 +10110,14 @@ void CCharacter::endBotChat(bool newBotChat, bool closeDynChat)
 //-----------------------------------------------
 void CCharacter::checkBotGift()
 {
-	if (_BotGift == NULL)
+	if (_BotGift == nullptr)
 	{
 		nlwarning("Player %s has no bot gift!", _Id.toString().c_str());
 		DEBUG_STOP;
 		return;
 	}
 
-	CMission * mission = NULL;
+	CMission * mission = nullptr;
 	if (_BotGift->Type == MISSION_DESC::Solo)
 	{
 		mission = _Missions->getMissions( _BotGift->MissionAlias );
@@ -11266,7 +10167,7 @@ void CCharacter::clearBotGift()
 	if ( _BotGift )
 	{
 		delete _BotGift;
-		_BotGift = NULL;
+		_BotGift = nullptr;
 	}
 
 	// reset exchange
@@ -11283,7 +10184,7 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 	if (_CurrentInterlocutor.getType() == RYZOMID::player)
 	{
 		CCharacter * c = PlayerManager.getChar(_CurrentInterlocutor);
-		if (c == NULL)
+		if (c == nullptr)
 		{
 			nlwarning("CCharacter::acceptExchange : unknown character %s",_CurrentInterlocutor.toString().c_str());
 			abortExchange();
@@ -11340,18 +10241,18 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 						{
 							nlinfo ("ADMIN: CSR (%s,%s) exchange %ux%s Q%u with %s",
 								getId().toString().c_str(), 
-								getName().toString().c_str(),
+								getName().c_str(),
 								items1[i]->getStackSize(),
 								items1[i]->getSheetId().toString().c_str(),
 								items1[i]->quality(),
-								c->getName().toString().c_str());
+								c->getName().c_str());
 						}
 						if (_ExchangeMoney)
 								nlinfo ("ADMIN: CSR (%s,%s) give %u dappers to %s",
 										getId().toString().c_str(), 
-										getName().toString().c_str(),
+										getName().c_str(),
 										_ExchangeMoney,
-										c->getName().toString().c_str());
+										c->getName().c_str());
 					}
 
 					if (c->haveAnyPrivilege() && !haveAnyPrivilege())
@@ -11360,18 +10261,18 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 						{
 							nlinfo ("ADMIN: CSR (%s,%s) exchange %ux%s Q%u with %s",
 								c->getId().toString().c_str(), 
-								c->getName().toString().c_str(),
+								c->getName().c_str(),
 								items2[i]->getStackSize(),
 								items2[i]->getSheetId().toString().c_str(),
 								items2[i]->quality(),
-								getName().toString().c_str());
+								getName().c_str());
 						}
 						if (c->_ExchangeMoney)
 							nlinfo ("ADMIN: CSR (%s,%s) give %u dappers to %s",
 								c->getId().toString().c_str(), 
-								c->getName().toString().c_str(),
+								c->getName().c_str(),
 								c->_ExchangeMoney,
-								getName().toString().c_str());
+								getName().c_str());
 					}
 
 
@@ -11421,7 +10322,7 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 
 		CTeam * team = TeamManager.getRealTeam( _TeamId );
 		CGuild* guild = CGuildManager::getInstance()->getGuildFromId( _GuildId );
-		if (_BotGift == NULL)
+		if (_BotGift == nullptr)
 		{
 			nlwarning("Player %s has no bot gift", _Id.toString().c_str());
 			return;
@@ -11430,14 +10331,14 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 		MISSION_DESC::TMissionType type = _BotGift->Type;
 		TAIAlias	missionAlias = _BotGift->MissionAlias;
 
-		CMission * mission = NULL;
+		CMission * mission = nullptr;
 		if (type == MISSION_DESC::Solo)
 		{
 			mission = _Missions->getMissions( missionAlias );
 		}
 		else if (type == MISSION_DESC::Group)
 		{
-			if (team == NULL)
+			if (team == nullptr)
 			{
 				nlwarning("CCharacter::acceptExchange : character %s ->  no team",_Id.toString().c_str() );
 				return;
@@ -11446,7 +10347,7 @@ void CCharacter::acceptExchange(uint8 exchangeId)
 		}
 		else if (type == MISSION_DESC::Guild)
 		{
-			if (guild == NULL)
+			if (guild == nullptr)
 			{
 				nlwarning("CCharacter::acceptExchange : character %s ->  no guild",_Id.toString().c_str() );
 				return;
@@ -11587,7 +10488,7 @@ bool CCharacter::validateExchange()
 
 		// compute bulk/weight/slots that user will give
 		item = _ExchangeView->getExchangeItem(i, &exchangeQuantity);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			userGiveBulk += item->getStackBulk(exchangeQuantity);
 			userGiveWeight += item->getStackWeight(exchangeQuantity);
@@ -11624,7 +10525,7 @@ bool CCharacter::validateExchange()
 
 		// compute bulk/weight/slots that user will receive
 		item = c->_ExchangeView->getExchangeItem(i, &exchangeQuantity);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			userReceiveBulk += item->getStackBulk(exchangeQuantity);
 			userReceiveWeight += item->getStackWeight(exchangeQuantity);
@@ -11741,7 +10642,7 @@ bool CCharacter::validateExchange()
 //-----------------------------------------------
 void CCharacter::invalidateExchange()
 {
-	// trader can be NULL if exchange is done with a bot
+	// trader can be nullptr if exchange is done with a bot
 	CCharacter * trader = PlayerManager.getChar( _CurrentInterlocutor );
 
 	if (!isExchanging())
@@ -11780,14 +10681,14 @@ void CCharacter::removeExchangeItems(vector<CGameItemPtr >& itemRemoved, vector<
 	bool needUpdatePetDatabase = false;
 
 	// get exchange items
-	nlassert(_ExchangeView != NULL);
+	nlassert(_ExchangeView != nullptr);
 	_ExchangeView->validateExchange(&itemRemoved);
 
 	// catch pet animal tickets
 	for (uint i = 0; i < itemRemoved.size(); i++)
 	{
 		CGameItemPtr item = itemRemoved[i];
-		if (item == NULL)
+		if (item == nullptr)
 			continue;
 
 		const CStaticItem * form = CSheets::getForm( item->getSheetId() );
@@ -11898,7 +10799,7 @@ void CCharacter::exchangeMoney(const uint64 &money)
 	if (!exchangeWithBot)
 	{
 		CCharacter * c = PlayerManager.getChar( _CurrentInterlocutor );
-		if (c != NULL)
+		if (c != nullptr)
 		{
 //			c->_PropertyDatabase.setProp( "EXCHANGE:MONEY", quantity );
 			CBankAccessor_PLR::getEXCHANGE().setMONEY(c->_PropertyDatabase, quantity );
@@ -12233,7 +11134,7 @@ void CCharacter::addMission(CMissionSolo * mission)
 void CCharacter::removeMission(TAIAlias alias, /*TMissionResult*/ uint32 result)
 {
 	CMission * mission = _Missions->getMissions(alias);
-	if ( mission == NULL )
+	if ( mission == nullptr )
 	{
 		nlwarning("<CCharacter removeMission> In char %s : mission not found", _Id.toString().c_str());
 		return;
@@ -12278,8 +11179,8 @@ void CCharacter::removeMission(TAIAlias alias, /*TMissionResult*/ uint32 result)
 //-----------------------------------------------
 void CCharacter::abandonMission(uint8 indexClient)
 {
-	CMission* mission = NULL;
-	CMissionTemplate * templ = NULL;
+	CMission* mission = nullptr;
+	CMissionTemplate * templ = nullptr;
 	for ( map<TAIAlias, CMission*>::iterator it =  getMissionsBegin(); it != getMissionsEnd(); ++it )
 	{
 		if ( (*it).second->getClientIndex() == indexClient )
@@ -12404,14 +11305,14 @@ bool CCharacter::processMissionEventList( std::list< CMissionEvent* > & eventLis
 		// SECOND - Check with team missions (if event not already processed and char belongs to a team)
 		if (!eventProcessed && (event.Restriction != CMissionEvent::NoGroup))
 		{
-			if (team != NULL)
+			if (team != nullptr)
 				eventProcessed = team->processTeamMissionEvent(eventList, alias);
 		}
 
 		// THIRD - Check with guild missions (if event not already processed and char belongs to a guild)
 		if (!eventProcessed)// && (event.Restriction != CMissionEvent::NoGroup))
 		{
-			if (guild != NULL)
+			if (guild != nullptr)
 				eventProcessed = guild->processGuildMissionEvent(eventList, alias);
 		}
 
@@ -12453,7 +11354,7 @@ bool CCharacter::processMissionEventWithTeamMate( CMissionEvent & event, TAIAlia
 	if (!bProcessed)
 	{
 		CTeam *pTeam = TeamManager.getRealTeam(_TeamId);
-		if (pTeam != NULL)
+		if (pTeam != nullptr)
 		{
 			// Try with all other members (randomly)
 			if (!bProcessed)
@@ -12469,7 +11370,7 @@ bool CCharacter::processMissionEventWithTeamMate( CMissionEvent & event, TAIAlia
 					// Pick up a member (in a random order)
 					uint idx = RandomGenerator.rand((uint16)vMembers.size() - 1);
 					CCharacter * c = PlayerManager.getChar( vMembers[idx] );
-					if ((c != NULL) && c->getEnterFlag() && (c != this))
+					if ((c != nullptr) && c->getEnterFlag() && (c != this))
 					{
 						bProcessed = c->processMissionEvent(event, alias);
 						if (bProcessed)
@@ -12562,11 +11463,11 @@ bool CCharacter::processMissionStepUserEvent(std::list< CMissionEvent* > & event
 
 		bool bChained = false;
 		CMissionGuild *pMG = dynamic_cast<CMissionGuild*>(mission);
-		if (pMG != NULL) bChained = pMG->isChained();
+		if (pMG != nullptr) bChained = pMG->isChained();
 		CMissionTeam *pMT = dynamic_cast<CMissionTeam*>(mission);
-		if (pMT != NULL) bChained = pMT->isChained();
+		if (pMT != nullptr) bChained = pMT->isChained();
 		CMissionSolo *pMS = dynamic_cast<CMissionSolo*>(mission);
-		if (pMS != NULL) bChained = pMS->isChained();
+		if (pMS != nullptr) bChained = pMS->isChained();
 
 		if ( !templ->Tags.NoList && !templ->Tags.AutoRemove )
 			sendDynamicSystemMessage( _Id,bChained?"EGS_MISSION_STEP_SUCCESS":"EGS_MISSION_SUCCESS");
@@ -12794,7 +11695,7 @@ void CCharacter::botChatMissionAdvance( uint8 index )
 	for ( uint i = 0; i < bot->getMissionVector().size(); i++ )
 	{
 		const CMissionTemplate * templ = CMissionManager::getInstance()->getTemplate( bot->getMissionVector()[i] );
-		if ( (templ != NULL) && !templ->AutoText.empty() )
+		if ( (templ != nullptr) && !templ->AutoText.empty() )
 		if (templ->testPrerequisits(this, false) == MISSION_DESC::PreReqSuccess)
 		{
 			if ( idx == index )
@@ -12830,12 +11731,12 @@ CMission * CCharacter::getMissionFromBotGift()
 		if (!team)
 		{
 			nlwarning("Player %s has no team!", _Id.toString().c_str());
-			return NULL;
+			return nullptr;
 		}
 		return team->getMissionByAlias( _BotGift->MissionAlias );
 	}
 	else
-		return NULL;
+		return nullptr;
 }
 
 
@@ -12877,7 +11778,7 @@ CMission * CCharacter::getMissionFromBotGift()
 bool CCharacter::autoFillExchangeView()
 {
 	CInventoryPtr playerBagInvPointer;
-	CMission * currentMission = NULL;
+	CMission * currentMission = nullptr;
 	CGameItemPtr invItem;
 	uint stepCounter, candidateCounter, totalItemsInBag, itemsSeenCount;
 	CActiveStepPD activeStep;
@@ -12888,10 +11789,10 @@ bool CCharacter::autoFillExchangeView()
 	uint16 lowestQuality;
 	bool exchangeWorked;
 
-	nlassert(getExchangeView() != NULL);
+	nlassert(getExchangeView() != nullptr);
 
 	playerBagInvPointer = _Inventory[ INVENTORIES::bag ];
-	nlassert(playerBagInvPointer != NULL);
+	nlassert(playerBagInvPointer != nullptr);
 
 	currentMission = getMissionFromBotGift();
 	if(!currentMission)
@@ -12939,13 +11840,13 @@ bool CCharacter::autoFillExchangeView()
 			for (inventoryIndex = 0; inventoryIndex < playerBagInvPointer->getSlotCount(); inventoryIndex++)
 			{
 				invItem = playerBagInvPointer->getItem(inventoryIndex);
-				if (invItem == NULL)
+				if (invItem == nullptr)
 					continue;
 
 				if (invItem->getLockedByOwner())
 					continue;
 
-				if (invItem->getRefInventory() != NULL)
+				if (invItem->getRefInventory() != nullptr)
 					continue;
 
 				itemsSeenCount++;
@@ -13020,7 +11921,7 @@ bool CCharacter::autoFillExchangeView()
 					for (candidateCounter = 0; candidateCounter < candidateIndexes.size(); candidateCounter++)
 					{
 						invItem = playerBagInvPointer->getItem(candidateIndexes[candidateCounter]);
-						if ( (invItem != NULL)
+						if ( (invItem != nullptr)
 							&& (invItem->recommended() < lowestQuality)
 							&& (invItem->getNonLockedStackSize() > 0) )
 						{
@@ -13212,14 +12113,14 @@ void CCharacter::addHandledAIGroup(CMission *m, TAIAlias nGroupAlias, uint32 nDe
 
 	// Store the handle into the mission
 	CMission *pMission = _Missions->getMissions(nMissionAlias);
-	if (pMission == NULL)
+	if (pMission == nullptr)
 	{
 		sDebugString += " ERROR cant get mission in character from mission alias";
 		MISLOG(sDebugString.c_str());
 		return;
 	}
 	EGSPD::CHandledAIGroupPD *pGrp = pMission->getHandledAIGroups(nGroupAlias);
-	if (pGrp == NULL)
+	if (pGrp == nullptr)
 	{
 		pGrp = pMission->addToHandledAIGroups(nGroupAlias);
 		pGrp->setDespawnTime(nDespawnTime);
@@ -13252,14 +12153,14 @@ void CCharacter::delHandledAIGroup(CMission *m, TAIAlias nGroupAlias)
 
 	// Remove the handle from the mission
 	CMission *pMission = _Missions->getMissions(nMissionAlias);
-	if (pMission == NULL)
+	if (pMission == nullptr)
 	{
 		sDebugString += " ERROR cant get mission in character from mission alias";
 		MISLOG(sDebugString.c_str());
 		return;
 	}
 	EGSPD::CHandledAIGroupPD *pGrp = pMission->getHandledAIGroups(nGroupAlias);
-	if (pGrp != NULL)
+	if (pGrp != nullptr)
 	{
 		pMission->deleteFromHandledAIGroups(nGroupAlias);
 	}
@@ -13279,7 +12180,7 @@ void CCharacter::delAllHandledAIGroup(CMission *m)
 	TAIAlias nMissionAlias = m->getTemplateId(); // Get mission alias
 
 	CMission *pMiss = _Missions->getMissions(nMissionAlias);
-	if (pMiss != NULL)
+	if (pMiss != nullptr)
 	{
 		// Remove all handledAIGroups in a mission
 		map<uint32, EGSPD::CHandledAIGroupPD>::iterator itHAIG = pMiss->getHandledAIGroupsBegin();
@@ -13408,23 +12309,24 @@ uint32 CCharacter::getCreatorNameId( const CEntityId &creatorId)
 //-----------------------------------------------
 // Register character name in IOS
 //-----------------------------------------------
-void CCharacter::registerName(const ucstring &newName)
+void CCharacter::registerName(const std::string &newName)
 {
 	CMessage msgName("CHARACTER_NAME_LANG");
 	msgName.serial(_EntityRowId);
 
 	string sTitle = CHARACTER_TITLE::toString(_Title);
-	ucstring RegisteredName;
+	std::string registeredName;
 	if (newName.empty())
-		RegisteredName = getName() + string("$") + sTitle + string("$");
+		registeredName = getName() + string("$") + sTitle + string("$");
 	else
-		RegisteredName = newName + string("$") + sTitle + string("$");
-	msgName.serial( RegisteredName );
+		registeredName = newName + string("$") + sTitle + string("$");
+	ucstring ucRegistered(registeredName); // bridge for msg
+	msgName.serial( ucRegistered );
 	// added 27/04/2006 : now for domain unification, we transmit home mainland session to IOS
 	nlWrite(msgName, serial, getHomeMainlandSessionId());
 
 	CPlayer *player = PlayerManager.getPlayer(PlayerManager.getPlayerId(_Id));
-	if (player == NULL)
+	if (player == nullptr)
 	{
 		string lang("en");
 		msgName.serial(lang);
@@ -13435,7 +12337,7 @@ void CCharacter::registerName(const ucstring &newName)
 		msgName.serial(lang);
 	}
 	bool playerWithPrivilege = false;
-	if( player != NULL )
+	if( player != nullptr )
 	{
 		if (!player->getUserPriv().empty() && !player->havePriv(":DEV:"))
 		{
@@ -13817,7 +12719,7 @@ float CCharacter::getActualDamageFromExplosionWithArmor( float dmg ) const
 	float localizedDmgAbsorptionSum = 0;
 	for ( uint i=0; i!=NbArmorSlots; ++i )
 	{
-		if ( armorPtr[i] == NULL )
+		if ( armorPtr[i] == nullptr )
 			continue;
 
 		float maxProtection = ((float)(armorPtr[i]->maxBluntProtection() + armorPtr[i]->maxPiercingProtection() + armorPtr[i]->maxSlashingProtection())) / 3.0f;
@@ -13907,11 +12809,11 @@ void CCharacter::sendPhrasesToClient()
 		const std::vector<CMemorizationSet*> &sets = _MemorizedPhrases.getMemorizationSets();
 		for (uint ii = 0 ; ii < sets.size() ; ++ii)
 		{
-			if ( sets[ii] != NULL)
+			if ( sets[ii] != nullptr)
 			{
 				const std::vector<CMemorizedPhrase*> &phrases = sets[ii]->getMemorizedPhrases();
 				for (uint j = 0; j < phrases.size() ; ++j)
-					if (phrases[j] != NULL)
+					if (phrases[j] != nullptr)
 					{
 						if ((phrases[j]->PhraseId == 0) || (phrases[j]->PhraseId == 1))
 							nlwarning("PhraseId == 0 ou PhraseId == 1"); // ERREUR !!!!!!!!!
@@ -13957,11 +12859,11 @@ void CCharacter::sendPhrasesToClient()
 		const std::vector<CMemorizationSet*> &sets = _MemorizedPhrases.getMemorizationSets();
 		for (uint ii = 0 ; ii < sets.size() ; ++ii)
 		{
-			if ( sets[ii] != NULL)
+			if ( sets[ii] != nullptr)
 			{
 				const std::vector<CMemorizedPhrase*> &phrases = sets[ii]->getMemorizedPhrases();
 				for (uint j = 0; j < phrases.size() ; ++j)
-					if (phrases[j] != NULL)
+					if (phrases[j] != nullptr)
 					{
 						phrases[j]->PhraseId = (uint16)vConvertTable[phrases[j]->PhraseId];
 					}
@@ -13975,15 +12877,17 @@ void CCharacter::sendPhrasesToClient()
 	vector<CSPhraseSlot> knownPhrases;
 	CSPhraseSlot phrase;
 	knownPhrases.reserve(_KnownPhrases.size());
-	for (uint i = 0 ; i < _KnownPhrases.size() ; ++i)
+	size_t slot = 0;
+	for (const auto &kp : _KnownPhrases)
 	{
-		if ( !_KnownPhrases[i].empty() )
+		if ( !kp.empty() )
 		{
-			phrase.Phrase			= _KnownPhrases[i].PhraseDesc;
-			phrase.PhraseSheetId	= _KnownPhrases[i].PhraseSheetId;
-			phrase.KnownSlot = i;
+			phrase.Phrase			= kp.PhraseDesc;
+			phrase.PhraseSheetId	= kp.PhraseSheetId;
+			phrase.KnownSlot = (uint16)slot;
 			knownPhrases.push_back(phrase);
 		}
+		++slot;
 	}
 
 	bms.serialCont(knownPhrases);
@@ -14035,7 +12939,7 @@ void CCharacter::learnPhrase(const vector<CSheetId> &bricks, uint16 phraseId, co
 		if (bricks[i] != NLMISC::CSheetId::Unknown)
 			_KnownPhrases[phraseId].PhraseDesc.Bricks.push_back(bricks[i]);
 	}
-	_KnownPhrases[phraseId].PhraseDesc.Name = name;
+	_KnownPhrases[phraseId].PhraseDesc.Name = name.toUtf8(); // bridge: learnPhrase still takes ucstring for phrase user name
 } // learnPhrase //
 
 //-----------------------------------------------
@@ -14372,7 +13276,7 @@ void CCharacter::addWebCommandCheck(const string &url, const string &data, const
 		if(inv)
 		{
 			CGameItemPtr item = inv->getItem(webCommand);
-			if (item != NULL && item->getStaticForm() != NULL )
+			if (item != nullptr && item->getStaticForm() != nullptr )
 			{
 				if(item->getStaticForm()->Name == "Web Transaction"
 					|| item->getStaticForm()->Family == ITEMFAMILY::SCROLL)
@@ -14401,7 +13305,7 @@ uint CCharacter::getWebCommandCheck(const string &url)
 		for(uint i = 0; i < INVENTORIES::NbBagSlots; ++i)
 		{
 			CGameItemPtr item = inv->getItem(i);
-			if (item != NULL && item->getStaticForm() != NULL )
+			if (item != nullptr && item->getStaticForm() != nullptr )
 			{
 				if(item->getStaticForm()->Name == "Web Transaction"
 					|| item->getStaticForm()->Family == ITEMFAMILY::SCROLL)
@@ -14447,13 +13351,13 @@ uint CCharacter::checkWebCommand(const string &url, const string &data, const st
 //-----------------------------------------------
 // getAvailablePhrasesList
 //-----------------------------------------------
-void CCharacter::getAvailablePhrasesList( const string &brickFilter, vector<CSheetId> &selectedPhrases, EGSPD::CPeople::TPeople people, bool bypassBrickRequirements, bool includeNonRolemasterBricks )
+void CCharacter::getAvailablePhrasesList( std::string_view brickFilter, vector<CSheetId> &selectedPhrases, EGSPD::CPeople::TPeople people, bool bypassBrickRequirements, bool includeNonRolemasterBricks )
 {
 	H_AUTO(CCharacterGetAvailablePhrasesList);
 
 	const uint nbSkills = (uint)_Skills._Skills.size();
 
-	buildAvailablePhrasesList( _Id, brickFilter, _KnownBricks, _BoughtPhrases, _Skills._Skills, selectedPhrases, 250, people, bypassBrickRequirements, includeNonRolemasterBricks );
+	buildAvailablePhrasesList( _Id, std::string(brickFilter), _KnownBricks, _BoughtPhrases, _Skills._Skills, selectedPhrases, 250, people, bypassBrickRequirements, includeNonRolemasterBricks );
 } // getAvailablePhrasesList //
 
 
@@ -14465,7 +13369,7 @@ void CCharacter::harvestCorpseResult( const vector<uint16> &qualities )
 	H_AUTO(CCharacter_harvestCorpseResult);
 	// get creature being harvested
 	CCreature *creature = CreatureManager.getCreature( _MpSourceId );
-	if (creature == NULL)
+	if (creature == nullptr)
 		return;
 	if (creature->harvesterRowId() != _EntityRowId)
 		return;
@@ -14482,14 +13386,14 @@ void CCharacter::harvestCorpseResult( const vector<uint16> &qualities )
 	sendDynamicSystemMessage(_Id, "WOS_HARVEST_FOUND_MP");
 
 	CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-	nlassert(invTemp != NULL);
+	nlassert(invTemp != nullptr);
 	uint32 usedSlot = creature->getLootSlotCount();
 
 	const uint8 size = (uint8)creature->getMps().size();
 	for (uint i = 0; i < size ; ++i)
 	{
 		const CCreatureRawMaterial *mp = creature->getCreatureRawMaterial(i);
-		if (mp != NULL)
+		if (mp != nullptr)
 		{
 			if( usedSlot+i < INVENTORIES::NbTempInvSlots )
 			{
@@ -14605,7 +13509,7 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 	H_AUTO(CCharacter_pickUpRawMaterial);
 
 	CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-	nlassert(invTemp != NULL);
+	nlassert(invTemp != nullptr);
 
 	if (lastMaterial)
 		*lastMaterial = false;
@@ -14627,14 +13531,14 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 				CGameItemPtr item = createItem(	_ForageProgress->quality(),
 												_ForageProgress->amount(),
 												_ForageProgress->material() );
-				if (item == NULL)
+				if (item == nullptr)
 					return false;
 				if (!addItemToInventory(INVENTORIES::bag, item)) // Autostack the item in the bag
 					return false;
 
 				// Send event to the mission : we have harvested some item !
 				const CStaticItem *itemForm = CSheets::getForm( _ForageProgress->material() );
-				if (itemForm != NULL)
+				if (itemForm != nullptr)
 				{
 					CMissionEventForage event( _ForageProgress->material(), _ForageProgress->amount(), _ForageProgress->quality() );
 					processMissionEventWithTeamMate( event );
@@ -14656,7 +13560,7 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 	{
 		// Quartering
 		CCreature *creature = CreatureManager.getCreature( _MpSourceId );
-		if (creature == NULL || creature->harvesterRowId() != _EntityRowId)
+		if (creature == nullptr || creature->harvesterRowId() != _EntityRowId)
 		{
 			resetHarvestInfos();
 			return true;
@@ -14695,7 +13599,7 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 					// check if player have item in right hand
 					CGameItemPtr rightHandItem = getRightHandItem();
 					CSheetId needItem(params[2]);
-					if (rightHandItem != NULL && rightHandItem->getSheetId() == needItem)
+					if (rightHandItem != nullptr && rightHandItem->getSheetId() == needItem)
 					{
 						validateDynamicMissionStep(params[0]);
 						setCustomMissionParams("__LOOT_SHEET_WITH_ITEM__", "");
@@ -14716,7 +13620,7 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 		// first slots are filled with loot items, quarter items are not in temp inv but only info in DB
 		uint32 rawMaterialIndex = indexInTempInv - creature->getLootSlotCount();
 		const CCreatureRawMaterial * mp = creature->getCreatureRawMaterial( rawMaterialIndex );
-		if (mp == NULL)
+		if (mp == nullptr)
 		{
 			resetHarvestInfos();
 			return true;
@@ -14730,14 +13634,14 @@ bool CCharacter::pickUpRawMaterial( uint32 indexInTempInv, bool * lastMaterial )
 		{
 			// Create and stack the item in the bag
 			CGameItemPtr item = createItem(quality, mp->Quantity, mp->ItemId);
-			if (item == NULL)
+			if (item == nullptr)
 				return false;
 			if (!addItemToInventory(INVENTORIES::bag, item)) // Autostack the item in the bag
 				// Cannot create the item (too encumbered), the user has to make room in his inventory
 				return false;
 
 			const CStaticItem *itemForm = CSheets::getForm(mp->ItemId);
-			if (itemForm != NULL)
+			if (itemForm != nullptr)
 			{
 				CMissionEventLootRm event(mp->ItemId, mp->Quantity, quality);
 				processMissionEvent( event );
@@ -14818,7 +13722,7 @@ void CCharacter::sendCloseTempInventoryImpulsion(bool onlyIfEmpty)
 	if (onlyIfEmpty)
 	{
 		CInventoryPtr tempInv = getInventory(INVENTORIES::temporary);
-		nlassert(tempInv != NULL);
+		nlassert(tempInv != nullptr);
 		if (tempInv->getUsedSlotCount())
 		{
 			nldebug("Temporary inventory is not empty, do not send impulsion to close");
@@ -15156,7 +14060,7 @@ void CCharacter::beginOrResumeForageSession( const NLMISC::CSheetId& materialShe
 	}
 
 	CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-	nlassert(invTemp != NULL);
+	nlassert(invTemp != nullptr);
 	if ( resetProgress && isTheExtractor ) // if care action and player is an extractor, send because the player may reswitch to an extraction
 	{
 		invTemp->clearDisp(0);
@@ -15169,7 +14073,7 @@ void CCharacter::beginOrResumeForageSession( const NLMISC::CSheetId& materialShe
 void CCharacter::setExtractionProgressCounters( uint16 amountX10, uint16 qualityX10 )
 {
 	CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-	nlassert(invTemp != NULL);
+	nlassert(invTemp != nullptr);
 	invTemp->setDispQuality(0, qualityX10);
 	invTemp->setDispQuantity(0, amountX10);
 }
@@ -15185,7 +14089,7 @@ void CCharacter::giveForageSessionResult( const CHarvestSource *source )
 		if ( _ForageProgress->giveForageResult( this, source ) ) // if successful, any current extraction will stop
 		{
 			CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-			nlassert(invTemp != NULL);
+			nlassert(invTemp != nullptr);
 			invTemp->enableTakeDisp(true);
 		}
 		else
@@ -15207,14 +14111,14 @@ void CCharacter::endForageSession()
 	if ( _ForageProgress )
 	{
 		CTempInventory *invTemp = (CTempInventory*)(CInventoryBase*)getInventory(INVENTORIES::temporary);
-		nlassert(invTemp != NULL);
+		nlassert(invTemp != nullptr);
 		invTemp->setDispSheetId(0, CSheetId::Unknown);
 
 		leaveTempInventoryMode();
 
 		// Delete the forage progress structure. Now any current extraction will stop.
 		delete _ForageProgress;
-		_ForageProgress = NULL;
+		_ForageProgress = nullptr;
 	}
 }
 
@@ -15306,7 +14210,7 @@ bool CCharacter::addSabrinaEffect( CSEffect *effect )
 {
 	if (!effect)
 	{
-		nlwarning("<CCharacter::addSabrinaEffect> tried to add a NULL effect for entity %s", _Id.toString().c_str());
+		nlwarning("<CCharacter::addSabrinaEffect> tried to add a nullptr effect for entity %s", _Id.toString().c_str());
 		return false;
 	}
 
@@ -15335,7 +14239,7 @@ bool CCharacter::removeSabrinaEffect( CSEffect *effect, bool activateSleepingEff
 {
 	if (!effect)
 	{
-		nlwarning("<CCharacter::removeSabrinaEffect> tried to remove a NULL effect for entity %s", _Id.toString().c_str());
+		nlwarning("<CCharacter::removeSabrinaEffect> tried to remove a nullptr effect for entity %s", _Id.toString().c_str());
 		return false;
 	}
 
@@ -15408,18 +14312,18 @@ uint32 CCharacter::getMagicResistance(DMGTYPE::EDamageType dmgType)
 //--------------------------------------------------------------
 // addPlayerToFriendList
 //--------------------------------------------------------------
-void CCharacter::addPlayerToFriendList(const ucstring &name)
+void CCharacter::addPlayerToFriendList(const std::string &name)
 {
-	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name.toUtf8());
+	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name);
 	addPlayerToFriendList(NLMISC::CEntityIdTranslator::getInstance()->getByEntity(ucstring::makeFromUtf8(fullName)));
 }
 
 //--------------------------------------------------------------
 // addPlayerToIgnoreList
 //--------------------------------------------------------------
-void CCharacter::addPlayerToIgnoreList(const ucstring &name)
+void CCharacter::addPlayerToIgnoreList(const std::string &name)
 {
-	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name.toUtf8());
+	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name);
 	addPlayerToIgnoreList( NLMISC::CEntityIdTranslator::getInstance()->getByEntity(ucstring::makeFromUtf8(fullName)));
 }
 
@@ -15453,7 +14357,7 @@ TCharConnectionState CCharacter::isFriendCharVisualyOnline(const NLMISC::CEntity
 
 	// Handle friend preference setting
 	CCharacter *friendChar = PlayerManager.getChar(friendId);
-	if (friendChar != NULL)
+	if (friendChar != nullptr)
 	{
 		TFriendVisibility friendMode = friendChar->getFriendVisibility();
 		switch (friendMode)
@@ -15485,7 +14389,7 @@ TCharConnectionState CCharacter::isFriendCharVisualyOnline(const NLMISC::CEntity
 	//   - a contact is online only if it is in the same ring session
 	if (ret == ccs_online && IsRingShard)
 	{
-		if (friendChar == NULL)	// not found ! set offline
+		if (friendChar == nullptr)	// not found ! set offline
 			ret = ccs_offline;
 		else
 		{
@@ -15658,7 +14562,7 @@ bool CCharacter::playerHaveRoomAccess(const NLMISC::CEntityId &id)
 void CCharacter::addRoomAccessToPlayer(const NLMISC::CEntityId &id)
 {
 	// if player not found
-	if (id == CEntityId::Unknown || PlayerManager.getChar(id)==NULL)
+	if (id == CEntityId::Unknown || PlayerManager.getChar(id)==nullptr)
 	{
 		if ( ! (IShardUnifierEvent::getInstance() && IShardUnifierEvent::getInstance()->isCharacterOnlineAbroad(id)))
 		{
@@ -16668,7 +15572,7 @@ void CCharacter::sendMessageOfTheDay()
 		return;
 
 	SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-	params[0].Literal.fromUtf8(MessageOfTheDay);
+	params[0].Literal = (std::string)MessageOfTheDay;
 
 	sendDynamicSystemMessage(_Id, "MOTD", params);
 }
@@ -16682,7 +15586,7 @@ void CCharacter::onConnection()
 	CGameEventManager::getInstance().addCharacterToChannelEvent( this );
 
 	// Update for the unified entity locator
-	if (IShardUnifierEvent::getInstance() != NULL)
+	if (IShardUnifierEvent::getInstance() != nullptr)
 	{
 		IShardUnifierEvent::getInstance()->charConnected(_Id, getLastDisconnectionDate());
 	}
@@ -16714,7 +15618,7 @@ void CCharacter::onDisconnection(bool bCrashed)
 	despawnAllHandledAIGroup();
 
 	// update for the unified entity locator
-	if (IShardUnifierEvent::getInstance() != NULL
+	if (IShardUnifierEvent::getInstance() != nullptr
 		&& _Enter)
 	{
 		IShardUnifierEvent::getInstance()->charDisconnected(_Id);
@@ -17009,7 +15913,7 @@ void CCharacter::sendEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour beha
 {
 	const CStaticTextEmotes & emotes = CSheets::getTextEmoteList();
 	const CStaticTextEmotes::CTextEmotePhrases * phraseCont = emotes.getPhrase( emoteTextId );
-	if ( phraseCont == NULL )
+	if ( phraseCont == nullptr )
 	{
 		nlwarning("<EMOTES> client %s sent invalid emote %u",getId().toString().c_str(),emoteTextId );
 		return;
@@ -17024,7 +15928,7 @@ void CCharacter::sendEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour beha
 	if (phraseCont->OnlyForFBT && checkPrivilege)
 	{
 		CPlayer * p = PlayerManager.getPlayer(PlayerManager.getPlayerId( getId() ));
-		if (p == NULL || !p->isBetaTester())
+		if (p == nullptr || !p->isBetaTester())
 			return;
 	}
 
@@ -17040,8 +15944,8 @@ void CCharacter::sendEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviour beha
 
 	// emote is set for the user. We now have to send the text message
 	// get the emote phrases
-	const string * crowd = NULL;
-	const string * self = NULL;
+	const string * crowd = nullptr;
+	const string * self = nullptr;
 	TVectorParamCheck params;
 
 	vector<TDataSetRow> excludedFromCrowd;
@@ -17608,7 +16512,7 @@ void CCharacter::checkCharacAndScoresValues()
 {
 	// do not check values for GM and DEV
 	CPlayer * player = PlayerManager.getPlayer( PlayerManager.getPlayerId(_Id) );
-	if (player != NULL)
+	if (player != nullptr)
 	{
 		if ( player->havePriv(NoValueCheckingPriv) )
 			return;
@@ -17721,7 +16625,7 @@ void CCharacter::consumeItem( INVENTORIES::TInventory inventory, uint32 slot )
 		return;
 	}
 	CGameItemPtr item = childSrc->getItem( slot );
-	if ( item == NULL || item->getNonLockedStackSize() == 0 )
+	if ( item == nullptr || item->getNonLockedStackSize() == 0 )
 	{
 		CCharacter::sendDynamicSystemMessage(_Id,"CONSUMABLE_CANCEL");
 		return;
@@ -17729,13 +16633,13 @@ void CCharacter::consumeItem( INVENTORIES::TInventory inventory, uint32 slot )
 	const CStaticItem * form = item->getStaticForm();
 	if ( !form )
 	{
-		nlwarning("<consumeItem>%s item in slot %u has a NULL form. NbSlot = %u",_Id.toString().c_str(), slot, childSrc->getSlotCount());
+		nlwarning("<consumeItem>%s item in slot %u has a nullptr form. NbSlot = %u",_Id.toString().c_str(), slot, childSrc->getSlotCount());
 		CCharacter::sendDynamicSystemMessage(_Id,"CONSUMABLE_CANCEL");
 		return;
 	}
-	if (form->ConsumableItem == NULL)
+	if (form->ConsumableItem == nullptr)
 	{
-		if( form->Family == ITEMFAMILY::COMMAND_TICKET && form->CommandTicket != NULL )
+		if( form->Family == ITEMFAMILY::COMMAND_TICKET && form->CommandTicket != nullptr )
 		{
 			launchCommandTicket(form);
 			// Quality is used as Nb run counter here, if 0 mean infinite run
@@ -17929,7 +16833,7 @@ void CCharacter::logAndClearTempInventory()
 	for (uint i = 0 ; i < tempInv->getSlotCount(); ++i )
 	{
 		CGameItemPtr itemPtr = tempInv->getItem(i);
-		if (itemPtr != NULL )
+		if (itemPtr != nullptr )
 		{
 			CItemCraftParameters tmp;
 			const CItemCraftParameters *craftParams = &tmp;
@@ -17939,7 +16843,7 @@ void CCharacter::logAndClearTempInventory()
 			}
 
 			// log item stats
-			egs_chinfo("TEMP_INVENTORY_BUG : player %s (%s), Item sheet = %s", _Id.toString().c_str(), _Name.toString().c_str(), itemPtr->getSheetId().toString().c_str() );
+			egs_chinfo("TEMP_INVENTORY_BUG : player %s (%s), Item sheet = %s", _Id.toString().c_str(), _Name.c_str(), itemPtr->getSheetId().toString().c_str() );
 			egs_chinfo("TEMP_INVENTORY_BUG : Quality = %u, HP = %d/%d", itemPtr->quality(), itemPtr->durability(), itemPtr->maxDurability());
 			egs_chinfo("TEMP_INVENTORY_BUG : Craft Params ");
 			egs_chinfo("TEMP_INVENTORY_BUG : Durability = %f Weight = %f SapLoad = %f ", craftParams->Durability, craftParams->Weight, craftParams->SapLoad);
@@ -18666,7 +17570,7 @@ void CCharacter::setOutpostAlias( uint32 id )
 		if( isGuildInConflictWithOutpost(id,guildIsAttacker) )
 		{
 			CGuildMember * member = CGuildManager::getInstance()->getGuildFromId(_GuildId)->getMemberFromEId(_Id);
-			if (member != NULL)
+			if (member != nullptr)
 			{
 				if (member->getGrade() < EGSPD::CGuildGrade::Member)
 					hasRightToBanish = true;
@@ -18749,7 +17653,7 @@ bool CCharacter::isGuildInConflictWithOutpost( TAIAlias outpostId, bool &guildIs
 	// Default: the player guild( if any) is not the attacker
 	guildIsAttacker= false;
 	CGuild * guild = CGuildManager::getInstance()->getGuildFromId(_GuildId);
-	if (guild != NULL)
+	if (guild != nullptr)
 	{
 		if( _GuildId == COutpostManager::getInstance().getOutpostFromAlias( outpostId )->getAttackerGuild() )
 			guildIsAttacker= true;
@@ -18891,7 +17795,7 @@ void CCharacter::outpostSideChosen( bool neutral, OUTPOSTENUMS::TPVPSide side )
 		setOutpostAlias( _OutpostIdBeforeUserValidation );
 
 		CGuild * guild = CGuildManager::getInstance()->getGuildFromId(_GuildId);
-		if (guild != NULL)
+		if (guild != nullptr)
 		{
 			// he his guild owns the outpost he can only help his guild
 			if( _GuildId == COutpostManager::getInstance().getOutpostFromAlias( _OutpostIdBeforeUserValidation )->getOwnerGuild() )
@@ -19039,7 +17943,7 @@ void CPetAnimal::clear()
 	TicketPetSheetId = NLMISC::CSheetId::Unknown;
 	PetSheetId = NLMISC::CSheetId::Unknown;
 	Price = 0;
-	ItemPtr = NULL;
+	ItemPtr = nullptr;
 	OwnerId = NLMISC::CEntityId::Unknown;
 	SpawnedPets = TDataSetRow();
 	StableId = 0;
@@ -19120,7 +18024,7 @@ uint32 CPetAnimal::initLinkAnimalToTicket( CCharacter * c, uint8 index )
 	if( c )
 	{
 		ItemPtr = c->getItem( INVENTORIES::bag, Slot );
-		if( ( ItemPtr != 0 ) && ( ItemPtr->getStaticForm() != NULL ) && ( ItemPtr->getStaticForm()->Family == ITEMFAMILY::PET_ANIMAL_TICKET ) )
+		if( ( ItemPtr != 0 ) && ( ItemPtr->getStaticForm() != nullptr ) && ( ItemPtr->getStaticForm()->Family == ITEMFAMILY::PET_ANIMAL_TICKET ) )
 		{
 //			Slot = ItemPtr->getLocSlot();
 			ItemPtr->setPetIndex(index);
@@ -19225,7 +18129,7 @@ bool CCharacter::isAggroable()
 	{
 		// no aggro for GM, SGM, G, VG, SG and OBSERVER
 		CPlayer* p = PlayerManager.getPlayer(PlayerManager.getPlayerId(_Id));
-		if (p != NULL)
+		if (p != nullptr)
 		{
 			if (p->havePriv(NeverAggroPriv))
 				return false;
@@ -19274,7 +18178,7 @@ bool CCharacter::isAggroableOverridden()
 	if (_AggroableOverride >= 0)
 		return true;
 	CPlayer* p = PlayerManager.getPlayer(PlayerManager.getPlayerId(_Id));
-	if (p != NULL)
+	if (p != nullptr)
 	{
 		if (p->havePriv(NeverAggroPriv))
 			return true;
@@ -19405,7 +18309,7 @@ void CCharacter::updateMagicProtectionAndResistance()
 	// update magic protection values & magic resistance value
 
 	CInventoryPtr invPtr = getInventory(INVENTORIES::equipment);
-	BOMB_IF( invPtr == NULL, "Equipement Inventory Ptr is NULL !!!", return );
+	BOMB_IF( invPtr == nullptr, "Equipement Inventory Ptr is nullptr !!!", return );
 
 	// magic protections
 	for( uint32 i = 0; i < PROTECTION_TYPE::NB_PROTECTION_TYPE; ++i)
@@ -19502,9 +18406,9 @@ void CCharacter::updateMagicProtectionAndResistance()
 	for( uint32 slot = 0; slot < SLOT_EQUIPMENT::NB_SLOT_EQUIPMENT; ++slot)
 	{
 		CGameItemPtr item = invPtr->getItem(slot);
-		if (item != NULL)
+		if (item != nullptr)
 		{
-			if (item->getStaticForm() != NULL && item->getStaticForm()->Family == ITEMFAMILY::JEWELRY)
+			if (item->getStaticForm() != nullptr && item->getStaticForm()->Family == ITEMFAMILY::JEWELRY)
 			{
 				for( uint32 protectionNumber = 1; protectionNumber <= 3; ++protectionNumber )
 				{
@@ -19529,11 +18433,11 @@ void CCharacter::updateMagicProtectionAndResistance()
 
 	// update current magic protection effect
 	const std::vector< CSEffectPtr >& activeEffects = getAllActiveEffects();
-	for( uint i = 0; i < activeEffects.size(); ++i )
+	for( const auto &eff : activeEffects )
 	{
-		if( activeEffects[i]->getFamily() == EFFECT_FAMILIES::PowerModMagicProtection )
+		if( eff->getFamily() == EFFECT_FAMILIES::PowerModMagicProtection )
 		{
-			CModMagicProtectionEffect * effect = dynamic_cast<CModMagicProtectionEffect *>(&(*activeEffects[i]));
+			CModMagicProtectionEffect * effect = dynamic_cast<CModMagicProtectionEffect *>(&(*eff));
 			if(effect)
 			{
 				_MagicProtection[effect->getAffectedProtection()]+= effect->getEffectValue();
@@ -19547,7 +18451,7 @@ void CCharacter::updateMagicProtectionAndResistance()
 
 		// add spire effect ( magic resistance )
 		const CSEffect* pEffect = lookForActiveEffect( EFFECT_FAMILIES::TotemCombatRes );
-		if ( pEffect != NULL )
+		if ( pEffect != nullptr )
 		{
 			_MagicResistance[res] += ( (sint32)_MagicResistance[res] * pEffect->getParamValue() / 100 );
 		}
@@ -19699,7 +18603,7 @@ void CCharacter::setDisconnexionTime()
 void CCharacter::updateOutpostAdminFlagInDB()
 {
 	bool isOutpostAdmin = false;
-	CGuildMemberModule * memberModule = NULL;
+	CGuildMemberModule * memberModule = nullptr;
 	if ( _GuildId != 0 && getModuleParent().getModule( memberModule ) )
 	{
 		isOutpostAdmin = memberModule->isOutpostAdmin();
@@ -19714,13 +18618,13 @@ std::vector<SItemSpecialEffect> CCharacter::lookForSpecialItemEffects(ITEM_SPECI
 	CGameItemPtr usedItem;
 	std::vector<SItemSpecialEffect> effects;
 	usedItem = getRightHandItem();
-	if (usedItem!=NULL && usedItem->getStaticForm() && usedItem->getStaticForm()->ItemSpecialEffects && !usedItem->getStaticForm()->ItemSpecialEffects->Effects.empty())
+	if (usedItem!=nullptr && usedItem->getStaticForm() && usedItem->getStaticForm()->ItemSpecialEffects && !usedItem->getStaticForm()->ItemSpecialEffects->Effects.empty())
 	{
 		const std::vector<SItemSpecialEffect>& effects2 = usedItem->getStaticForm()->lookForEffects(effectType);
 		effects.insert(effects.end(), effects2.begin(), effects2.end());
 	}
 	usedItem = getLeftHandItem();
-	if (usedItem!=NULL && usedItem->getStaticForm() && usedItem->getStaticForm()->ItemSpecialEffects && !usedItem->getStaticForm()->ItemSpecialEffects->Effects.empty())
+	if (usedItem!=nullptr && usedItem->getStaticForm() && usedItem->getStaticForm()->ItemSpecialEffects && !usedItem->getStaticForm()->ItemSpecialEffects->Effects.empty())
 	{
 		const std::vector<SItemSpecialEffect>& effects2 = usedItem->getStaticForm()->lookForEffects(effectType);
 		effects.insert(effects.end(), effects2.begin(), effects2.end());
@@ -19832,14 +18736,14 @@ void CCharacter::updateGuildFlag() const
 //-----------------------------------------------
 bool CCharacter::isAnActiveXpCatalyser( CGameItemPtr item )
 {
-	if( item != NULL )
+	if( item != nullptr )
 	{
 		const CStaticItem * form = item->getStaticForm();
-		if (form != NULL)
+		if (form != nullptr)
 		{
 			if( form->Family == ITEMFAMILY::XP_CATALYSER )
 			{
-				if( item->getInventory() != NULL )
+				if( item->getInventory() != nullptr )
 				{
 					if( item->getInventory()->getInventoryId()==INVENTORIES::bag && (item->getInventorySlot()==_XpCatalyserSlot || item->getInventorySlot()==_RingXpCatalyserSlot) )
 					{
@@ -19950,7 +18854,7 @@ void CCharacter::setTeamId(uint16 id)
 void CCharacter::setLeagueId(TChanID id, bool removeIfEmpty)
 {
 
-	ucstring name = CEntityIdTranslator::getInstance()->getByEntity(getId());
+	ucstring name = CEntityIdTranslator::getInstance()->getByEntity(getId()); // local for translator interop (registered name)
 	CEntityIdTranslator::removeShardFromName(name);
 
 	// Remove old dynamic channel
@@ -20214,7 +19118,7 @@ void CCharacter::addTradePageToUpdate(uint16 idx)
 
 const CItemsForSale &CCharacter::getItemInShop()
 {
-	nlassert(_ItemsInShopStore != NULL); return *_ItemsInShopStore;
+	nlassert(_ItemsInShopStore != nullptr); return *_ItemsInShopStore;
 }
 
 
@@ -20718,7 +19622,7 @@ sint32 CCharacter::getWeightMalus()
 
 const CGearLatency & CCharacter::getGearLatency()
 {
-	nlassert(_GearLatency != NULL); return *_GearLatency;
+	nlassert(_GearLatency != nullptr); return *_GearLatency;
 }
 
 
@@ -20817,7 +19721,7 @@ void CCharacter::resetWhoSeesMeBeforeTP()
 
 CAdminProperties & CCharacter::getAdminProperties()
 {
-	nlassert(_AdminProperties != NULL); return *_AdminProperties;
+	nlassert(_AdminProperties != nullptr); return *_AdminProperties;
 }
 
 
@@ -20865,7 +19769,7 @@ void CCharacter::setDPLossDuration(float duration)
 
 CPlayerRoomInterface	&CCharacter::getRoomInterface()
 {
-	nlassert(_PlayerRoom != NULL); return *_PlayerRoom;
+	nlassert(_PlayerRoom != nullptr); return *_PlayerRoom;
 }
 
 
@@ -20970,7 +19874,7 @@ void CCharacter::resetHairCutDiscount()
 
 CCharacterEncyclopedia &CCharacter::getEncyclopedia()
 {
-	nlassert(_EncycloChar != NULL); return *_EncycloChar;
+	nlassert(_EncycloChar != nullptr); return *_EncycloChar;
 }
 
 
@@ -20978,7 +19882,7 @@ CCharacterEncyclopedia &CCharacter::getEncyclopedia()
 
 CCharacterGameEvent &CCharacter::getGameEvent()
 {
-	nlassert(_GameEvent != NULL); return *_GameEvent;
+	nlassert(_GameEvent != nullptr); return *_GameEvent;
 }
 
 
@@ -20986,7 +19890,7 @@ CCharacterGameEvent &CCharacter::getGameEvent()
 
 CCharacterRespawnPoints &CCharacter::getRespawnPoints()
 {
-	nlassert(_RespawnPoints != NULL); return *_RespawnPoints;
+	nlassert(_RespawnPoints != nullptr); return *_RespawnPoints;
 }
 
 
@@ -20994,7 +19898,7 @@ CCharacterRespawnPoints &CCharacter::getRespawnPoints()
 
 const CCharacterRespawnPoints &CCharacter::getRespawnPoints() const
 {
-	nlassert(_RespawnPoints != NULL); return *_RespawnPoints;
+	nlassert(_RespawnPoints != nullptr); return *_RespawnPoints;
 }
 
 
@@ -21082,7 +19986,7 @@ CGameItemPtr CCharacter::getConsumedItem() const
 	if (_ConsumedItemInventory != INVENTORIES::UNDEFINED)
 		return getItem(_ConsumedItemInventory, _ConsumedItemSlot);
 	else
-		return NULL;
+		return nullptr;
 }
 
 
@@ -21548,3 +20452,13 @@ bool CCharacter::initPetInventory(uint8 index)
 	}
 	return false;
 }
+
+// setId was accidentally removed during early db extraction sed (the end marker matched the setId comment); restored here for linking (called from admin, player, callbacks etc).
+void CCharacter::setId( const CEntityId& id )
+{
+	_Id = id;
+
+	// set the Team
+	//const uint16 teamId = (uint16) _UserId / 10;
+	//TeamManager.addCharacterToTeam( this, teamId );
+} // setId //

@@ -44,14 +44,14 @@ public:
 	virtual void onUpdateCharacters				(uint32 userId, const std::vector<CHARSYNC::TCharInfo> &charInfos) = 0;
 
 	// interface for name unifier (player part)
-	virtual void validateCharacterNameBeforeCreate	(uint32 userId, uint8 charIndex, const ucstring &name, uint32 homeSessionId) =0;
+	virtual void validateCharacterNameBeforeCreate	(uint32 userId, uint8 charIndex, const std::string &name, uint32 homeSessionId) =0;
 	virtual bool validateCharacterCreation			(uint32 userId, uint8 charIndex, const CCreateCharMsg &createCharMsg) =0;
 	virtual void renameCharacter					(const NLMISC::CEntityId &eid) =0;
 
 	// interface for name unifier (guild part)
-	virtual void validateGuildName				(uint32 guildId, const ucstring &guildName) =0;
+	virtual void validateGuildName				(uint32 guildId, const std::string &guildName) =0;
 	virtual void registerLoadedGuildNames		(const std::vector<CHARSYNC::CGuildInfo> &guildInfos) =0;
-	virtual void addGuild						(uint32 guildId, const ucstring &guildName) =0;
+	virtual void addGuild						(uint32 guildId, const std::string &guildName) =0;
 	virtual void removeGuild					(uint32 guildId) =0;
 
 	// interface for player and char status

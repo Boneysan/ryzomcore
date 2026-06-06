@@ -84,9 +84,9 @@ public:
 	bool loadedGuilds() const;
 	/// Create a guild proxy for guild unification
 	CGuild *createGuildProxy(uint32 guildId, 
-		const ucstring & guildName,
+		const std::string & guildName,
 		const uint64 &icon,
-		const ucstring & description, 
+		const std::string & description, 
 		EGSPD::CPeople::TPeople race,
 		NLMISC::TGameCycle creationDate);
 	//@}
@@ -107,7 +107,7 @@ public:
 
 //	void addGuildsAwaitingString( const ucstring & guildStr, uint32 guildId );
 	/// get a guild from its name
-	CGuild * getGuildByName( const ucstring & name );
+	CGuild * getGuildByName( const std::string & name );
 	/// get a guild from its id
 	CGuild * getGuildFromId( EGSPD::TGuildId id );
 	/// update the guild strings. This method checks if a guild was awaiting for the string id corresponding to the param str. If yes, it updates the guild string id
@@ -127,9 +127,9 @@ public:
 
 
 	/// guild creation user query
-	void createGuild(CGuildCharProxy & proxy,const ucstring & guildName,const uint64& icon, const ucstring & description);
+	void createGuild(CGuildCharProxy & proxy,const std::string & guildName,const uint64& icon, const std::string & description);
 	/// Guild creation step 2, executed when SU return name validation
-	void createGuildStep2(uint32 guildId, const ucstring &guildName, CHARSYNC::TCharacterNameResult result);
+	void createGuildStep2(uint32 guildId, const std::string &guildName, CHARSYNC::TCharacterNameResult result);
 
 	/// guild deletion
 	void deleteGuild(uint32 id);
@@ -200,7 +200,7 @@ private:
 
 
 	/// check guild name and description
-	bool checkGuildStrings(CGuildCharProxy & proxy,const ucstring & name, const ucstring & description);
+	bool checkGuildStrings(CGuildCharProxy & proxy,const std::string & name, const std::string & description);
 
 	/// get raw access to the guild list (not const)
 	EGSPD::CGuildContainerPD *getGuildContainer() { return _Container; }
@@ -247,9 +247,9 @@ private:
 	struct TPendingGuildCreate
 	{
 		NLMISC::CEntityId	CreatorChar;
-		ucstring			GuildName;
+		std::string			GuildName;
 		uint64				Icon;
-		ucstring			Description;
+		std::string			Description;
 	};
 
 	typedef std::map<uint32, TPendingGuildCreate>	TPendingGuildCreateInfos;

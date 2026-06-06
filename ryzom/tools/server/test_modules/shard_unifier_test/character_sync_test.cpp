@@ -62,7 +62,12 @@ class CPHCharacter : public ICharacter
 		return eid;
 	}
 
-	virtual void setName(const ucstring &name)
+	virtual void setName(const std::string &name)
+	{
+
+	}
+
+	virtual void registerName(const std::string &newName = std::string())
 	{
 
 	}

@@ -535,7 +535,7 @@
 			<serial/>
 
 			<property type="NLMISC::CSheetId"	name="ItemSheet"	byref="true"/>
-			<property type="ucstring"		name="Name"			byref="true"/>
+			<property type="string"		name="Name"			byref="true"/>
 
 		</class>
 

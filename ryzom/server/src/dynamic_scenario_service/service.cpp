@@ -92,7 +92,7 @@ static void cbForwardToStringManagerModuleWithArg(CMessage &msgin, const std::st
 	module->onProcessModuleMessage(0,msgin);
 }
 
-void CDynamicScenarioService::forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence)
+void CDynamicScenarioService::forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence)
 {
 	_Dms->forwardIncarnChat(id,senderId,sentence);
 	nldebug("Forwarding dyn chat \"%s\" to dms",sentence.c_str());
@@ -103,13 +103,11 @@ static void cbDynChatForward(CMessage &msgin, const std::string &serviceName, TS
 
 	TChanID id;
 	TDataSetRow sender;
-	ucstring ucsentence;
 	std::string sentence;
 	CChatGroup::TGroupType groupType = CChatGroup::say;
 	msgin.serial(id);
 	msgin.serial(sender);
-	msgin.serial(ucsentence);
-	sentence = ucsentence.toString();
+	msgin.serial(sentence);
 	CDynamicScenarioService::instance().forwardIncarnChat(id,sender,sentence);
 	nldebug("forwarding dyn chat \"%s\"",sentence.c_str());
 }

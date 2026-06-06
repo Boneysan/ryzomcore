@@ -10,7 +10,7 @@
 			<serial/>
 
 			<property type="NLMISC::CEntityId"	name="CharEid" byref="true"/>
-			<property type="ucstring"			name="CharName" byref="true"/>
+			<property type="string"			name="CharName" byref="true"/>
 
 		</class>
 

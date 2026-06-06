@@ -1383,7 +1383,7 @@ void CPlayerManager::disconnectPlayer( uint32 userId )
 				// unvalidate player web account
 				// \todo this is unsafe, because name is an ucstring which might be fucked up when casted into string
 //				CMailForumValidator::unvalidateUserEntry( character->getName().toString() );
-				CMailForumValidator::unvalidateUserEntry( character->getHomeMainlandSessionId(), character->getName().toUtf8() );
+				CMailForumValidator::unvalidateUserEntry( character->getHomeMainlandSessionId(), character->getName() );
 
 				nlinfo("(EGS)<CPlayerManager::disconnectPlayer> player %d (Row %u) removed", userId, character->getEntityRowId().getIndex() );
 				// free the current interlocutor of the player
@@ -1901,7 +1901,7 @@ CCharacter * CPlayerManager::getCharacterByName( const std::string& name )
 		if( (*it).second.Player->getActiveCharacter() != 0 )
 		{
 			string name1, name2;
-			name1 = NLMISC::strlwr( (*it).second.Player->getActiveCharacter()->getName().toString() );
+			name1 = NLMISC::strlwr( (*it).second.Player->getActiveCharacter()->getName() );
 			name2 = NLMISC::strlwr( name );
 			if( name1 == name2 )
 			{
@@ -2366,7 +2366,7 @@ void CPlayerManager::broadcastMessageUpdate()
 		nlinfo("broadcasting message: %s",msg.c_str());
 
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8(msg);
+		params[0].Literal = msg; // Literal now std::string (from string_manager)
 		
 		for( TMapPlayers::const_iterator it = _Players.begin(); it != _Players.end(); ++it )
 		{

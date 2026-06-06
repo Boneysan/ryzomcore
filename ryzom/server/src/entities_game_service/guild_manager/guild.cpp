@@ -90,24 +90,24 @@ uint32 CGuild::getDescriptionId()const
 	return CBankAccessor_GUILD::getGUILD().getDESCRIPTION_id(_DbGroup);
 }
 //----------------------------------------------------------------------------
-const ucstring & CGuild::getName()const
+const std::string & CGuild::getName()const
 {
 	return _Name;
 //	NLMISC::CEntityId stringEId( _EId );
 //	stringEId.setType( RYZOMID::guildName );
-//	const ucstring& str = EGSPD::PDSLib.getStringManager().getString( stringEId );
+//	const std::string& str = EGSPD::PDSLib.getStringManager().getString( stringEId );
 //	if ( str.empty() )
 //		nlwarning("<GUILD> guild %u has no name",_Id );
 //	return str;
 }
 
 //----------------------------------------------------------------------------
-const ucstring & CGuild::getDescription()const
+const std::string & CGuild::getDescription()const
 {
 	return _Description;
 //	NLMISC::CEntityId stringEId(_EId);
 //	stringEId.setType( RYZOMID::guildDescription );
-//	const ucstring& str = EGSPD::PDSLib.getStringManager().getString( stringEId );
+//	const std::string& str = EGSPD::PDSLib.getStringManager().getString( stringEId );
 //	return str;
 }
 
@@ -242,7 +242,7 @@ void CGuild::setMOTD( const std::string& motd, const NLMISC::CEntityId& eId)
 		{
 			// Show the old MOTD
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay;
+			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
 			CCharacter::sendDynamicMessageToChatGroup(user->getEntityRowId(), "GMOTD", CChatGroup::guild, params);
 			return;
 		}
@@ -267,7 +267,7 @@ void CGuild::setMOTD( const std::string& motd, const NLMISC::CEntityId& eId)
 		{
 			// Show new MOTD to all members
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay;
+			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
 			sendMessageToGuildChat("GMOTD", params);
 		}
 	}
@@ -375,7 +375,7 @@ void CGuild::incMemberSession()
 //}
 //
 ////----------------------------------------------------------------------------
-//void CGuild::setClientDBPropString(const std::string & prop, const ucstring &value )
+//void CGuild::setClientDBPropString(const std::string & prop, const std::string &value )
 //{
 //	_DbGroup.Database.setPropString( prop, value );
 //}
@@ -429,7 +429,7 @@ void CGuild::postCreate()
 }
 
 //----------------------------------------------------------------------------
-void CGuild::setName(const ucstring & str)
+void CGuild::setName(const std::string & str)
 {
 	_Name = str;
 //	setClientDBPropString( "GUILD:NAME", _Name);
@@ -443,7 +443,7 @@ void CGuild::setName(const ucstring & str)
 }
 
 //----------------------------------------------------------------------------
-void CGuild::setDescription(const ucstring & str)
+void CGuild::setDescription(const std::string & str)
 {
 	_Description = str;
 //	setClientDBPropString( "GUILD:DESCRIPTION", _Description);
@@ -461,8 +461,8 @@ void CGuild::dumpGuildInfos( NLMISC::CLog & log )
 	log.displayNL("<GUILD_DUMP> Guild id: %s %s, name: '%s', eid: %s", 
 		guildIdToString(getId()).c_str(), 
 		getId()>>20 == IService::getInstance()->getShardId() ? "(Local)" : "(Foreign)",
-		getName().toUtf8().c_str(), getEId().toString().c_str() );
-	log.displayNL("\tDescription: '%s'", getDescription().toUtf8().c_str() );
+		getName().c_str(), getEId().toString().c_str() );
+	log.displayNL("\tDescription: '%s'", getDescription().c_str() );
 	log.displayNL("\tMoney: %" NL_I64 "u", getMoney() );
 //	log.displayNL("\tVillage: %hu", getVillage() );
 	log.displayNL("\tCreation date: %u", getCreationDate() );
@@ -1382,7 +1382,7 @@ void CGuild::setMemberOnline( CGuildMember * member, uint8 dynamicId )
 			CGuildCharProxy proxy;
 			module->getProxy(proxy);
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= _MessageOfTheDay;
+			params[0].Literal= _MessageOfTheDay.toUtf8(); // temp for 0.5 batch
 			proxy.sendDynamicMessageToChatGroup("GMOTD", CChatGroup::guild, params);			
 		}
 	}
@@ -1446,13 +1446,13 @@ void CGuild::setMemberClientDB( CGuildMember* member )
 	// get a module pointing on the member
 	nlassert( member );
 	
-	//const ucstring memberName = NLMISC::CEntityIdTranslator::getInstance()->getByEntity(member->getIngameEId() );
+	//const std::string memberName = NLMISC::CEntityIdTranslator::getInstance()->getByEntity(member->getIngameEId() );
 	const uint32 nameId = NLMISC::CEntityIdTranslator::getInstance()->getEntityNameStringId( member->getIngameEId() );
 	
 //	std::string dbBase = NLMISC::toString( "GUILD:MEMBERS:%u:",member->getMemberIndex() );
 	CBankAccessor_GUILD::TGUILD::TMEMBERS::TArray &memberElem = CBankAccessor_GUILD::getGUILD().getMEMBERS().getArray(member->getMemberIndex());
 
-	//setClientDBPropString( dbBase + "NAME", memberName.empty() ? ucstring("Unknown") : memberName);
+	//setClientDBPropString( dbBase + "NAME", memberName.empty() ? std::string("Unknown") : memberName);
 //	setClientDBProp( dbBase + "NAME", nameId);
 	memberElem.setNAME(_DbGroup, nameId );
 //	setClientDBProp( dbBase + "GRADE", member->getGrade() );
@@ -1590,7 +1590,7 @@ bool CGuild::setMemberGrade(CGuildMember * member, EGSPD::CGuildGrade::TGuildGra
 		if (msgCSR)
 		{
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal.fromUtf8( memberName );
+			params[0].Literal = memberName;
 			CCharacter::sendDynamicSystemMessage(csrEId, "CSR_GUILD_ALREADY_HAS_GRADE", params);
 		}
 
@@ -1639,7 +1639,7 @@ bool CGuild::setMemberGrade(CGuildMember * member, EGSPD::CGuildGrade::TGuildGra
 	if (msgCSR)
 	{
 		SM_STATIC_PARAMS_2(params, STRING_MANAGER::literal, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		params[1].Literal = EGSPD::CGuildGrade::toString(grade);
 		CCharacter::sendDynamicSystemMessage(csrEId, "CSR_GUILD_NEW_GRADE", params);
 	}
@@ -2257,13 +2257,13 @@ IGuild *IGuild::getGuildInterface(EGSPD::CGuildPD *guildPd)
 }
 
 //-----------------------------------------------------------------------------
-void IGuild::setNameWrap(const ucstring &name)
+void IGuild::setNameWrap(const std::string &name)
 {
 	static_cast<CGuild*>(this)->setName(name);
 }
 
 //-----------------------------------------------------------------------------
-const ucstring	&IGuild::getNameWrap()
+const std::string	&IGuild::getNameWrap()
 {
 	return static_cast<CGuild*>(this)->getName();
 }
@@ -2377,8 +2377,8 @@ private:
 	New token "GuildInventory" is now used for new inventory format.
 */
 #define PERSISTENT_DATA\
-	PROP2(_Name,string,getName().toUtf8(),ucstring s; s.fromUtf8(val); setName(s))\
-	PROP2(_Description,string,getDescription().toUtf8(),ucstring s; s.fromUtf8(val); setDescription(s))\
+	PROP2(_Name,string,getName(),setName(val))\
+	PROP2(_Description,string,getDescription(),setDescription(val))\
 	PROP2(_MessageOfTheDay,string,_MessageOfTheDay.toUtf8(),ucstring s; s.fromUtf8(val); _MessageOfTheDay=s)\
 	LSTRUCT2(_Inventory, if (0), ;/* do not store in old format anymore */, COldGuildInventoryLoader((CGuildInventory *)_Inventory).apply(pdr))\
 	STRUCT2(GuildInventory, _Inventory->store(pdr), _Inventory->apply(pdr, NULL))\

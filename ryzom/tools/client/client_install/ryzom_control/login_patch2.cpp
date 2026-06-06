@@ -2050,7 +2050,7 @@ bool CPatchManager::unpackLZMA(const std::string &lzmaFile, const std::string &d
 	nldebug("unpackLZMA : decompression the lzma file '%s' into output file '%s", lzmaFile.c_str(), destFileName.c_str());
 	CIFile inStream(lzmaFile);
 	uint32 inSize = inStream.getFileSize();
-	std::auto_ptr<uint8> inBuffer = std::auto_ptr<uint8>(new uint8[inSize]);
+	std::unique_ptr<uint8> inBuffer = std::unique_ptr<uint8>(new uint8[inSize]);
 	inStream.serialBuffer(inBuffer.get(), inSize);
 
 	CLzmaDecoderState state;

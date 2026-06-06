@@ -51,26 +51,7 @@ inline std::string capitalize(const std::string & s)
 	return res + NLMISC::toLower(s.substr(i));
 }
 
-inline ucstring capitalize(const ucstring & s)
-{
-	if ( s.empty() )
-		return s;
-
-	// return NLMISC::toUpper( s.substr(0,1) ) + NLMISC::toLower( s.substr(1,std::string::npos) );
-	return ucstring::makeFromUtf8(capitalize(s.toUtf8()));
-}
-
-inline std::string capitalizeFirst(const std::string &s)
-{
-	if (s.empty())
-		return s;
-
-	std::string res;
-	res.reserve(4);
-	ptrdiff_t i = 0;
-	NLMISC::appendToUpper(res, s, i);
-	return res + s.substr(i);
-}
+// (duplicate capitalize removed during 0.5 ucstring batch; the one above is the active impl)
 
 //-------------------------------------------------------------------------------------------------
 // HANDY MACROS - For forcing the pre-preprocessor to evaluate concatenation operations nicely

@@ -212,8 +212,8 @@ inline void CPersistentDataRecord::push(TToken token,const std::string& val)
 
 inline void CPersistentDataRecord::push(TToken token,const ucstring& val)
 {
-	// treat ucstrings as strings
-	push(token,val.toUtf8());
+	// thin bridge for legacy ucstring callers
+	push(token, val.toUtf8());
 }
 
 inline void CPersistentDataRecord::push(TToken token,NLMISC::CSheetId val)
@@ -538,8 +538,9 @@ inline void CPersistentDataRecord::pop(TToken token,std::string& result)
 }
 inline void CPersistentDataRecord::pop(TToken token,ucstring& result)
 {
+	// thin bridge for legacy ucstring callers
 	popNextArg(token,TempArg);
-	result= TempArg.asUCString();
+	result.fromUtf8(TempArg.asString());
 }
 
 inline void CPersistentDataRecord::pop(TToken token,NLMISC::CSheetId& result)
@@ -788,40 +789,13 @@ inline NLMISC::CSString CPersistentDataRecord::CArg::asString() const
 	return "";
 }
 
+// (asString() returning CSString is declared in the main header and implemented elsewhere or via CSString)
+// legacy thin bridge kept for ucstring users
 inline ucstring CPersistentDataRecord::CArg::asUCString() const
 {
-	switch (_Type)
-	{
-	case STRUCT_BEGIN:
-	case STRUCT_END:	BOMB("Can't extract a value from a structure delimiter", return ucstring());
-	case SINT32:		return (ucstring)NLMISC::toString((sint32)_Value.i32);
-	case UINT32:		return (ucstring)NLMISC::toString((uint32)_Value.i32);
-	case SINT64:		return (ucstring)NLMISC::toString((sint64)_Value.i64);
-	case UINT64:		return (ucstring)NLMISC::toString((uint64)_Value.i64);
-	case FLOAT32:		return (ucstring)NLMISC::toString(_Value.f32);
-	case FLOAT64:		return (ucstring)NLMISC::toString(_Value.f64);
-	case STRING:		{ ucstring s; s.fromUtf8(_String); return s; }
-	case FLAG:			return (ucstring)"1";
-	case EXTEND_TYPE:
-		switch(_Value.ExType)
-		{
-		case ET_SHEET_ID:
-			{
-				NLMISC::CSheetId sheetId(_Value.ExData32);
-				return sheetId.toString(true);
-			}
-		case ET_ENTITY_ID:
-			{
-				NLMISC::CEntityId entityId(_Value.ExData64);
-				return entityId.toString();
-			}
-		default:
-			break;
-		}
-	default:			break;
-	}
-	STOP("This should never happen!");
-	return ucstring("");
+	ucstring s;
+	s.fromUtf8(asString().c_str());  // asString returns CSString (std::string-like)
+	return s;
 }
 
 inline NLMISC::CEntityId CPersistentDataRecord::CArg::asEntityId() const
@@ -1083,12 +1057,8 @@ inline CPersistentDataRecord::CArg CPersistentDataRecord::CArg::String(const std
 
 inline CPersistentDataRecord::CArg CPersistentDataRecord::CArg::UCString(const ucstring& value,CPersistentDataRecord& pdr)
 {
-	NLMISC::CSString s = value.toUtf8();
-	CArg arg;
-	arg._Type= STRING;
-	arg._Value.i32= pdr.addString(s);
-	arg._String= s;
-	return arg;
+	// thin bridge for legacy
+	return CArg::String(value.toUtf8(), pdr);
 }
 
 inline CPersistentDataRecord::CArg CPersistentDataRecord::CArg::Flag()

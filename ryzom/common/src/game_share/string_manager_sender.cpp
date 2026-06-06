@@ -202,11 +202,11 @@ namespace STRING_MANAGER
 	//-----------------------------------------------
 	// setPhrase
 	//-----------------------------------------------
-	void	setPhrase(const std::string &phraseName, const ucstring &phraseContent)
+	void	setPhrase(const std::string &phraseName, const std::string &phraseContent)
 	{
 		NLNET::CMessage msg("SET_PHRASE");
 		std::string mutablePhraseName = phraseName;
-		ucstring    mutablePhraseContent = phraseContent;
+		std::string mutablePhraseContent = phraseContent;
 		msg.serial(mutablePhraseName);
 		msg.serial(mutablePhraseContent);
 		sendMessageViaMirror("IOS", msg);

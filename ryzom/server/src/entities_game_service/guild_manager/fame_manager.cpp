@@ -1927,7 +1927,7 @@ void CFameManager::updatePlayerFame(const TDataSetRow &playerIndex)
 	} \
 	if (onlyLocal && guild->isProxy())\
 	{\
-		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().toString().c_str());\
+		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().c_str());\
 		return true;\
 	} \
 

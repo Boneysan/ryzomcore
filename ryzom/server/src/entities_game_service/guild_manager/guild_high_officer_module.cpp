@@ -191,7 +191,7 @@ void CGuildHighOfficerModule::buyOutpostBuilding(NLMISC::CSheetId sid)
 	pGuild->spendMoney(pSOB->CostDapper);
 	// Construct the building
 	pOB->construct(sid);
-	log_Outpost_BuyOption(pO->getName(), pGuild->getName().toUtf8(), sid);
+	log_Outpost_BuyOption(pO->getName(), pGuild->getName(), sid);
 	proxy.endBotChat();
 }
 

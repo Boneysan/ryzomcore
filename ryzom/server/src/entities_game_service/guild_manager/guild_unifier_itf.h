@@ -240,9 +240,9 @@ namespace GU
 		// 
 		uint32	_GuildId;
 		// 
-		ucstring	_GuildName;
+		std::string	_GuildName;
 		// 
-		ucstring	_GuildDesc;
+		std::string	_GuildDesc;
 		// 
 		uint64	_GuildMoney;
 		// 
@@ -273,18 +273,18 @@ namespace GU
 
 		}
 			// 
-		const ucstring &getGuildName() const
+		const std::string &getGuildName() const
 		{
 			return _GuildName;
 		}
 
-		ucstring &getGuildName()
+		std::string &getGuildName()
 		{
 			return _GuildName;
 		}
 
 
-		void setGuildName(const ucstring &value)
+		void setGuildName(const std::string &value)
 		{
 
 
@@ -293,18 +293,18 @@ namespace GU
 				
 		}
 			// 
-		const ucstring &getGuildDesc() const
+		const std::string &getGuildDesc() const
 		{
 			return _GuildDesc;
 		}
 
-		ucstring &getGuildDesc()
+		std::string &getGuildDesc()
 		{
 			return _GuildDesc;
 		}
 
 
-		void setGuildDesc(const ucstring &value)
+		void setGuildDesc(const std::string &value)
 		{
 				_GuildDesc = value;
 		}

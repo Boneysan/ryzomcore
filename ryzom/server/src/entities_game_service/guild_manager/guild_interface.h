@@ -33,8 +33,8 @@ public:
 	static IGuild *getGuildInterface(EGSPD::CGuildPD *guildPd);
 
 	uint32			getIdWrap();
-	void			setNameWrap(const ucstring &name);
-	const ucstring	&getNameWrap();
+	void			setNameWrap(const std::string &name);
+	const std::string	&getNameWrap();
 
 	bool			isProxyWrap();
 	virtual void	removeMember(const NLMISC::CEntityId &id) =0;

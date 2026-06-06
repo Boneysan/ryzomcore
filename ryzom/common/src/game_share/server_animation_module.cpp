@@ -1946,9 +1946,9 @@ bool CServerAnimationModule::doMakeAnimationSession(CAnimationSession* animSessi
 		}
 		TMissionItem missionItem;
 		missionItem.SheetId = plotItemSheetId;
-		missionItem.Name = ucstring::makeFromUtf8( plotItem->toString("Name") );
-		missionItem.Description = ucstring::makeFromUtf8( plotItem->toString("Description") );
-		missionItem.Comment = ucstring::makeFromUtf8( plotItem->toString("Comment") );
+		missionItem.Name = plotItem->toString("Name");
+		missionItem.Description = plotItem->toString("Description");
+		missionItem.Comment = plotItem->toString("Comment");
 
 		animSession->MissionItems.push_back(missionItem);
 	}
@@ -3008,7 +3008,7 @@ void CServerAnimationModule::updateAnimationProperties(NLNET::IModuleProxy *send
 void CServerAnimationModule::onCharTargetReceived( NLNET::IModuleProxy *senderModuleProxy,
 	const NLMISC::CEntityId& eid, const NLMISC::CEntityId&creatureId,
 	TAIAlias alias, TDataSetRow entityRowId,
-	const ucstring& /* ucName */, uint32 nameId,
+	const std::string& /* ucName */, uint32 nameId,
 	const std::vector<std::string> & param,
 	bool alived)
 {
@@ -4312,9 +4312,9 @@ NLMISC_CLASS_COMMAND_IMPL(CServerAnimationModule, displayMissionItems)
 			log.displayNL("Item %d '%s' '%s' '%s' '%s'",
 				first,
 				animationSession->MissionItems[first].SheetId.toString().c_str(),
-				animationSession->MissionItems[first].Name.toString().c_str(),
-				animationSession->MissionItems[first].Description.toString().c_str(),
-				animationSession->MissionItems[first].Comment.toString().c_str()
+				animationSession->MissionItems[first].Name.c_str(),
+				animationSession->MissionItems[first].Description.c_str(),
+				animationSession->MissionItems[first].Comment.c_str()
 				);
 		}
 

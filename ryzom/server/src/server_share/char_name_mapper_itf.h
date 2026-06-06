@@ -48,7 +48,7 @@ namespace CNM
 		// 
 		NLMISC::CEntityId	_CharEid;
 		// 
-		ucstring	_CharName;
+		std::string	_CharName;
 	public:
 		// 
 		const NLMISC::CEntityId &getCharEid() const
@@ -71,18 +71,18 @@ namespace CNM
 				
 		}
 			// 
-		const ucstring &getCharName() const
+		const std::string &getCharName() const
 		{
 			return _CharName;
 		}
 
-		ucstring &getCharName()
+		std::string &getCharName()
 		{
 			return _CharName;
 		}
 
 
-		void setCharName(const ucstring &value)
+		void setCharName(const std::string &value)
 		{
 
 

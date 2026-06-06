@@ -708,7 +708,7 @@ void getUCstringFromHash(const string &hash, ucstring &finaltext)
 	// cut hash in portion of 4
 	for (uint i=0; i<fullhash.size()/4; i++) {
 		string part = fullhash.substr((i*4)+2, 2)+fullhash.substr(i*4, 2);
-		ucstring ucpart;
+		std::string ucpart;
 		uint ch;
 		uint n;
 		if (sscanf(part.c_str(), "%4x%n", &ch, &n) != 1) {
@@ -892,7 +892,7 @@ void GET_CHARACTER_Helper(std::string& command, const NLMISC::CEntityId& id, con
 	} \
 	if (onlyLocal && guild->isProxy())\
 	{\
-		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().toString().c_str());\
+		log.displayNL("The guild '%s' is a foreign guild, operation forbidden", guild->getName().c_str());\
 		return true;\
 	}\
 
@@ -955,7 +955,7 @@ ENTITY_VARIABLE(Name, "Name of a player")
 	if (get)
 	{
 //		value = CEntityIdTranslator::getInstance()->getByEntity(entity).toString();
-		value = e->getName ().toString();
+		value = e->getName ();
 	}
 	else
 	{
@@ -2212,7 +2212,7 @@ NLMISC_CATEGORISED_COMMAND(pdr,loadFromXML,"load a character from an XML file","
 
 	if( c )
 	{
-		ucstring			name=	 c->getName();
+		std::string			name=	 c->getName();
 		uint32				guildId= c->getGuildId();
 		NLMISC::CEntityId	id=		 c->getId();
 
@@ -2269,7 +2269,7 @@ NLMISC_CATEGORISED_COMMAND(pdr,loadFromPDR,"load a character from a binary PDR f
 
 	if( c )
 	{
-		ucstring			name=	 c->getName();
+		std::string			name=	 c->getName();
 		uint32				guildId= c->getGuildId();
 		NLMISC::CEntityId	id=		 c->getId();
 
@@ -2452,7 +2452,7 @@ NLMISC_COMMAND(setPetAnimalName, "Set the name of a pet animal","<eid> <petIndex
 	{
 		uint petIndex;
 		fromString(args[1], petIndex);
-		ucstring customName;
+		std::string customName;
 		if (args.size () == 3)
 			customName = args[2];
 		c->setAnimalName(petIndex, customName);
@@ -3267,7 +3267,7 @@ void cbClientAdminOffline (NLNET::CMessage& msgin, const std::string &serviceNam
 	res += arg;
 
 	std::string csName = CEntityIdTranslator::getInstance()->getByEntity(eid).toString();
-	std::string targetName = NLMISC::toString("(%s,%s)", CEntityIdTranslator::getInstance()->getByEntity( ucstring(characterName) ).toString().c_str(), characterName.c_str() );
+	std::string targetName = NLMISC::toString("(%s,%s)", CEntityIdTranslator::getInstance()->getByEntity( std::string(characterName) ).toString().c_str(), characterName.c_str() );
 
 	nlinfo("ADMINOFFLINE: Player (%s,%s) will execute client admin command '%s' on target %s", eid.toString().c_str(), csName.c_str(), res.c_str(), targetName.c_str());
 	NLMISC::ICommand::execute(res, *InfoLog);
@@ -3529,7 +3529,7 @@ NLMISC_COMMAND( renamePlayerForEvent, "rename a player for the event", "<CSR eId
 	if ( args.size() != 3 )
 		return false;
 
-	ucstring newName( args[2] );
+	std::string newName( args[2] );
 	TRY_GET_CHARACTER
 	CCharacter * target = PlayerManager.getCharacterByName( CShardNames::getInstance().makeFullNameFromRelative(c->getHomeMainlandSessionId(),args[1]) );
 	if ( !target || !TheDataset.isAccessible( target->getEntityRowId() ) )
@@ -3553,8 +3553,8 @@ NLMISC_COMMAND( renamePlayerForEvent, "rename a player for the event", "<CSR eId
 //	if ( args.size() != 3 )
 //		return false;
 //
-//	ucstring oldName( capitalize(args[1]) );
-//	ucstring newName( capitalize(args[2]) );
+//	std::string oldName( capitalize(args[1]) );
+//	std::string newName( capitalize(args[2]) );
 //	TRY_GET_CHARACTER
 //	CCharacter * target = PlayerManager.getCharacterByName( args[1] );
 //	if ( !target || !TheDataset.isAccessible( target->getEntityRowId() ) )
@@ -3602,7 +3602,7 @@ NLMISC_COMMAND( renameGuild, "rename a guild", "<CSR_eId> <guild_name>|<shardId:
 	}
 	GET_GUILD(1, true, NLMISC::CEntityId::Unknown);
 
-	ucstring name( args[2] );
+	std::string name( args[2] );
 	// check if name already exists in the player list
 	if ( NLMISC::CEntityIdTranslator::getInstance()->entityNameExists( name ) /*|| EGSPD::PDSLib.getStringManager().stringExists(name, RYZOMID::guildName)*/ )
 	{
@@ -3632,7 +3632,7 @@ NLMISC_COMMAND( setGuildDescription, "set a guild description", "<guild_name>|<s
 	if ( args.size() != 2)
 		return false;
 	GET_GUILD(0, true, NLMISC::CEntityId::Unknown);
-	ucstring desc( args[1] );
+	std::string desc( args[1] );
 	guild->setDescription( desc );
 
 	if (IGuildUnifier::getInstance() != NULL)
@@ -4932,7 +4932,7 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 
 		if (new_item != NULL) // When the item is stacked, it's deleted by addItemToInventory. Need be checked again to prevent crash of egs
 		{
-			ucstring customValue;
+			std::string customValue;
 
 			if (command_args.size() >= 6 && command_args[5] != "*")
 			{
@@ -5250,7 +5250,7 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 		if (command_args.size() == 6)
 			crafted = (command_args[5] == "1");
 
-		ucstring needCustomName;
+		std::string needCustomName;
 		if (command_args.size() == 7)
 			needCustomName.fromUtf8(command_args[6]);
 
@@ -5723,8 +5723,8 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 		if (command_args.size () != 2) return false;
 		TDataSetRow row = c->getEntityRowId();
 		c->setNewTitle(command_args[1]);
-		string fullname = c->getName().toString()+"$"+command_args[1]+"#"+c->getTagPvPA()+"#"+c->getTagPvPB()+"#"+c->getTagA()+"#"+c->getTagB()+"$";
-		ucstring name;
+		string fullname = c->getName()+"$"+command_args[1]+"#"+c->getTagPvPA()+"#"+c->getTagPvPB()+"#"+c->getTagA()+"#"+c->getTagB()+"$";
+		std::string name;
 		name.fromUtf8(fullname);
 		NLNET::CMessage	msgout("CHARACTER_NAME");
 		msgout.serial(row);
@@ -5762,8 +5762,8 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 		if (command_args[1] == "pvpB") c->setTagPvPB(command_args[2]);
 		if (command_args[1] == "A") c->setTagA(command_args[2]);
 		if (command_args[1] == "B") c->setTagB(command_args[2]);
-		string fullname = c->getName().toString()+"$"+c->getNewTitle()+"#"+c->getTagPvPA()+"#"+c->getTagPvPB()+"#"+c->getTagA()+"#"+c->getTagB()+"$";
-		ucstring name;
+		string fullname = c->getName()+"$"+c->getNewTitle()+"#"+c->getTagPvPA()+"#"+c->getTagPvPB()+"#"+c->getTagA()+"#"+c->getTagB()+"$";
+		std::string name;
 		name.fromUtf8(fullname);
 		NLNET::CMessage	msgout("CHARACTER_NAME");
 		msgout.serial(row);
@@ -6041,7 +6041,7 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 		if (command_args.size () < 3) return false;
 
 		uint petIndex = atoi( command_args[1].c_str() );
-		ucstring customName = ucstring(command_args[2]);
+		std::string customName = std::string(command_args[2]);
 		c->setAnimalName(petIndex, customName);
 	}
 
@@ -6440,8 +6440,8 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 		if (action == "single_phrase")
 		{
 			string phraseName = command_args[2];
-			ucstring phraseContent = phraseName;
-			ucstring phraseText;
+			std::string phraseContent = phraseName;
+			std::string phraseText;
 			phraseText.fromUtf8(command_args[3]);
 			phraseContent += "(){[";
 			phraseContent += phraseText;
@@ -6663,7 +6663,7 @@ NLMISC_COMMAND (webExecCommand, "Execute a web command", "<user id> <web_app_url
 			string::size_type pos = infos[1].find(",");
 			if (pos!=string::npos && pos!=(infos[1].length()-1))
 			{
-				item->setCustomText(ucstring(infos[0]+"\n"+infos[1].substr(pos+1)));
+				item->setCustomText(std::string(infos[0]+"\n"+infos[1].substr(pos+1)));
 			}
 			else
 			{
@@ -6906,7 +6906,7 @@ NLMISC_COMMAND(listGuildMembers, "display guild members list", "<csr eid> <guild
 		const string memberName = CEntityIdTranslator::getInstance()->getByEntity( member->getIngameEId() ).toUtf8();
 
 		SM_STATIC_PARAMS_2(params, STRING_MANAGER::literal, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		params[1].Literal = EGSPD::CGuildGrade::toString( member->getGrade() );
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_GUILD_MEMBER_LIST", params);
 	}
@@ -7067,16 +7067,16 @@ NLMISC_COMMAND(addGuildMember, "add a new member to a guild", "<csr eid> <guild_
 	CCharacter * memberChar = PlayerManager.getCharacterByName( memberName);
 	if ( !memberChar || !memberChar->getEnterFlag() || !TheDataset.isAccessible(memberChar->getEntityRowId()) )
 	{
-		if ( CEntityIdTranslator::getInstance()->getByEntity( ucstring(memberName) ) == CEntityId::Unknown )
+		if ( CEntityIdTranslator::getInstance()->getByEntity( std::string(memberName) ) == CEntityId::Unknown )
 		{
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal.fromUtf8( memberName );
+			params[0].Literal = memberName;
 			CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		}
 		else
 		{
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal.fromUtf8( memberName );
+			params[0].Literal = memberName;
 			CCharacter::sendDynamicSystemMessage(eid, "CSR_OFFLINE_PLAYER", params);
 		}
 		return true;
@@ -7121,7 +7121,7 @@ NLMISC_COMMAND(addGuildMember, "add a new member to a guild", "<csr eid> <guild_
 //	member->setMemberGrade( EGSPD::CGuildGrade::Member );
 //	guild->setMemberOnline( member, proxy.getId().getDynamicId() );
 
-	log.displayNL("%s now is a member of guild '%s'", memberName.c_str(), guild->getName().toString().c_str() );
+	log.displayNL("%s now is a member of guild '%s'", memberName.c_str(), guild->getName().c_str() );
 	{
 		SM_STATIC_PARAMS_2(params, STRING_MANAGER::player, STRING_MANAGER::string_id);
 		params[0].setEIdAIAlias( proxy.getId(), CAIAliasTranslator::getInstance()->getAIAlias(proxy.getId()) );
@@ -7143,11 +7143,11 @@ NLMISC_COMMAND(setGuildMemberGrade, "set the grade of a guild member", "<csr eid
 	GET_GUILD(1, true, eid);
 
 	string memberName = CShardNames::getInstance().makeFullNameFromRelative(c->getHomeMainlandSessionId(), args[2]);
-	CEntityId memberEId = CEntityIdTranslator::getInstance()->getByEntity( ucstring(memberName) );
+	CEntityId memberEId = CEntityIdTranslator::getInstance()->getByEntity( std::string(memberName) );
 	if (memberEId == CEntityId::Unknown)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		return true;
 	}
@@ -7158,7 +7158,7 @@ NLMISC_COMMAND(setGuildMemberGrade, "set the grade of a guild member", "<csr eid
 	if ( !member )
 	{
 		SM_STATIC_PARAMS_2(params, STRING_MANAGER::literal, STRING_MANAGER::string_id);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		params[1].StringId = uint32(guild->getNameId());
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_GUILD_NOT_MEMBER", params);
 		return true;
@@ -7180,11 +7180,11 @@ NLMISC_COMMAND(setGuildLeader, "set the leader of a guild", "<csr eid> <guild_na
 	GET_GUILD(1, true, eid);
 
 	string memberName = CShardNames::getInstance().makeFullNameFromRelative(c->getHomeMainlandSessionId(), args[2]);
-	CEntityId memberEId = CEntityIdTranslator::getInstance()->getByEntity( ucstring(memberName) );
+	CEntityId memberEId = CEntityIdTranslator::getInstance()->getByEntity( std::string(memberName) );
 	if (memberEId == CEntityId::Unknown)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		return true;
 	}
@@ -7193,7 +7193,7 @@ NLMISC_COMMAND(setGuildLeader, "set the leader of a guild", "<csr eid> <guild_na
 	if ( !member )
 	{
 		SM_STATIC_PARAMS_2(params, STRING_MANAGER::literal, STRING_MANAGER::string_id);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		params[1].StringId = guild->getNameId();
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_GUILD_NOT_MEMBER", params);
 		return true;
@@ -7202,7 +7202,7 @@ NLMISC_COMMAND(setGuildLeader, "set the leader of a guild", "<csr eid> <guild_na
 	if (member->getGrade() == EGSPD::CGuildGrade::Leader)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( memberName );
+		params[0].Literal = memberName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_GUILD_ALREADY_HAS_GRADE", params);
 		return true;
 	}
@@ -7272,7 +7272,7 @@ NLMISC_COMMAND(startEvent, "start an event with the given name", "<csr eid> <eve
 	CGameEventManager::getInstance().resetGameEvent(eventName, eventFaction1, eventFaction2, eventFaction1ChannelName, eventFaction2ChannelName, factionChanelInZoneOnly);
 
 	SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-	params[0].Literal.fromUtf8(eventName);
+	params[0].Literal = eventName;
 	CCharacter::sendDynamicSystemMessage(eid, "CSR_START_EVENT", params);
 
 	return true;
@@ -7290,7 +7290,7 @@ NLMISC_COMMAND(stopEvent, "stop previous started event", "<csr eid>")
 	CGameEventManager::getInstance().resetGameEvent(string(""),string(""),string(""),string(""),string(""),false);
 
 	SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-	params[0].Literal.fromUtf8(eventName);
+	params[0].Literal = eventName;
 	CCharacter::sendDynamicSystemMessage(eid, "CSR_STOP_EVENT", params);
 
 	return true;
@@ -7311,7 +7311,7 @@ NLMISC_COMMAND(setEventFaction, "set the event faction of player", "<csr eid> <p
 	if (!player)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( playerName );
+		params[0].Literal = playerName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		return true;
 	}
@@ -7340,7 +7340,7 @@ NLMISC_COMMAND(clearEventFaction, "clear the event faction of player", "<csr eid
 	if (!player)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( playerName );
+		params[0].Literal = playerName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		return true;
 	}
@@ -7368,7 +7368,7 @@ NLMISC_COMMAND(getEventFaction, "get the event faction of player", "<csr eid> <p
 	if (!player)
 	{
 		SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-		params[0].Literal.fromUtf8( playerName );
+		params[0].Literal = playerName;
 		CCharacter::sendDynamicSystemMessage(eid, "CSR_UNKNOWN_PLAYER", params);
 		return true;
 	}
@@ -7474,11 +7474,11 @@ NLMISC_COMMAND(addLocalizedChan,"Add a new dyn chat channel","<string name of th
 NLMISC_COMMAND(addChan,"Add a new dyn chat channel","<string name of the channel localized name>")
 {
 	if (args.size() < 2) return false;
-	ucstring mess;
+	std::string mess;
 	for (uint k = 2; k < args.size(); ++k)
 	{
-		if (k != 0) mess += ucstring(" ");
-		mess += ucstring(args[k]);
+		if (k != 0) mess += std::string(" ");
+		mess += std::string(args[k]);
 	}
 	TChanID chanID = DynChatEGS.addChan(args[0], mess);
 	if (chanID == DYN_CHAT_INVALID_CHAN)
@@ -7608,8 +7608,8 @@ NLMISC_COMMAND(chanList, "display the list of all channels", "<>")
 	DynChatEGS.getChans(chans);
 	for(uint k = 0; k < chans.size(); ++k)
 	{
-		ucstring name = DynChatEGS.getChanNameFromID(chans[k]->getID());
-		nlinfo("Channel name : %s, num sessions = %d, historic size = %d", name.toString().c_str(), (int) chans[k]->getSessionCount(), (int) chans[k]->HistoricSize);
+		std::string name = DynChatEGS.getChanNameFromID(chans[k]->getID());
+		nlinfo("Channel name : %s, num sessions = %d, historic size = %d", name.c_str(), (int) chans[k]->getSessionCount(), (int) chans[k]->HistoricSize);
 	}
 	return true;
 }
@@ -8153,8 +8153,8 @@ NLMISC_COMMAND(eventSetBotName, "changes the name of a bot", "<bot eid> <name>")
 	GET_ENTITY
 
 	TDataSetRow row = e->getEntityRowId();
-	ucstring name;
-	name.fromUtf8(args[1]);
+	std::string name;
+	name = args[1];
 	NLNET::CMessage	msgout("CHARACTER_NAME");
 	msgout.serial(row);
 	msgout.serial(name);
@@ -8342,7 +8342,7 @@ NLMISC_COMMAND(eventSetBotSheet, "Change the sheet of a bot", "<bot eid> <sheet 
 }
 
 //----------------------------------------------------------------------------
-extern sint32 clientItemWrite(CCharacter* character, INVENTORIES::TInventory inventory, uint32 slot, ucstring const& text);
+extern sint32 clientItemWrite(CCharacter* character, INVENTORIES::TInventory inventory, uint32 slot, std::string const& text);
 
 NLMISC_COMMAND(eventSetItemCustomText, "set an item custom text, which replaces help text", "<eId> <inventory> <slot in inventory> <text>")
 {
@@ -8357,17 +8357,17 @@ NLMISC_COMMAND(eventSetItemCustomText, "set an item custom text, which replaces 
 	}
 	INVENTORIES::TInventory	inventory;
 	uint32 slot;
-	ucstring text;
+	std::string text;
 	inventory = INVENTORIES::toInventory(args[1]);
 	NLMISC::fromString(args[2], slot);
-	text.fromUtf8(args[3]);
+	text = args[3];
 
 	sint32 ret = clientItemWrite(c, inventory, slot, text);
 
 	switch (ret)
 	{
 	case 0:
-		log.displayNL("Item in slot %u has now the custom text \"%s\"", slot, text.toUtf8().c_str());
+		log.displayNL("Item in slot %u has now the custom text \"%s\"", slot, text.c_str());
 		break;
 	case -1:
 		log.displayNL("'%s' is not a valid inventory name", args[1].c_str());
@@ -8466,7 +8466,7 @@ NLMISC_COMMAND(eventSetItemName, "change an item name to a phrase or literal (e.
 
 	if (literal)
 	{
-		name = capitalizeFirst(name); // Require first character to be capitalized
+		name = capitalize(name); // Require first character to be capitalized (0.5 migration)
 
 		if (name.size() >= 255) // Limit literal text length
 			name = name.substr(0, 255);
@@ -9078,8 +9078,8 @@ NLMISC_COMMAND(eventNpcSay, "have a bot say a text", "<bot eid> <text to say> <o
 	}
 	else
 	{
-		ucstring ucstr = text;
-		npcChatToChannelSentence(e->getEntityRowId(), mode, ucstr);
+		std::string str = text;
+		npcChatToChannelSentence(e->getEntityRowId(), mode, str);
 	}
 
 	return true;
@@ -9429,7 +9429,7 @@ NLMISC_COMMAND(setSimplePhrase, "Set an IOS phrase", "<id> <phrase> [<language c
 		return false;
 
 	string phraseName = args[0];
-	ucstring phraseContent = phraseName;
+	std::string phraseContent = phraseName;
 	phraseContent += "(){[";
 	phraseContent += args[1];
 	phraseContent += "]}";

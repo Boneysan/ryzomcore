@@ -258,7 +258,7 @@ void CEntityBase::clear()
 }
 
 
-void CEntityBase::setName( const ucstring& name ) 
+void CEntityBase::setName( const std::string& name ) 
 { 
 	_Name = name; 
 }
@@ -1562,7 +1562,7 @@ void CEntityBase::serial(NLMISC::IStream &f)
 	if(f.isReading())
 	{
 		COfflineEntityState state;
-		if( CGmTpPendingCommand::getInstance()->getTpPendingforCharacter( _Name.toString(), state, (CCharacter&)*this ) )
+		if( CGmTpPendingCommand::getInstance()->getTpPendingforCharacter( _Name, state, (CCharacter&)*this ) )
 		{
 			_EntityState= state;
 		}

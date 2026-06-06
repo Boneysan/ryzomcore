@@ -381,7 +381,7 @@ void cbClientItemLock(NLNET::CMessage &msgin, const std::string &serviceName, NL
 /// -1: Invalid inventory
 /// -2: Invalid slot
 /// -3: Empty slot
-sint32 clientItemWrite(CCharacter* character, INVENTORIES::TInventory inventory, uint32 slot, ucstring const& text)
+sint32 clientItemWrite(CCharacter* character, INVENTORIES::TInventory inventory, uint32 slot, std::string const& text)
 {
 	if (inventory==INVENTORIES::UNDEFINED)
 	{
@@ -398,7 +398,7 @@ sint32 clientItemWrite(CCharacter* character, INVENTORIES::TInventory inventory,
 	}
 
 	CGameItemPtr item = invent->getItem(slot);
-	item->setCustomText(text.toUtf8());
+	item->setCustomText(text);
 	// Following line was commented out by trap, reason unknown
 	character->incSlotVersion(inventory, slot); // this ensures re-fetch of info window, unusual case
 
@@ -1170,11 +1170,11 @@ void cbClientAddToContactList( NLNET::CMessage& msgin, const std::string &servic
 		c->setAfkState(false);
 		if (list == 0)
 		{
-			c->addPlayerToFriendList(playerName);
+			c->addPlayerToFriendList(playerName.toUtf8());
 		}
 		else
 		{
-			c->addPlayerToIgnoreList(playerName);
+			c->addPlayerToIgnoreList(playerName.toUtf8());
 		}
 	}
 	else
@@ -2669,7 +2669,7 @@ void cbClientWho( NLNET::CMessage& msgin, const std::string &serviceName, NLNET:
 
 		vector<NLMISC::CEntityId> players;
 		DynChatEGS.getPlayersInChan(chanID, players);
-		ucstring playerNames("");
+		std::string playerNames(""); // UTF-8 (0.5 migration)
 		uint32 shardId = CEntityIdTranslator::getInstance()->getEntityShardId(id);
 
 		for (uint i = 0; i < players.size(); i++)
@@ -2677,11 +2677,12 @@ void cbClientWho( NLNET::CMessage& msgin, const std::string &serviceName, NLNET:
 			if (players[i] == id)
 				hasChannel = true;
 
-			ucstring name = CEntityIdTranslator::getInstance()->getByEntity(players[i]);
+			std::string name = CEntityIdTranslator::getInstance()->getByEntity(players[i]).toUtf8();
 			if (shardId == CEntityIdTranslator::getInstance()->getEntityShardId(players[i]))
 			{
 				// Same shard, remove shard from name
-				CEntityIdTranslator::removeShardFromName(name);
+				ucstring tmpName = ucstring::makeFromUtf8(name);
+				CEntityIdTranslator::removeShardFromName(tmpName); // temp for the remove func
 			}
 			playerNames += ((i > 0) ? "\n" : "") + name ;
 		}

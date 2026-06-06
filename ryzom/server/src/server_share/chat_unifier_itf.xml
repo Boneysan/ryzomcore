@@ -40,8 +40,8 @@
 
 				<param type="NLMISC::CEntityId"		name="senderCharId" byref="true"/>
 				<param type="bool"			name="havePrivilege" />
-				<param type="ucstring"		name="destName"		byref="true"/>
-				<param type="ucstring"		name="text"			byref="true"/>
+				<param type="string"		name="destName"		byref="true"/>
+				<param type="string"		name="text"			byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
@@ -50,7 +50,7 @@
 
 				<param type="NLMISC::CEntityId"		name="senderCharId" byref="true"/>
 				<param type="uint32"		name="guildId"/>
-				<param type="ucstring"		name="text"		byref="true"/>
+				<param type="string"		name="text"		byref="true"/>
 			</method>
 -->
 			<!-- ========================================================== -->
@@ -60,7 +60,7 @@
 
 				<param type="NLMISC::CEntityId"		name="senderCharId" byref="true"/>
 				<param type="uint32"		name="guildId"/>
-				<param type="ucstring"		name="phraseName"	byref="true"/>
+				<param type="string"		name="phraseName"	byref="true"/>
 			</method>
 -->
 
@@ -87,7 +87,7 @@
 				<doc line="SU send a far tell failure to IOS. This mean that the player is offline or unknow"/>
 
 				<param type="NLMISC::CEntityId"		name="senderCharId" byref="true"/>
-				<param type="ucstring"		name="destName"	byref="true"/>
+				<param type="string"		name="destName"	byref="true"/>
 				<param type="TFailInfo"		name="failInfo" enum="start"/>
 			</method>
 
@@ -96,35 +96,35 @@
 				<doc line="SU send a far tell to the IOS hosting the addresse character"/>
 
 				<param type="NLMISC::CEntityId"		name="senderCharId" byref="true"/>
-				<param type="ucstring"		name="senderName"	byref="true"/>
+				<param type="string"		name="senderName"	byref="true"/>
 				<param type="bool"			name="havePrivilege"/>
-				<param type="ucstring"		name="destName"		byref="true"/>
-				<param type="ucstring"		name="text"			byref="true"/>
+				<param type="string"		name="destName"		byref="true"/>
+				<param type="string"		name="text"			byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
 			<method name="farGuildChat" msg="CURFGC" broadcast="true">
 				<doc line="IOS forward a guild chat message to the IOS"/>
 
-				<param type="ucstring"			name="senderName"	byref="true"/>
+				<param type="string"			name="senderName"	byref="true"/>
 				<param type="uint32"			name="guildId"/>
-				<param type="ucstring"			name="text"			byref="true"/>
+				<param type="string"			name="text"			byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
 			<method name="farGuildChat2" msg="CURFGC2" broadcast="true">
 				<doc line="IOS forward a guild chat message to the IOS"/>
 
-				<param type="ucstring"			name="senderName"	byref="true"/>
+				<param type="string"			name="senderName"	byref="true"/>
 				<param type="uint32"			name="guildId"/>
-				<param type="ucstring"			name="phraseName"	byref="true"/>
+				<param type="string"			name="phraseName"	byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
 			<method name="farGuildChat2Ex" msg="CURFGC2E" broadcast="true">
 				<doc line="IOS forward a guild chat message to the IOS"/>
 
-				<param type="ucstring"			name="senderName"	byref="true"/>
+				<param type="string"			name="senderName"	byref="true"/>
 				<param type="uint32"			name="guildId"/>
 				<param type="uint32"			name="phraseId"/>
 			</method>
@@ -133,9 +133,9 @@
 			<method name="universeBroadcast" msg="CURUB" broadcast="true">
 				<doc line="IOS forward a univers chat message to the IOSs"/>
 
-				<param type="ucstring"			name="senderName"	byref="true"/>
+				<param type="string"			name="senderName"	byref="true"/>
 				<param type="uint32"			name="senderHomeSession"/>
-				<param type="ucstring"			name="text"			byref="true"/>
+				<param type="string"			name="text"			byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
@@ -143,15 +143,15 @@
 				<doc line="IOS forward a dyn chat chat message to the IOSs"/>
 
 				<param type="NLMISC::CEntityId"	name="chanId"		byref="true"/>
-				<param type="ucstring"			name="senderName"	byref="true"/>
-				<param type="ucstring"			name="text"			byref="true"/>
+				<param type="string"			name="senderName"	byref="true"/>
+				<param type="string"			name="text"			byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
 			<method name="recvBroadcastMessage" msg="CURBM">
 				<doc line="SU send a broadcast message to the IOS"/>
 
-				<param type="ucstring"			name="message"		byref="true"/>
+				<param type="string"			name="message"		byref="true"/>
 			</method>
 
 		</module_interface>

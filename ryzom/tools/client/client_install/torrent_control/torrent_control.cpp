@@ -258,7 +258,7 @@ public:
 		{
 			return;
 		}
-		std::auto_ptr<libtorrent::alert> a;
+		std::unique_ptr<libtorrent::alert> a;
 		a = _Session->pop_alert();
 		//As finished if an alert happends => alert the listener
 		while (a.get())

@@ -59,7 +59,7 @@ static bool getGuildName(EGSPD::TGuildId guildId, string & guildName)
 	if (guild == NULL)
 		return false;
 
-	guildName = guild->getName().toUtf8();
+	guildName = guild->getName();
 	return true;
 }
 

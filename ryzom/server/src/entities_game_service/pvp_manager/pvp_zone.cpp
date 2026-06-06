@@ -287,7 +287,7 @@ void IPVPZone::dumpZone(NLMISC::CLog * log, bool dumpUsers) const
 			}
 
 			log->displayNL("\t%s %s [%s PVP interface]",
-				user->getName().toString().c_str(),
+				user->getName().c_str(),
 				user->getId().toString().c_str(),
 				user->getPVPInterface().isValid() ? "valid" : "invalid"
 				);
@@ -702,7 +702,7 @@ bool CPVPVersusZone::setPlayerClan(CCharacter * user/*, PVP_CLAN::TPVPClan clan*
 	setPlayerClanInMirror(user, clan);
 
 #ifdef PVP_DEBUG
-	egs_pvpinfo("PVP_DEBUG: player %s now is in clan %s", user->getName().toString().c_str(), PVP_CLAN::toString( clan ).c_str() );
+	egs_pvpinfo("PVP_DEBUG: player %s now is in clan %s", user->getName().c_str(), PVP_CLAN::toString( clan ).c_str() );
 #endif // PVP_DEBUG
 
 	if (clan != PVP_CLAN::Neutral)
@@ -734,7 +734,7 @@ bool CPVPVersusZone::setPlayerClan(CCharacter * user/*, PVP_CLAN::TPVPClan clan*
 
 #ifdef PVP_DEBUG
 				egs_pvpinfo("PVP_DEBUG: fame of player %s for faction %s has been changed from %d (%d) to %d (%d)",
-							user->getName().toString().c_str(),
+							user->getName().c_str(),
 							PVP_CLAN::toString( rivalClan ).c_str(),
 							rivalFame, rivalFamePercent,
 							newRivalFame, newRivalFamePercent
@@ -901,9 +901,9 @@ void CPVPVersusZone::userHurtsTarget(CCharacter * user, CCharacter * target)
 	const PVP_CLAN::TPVPClan userClan = (*userClanIt).second;
 
 	egs_pvpinfo("PVP_DEBUG: player %s (%s) hurts neutral player %s",
-		user->getName().toString().c_str(),
+		user->getName().c_str(),
 		PVP_CLAN::toString( userClan ).c_str(),
-		target->getName().toString().c_str()
+		target->getName().c_str()
 		);
 #endif // PVP_DEBUG
 }
@@ -1086,7 +1086,7 @@ void CPVPVersusZone::dumpZone(NLMISC::CLog * log, bool dumpUsers) const
 				clan = "not found!";
 
 			log->displayNL("\t%s %s [%s PVP interface] [clan=%s]",
-				user->getName().toString().c_str(),
+				user->getName().c_str(),
 				user->getId().toString().c_str(),
 				user->getPVPInterface().isValid() ? "valid" : "invalid",
 				clan.c_str()
@@ -1106,7 +1106,7 @@ void CPVPVersusZone::dumpZone(NLMISC::CLog * log, bool dumpUsers) const
 						log->displayNL("\t\t| unknown player row id: %s", (*aggressorIt).toString().c_str());
 						continue;
 					}
-					log->displayNL("\t\t| %s", aggressor->getName().toString().c_str());
+					log->displayNL("\t\t| %s", aggressor->getName().c_str());
 				}
 			}
 		}

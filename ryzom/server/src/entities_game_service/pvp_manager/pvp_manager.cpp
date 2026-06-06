@@ -98,7 +98,7 @@ void CPVPManager::tickUpdate()
 		{
 			IPVPZone * zone = getPVPZone( user->getCurrentPVPZone() );
 			if (zone)
-				egs_pvpinfo("PVP_DEBUG: player %s has left PVP zone '%s'", user->getName().toString().c_str(), zone->getName().c_str() );
+				egs_pvpinfo("PVP_DEBUG: player %s has left PVP zone '%s'", user->getName().c_str(), zone->getName().c_str() );
 		}
 #endif // PVP_DEBUG
 
@@ -109,7 +109,7 @@ void CPVPManager::tickUpdate()
 
 #ifdef PVP_DEBUG
 			if (user)
-				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().toString().c_str() );
+				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 		}
 	}
@@ -125,7 +125,7 @@ void CPVPManager::tickUpdate()
 
 #ifdef PVP_DEBUG
 		if (user)
-			egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersEnteringPVPZone", user->getName().toString().c_str() );
+			egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersEnteringPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 	}
 
@@ -454,9 +454,9 @@ void CPVPManager::leavePVPZone( CCharacter * user )
 			_UsersLeavingPVPZone.push_back( make_pair( endDate, user->getEntityRowId() ) );
 			
 #ifdef PVP_DEBUG
-			egs_pvpinfo("PVP_DEBUG: player %s has been added to _UsersLeavingPVPZone", user->getName().toString().c_str() );
+			egs_pvpinfo("PVP_DEBUG: player %s has been added to _UsersLeavingPVPZone", user->getName().c_str() );
 			BOMB_IF( zone == NULL, "PVP_DEBUG: user was not in a PVP zone!", return );
-			egs_pvpinfo("PVP_DEBUG: player %s is leaving PVP zone '%s'", user->getName().toString().c_str(), zone->getName().c_str() );
+			egs_pvpinfo("PVP_DEBUG: player %s is leaving PVP zone '%s'", user->getName().c_str(), zone->getName().c_str() );
 #endif // PVP_DEBUG
 		}
 		else
@@ -511,7 +511,7 @@ void CPVPManager::enterPVPZone( CCharacter * user, TAIAlias pvpZoneAlias )
 					_UsersLeavingPVPZone.erase(it);
 					CCharacter::sendDynamicSystemMessage( user->getEntityRowId(), "PVP_ZONE_ENTER_BACK" );
 #ifdef PVP_DEBUG
-					egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().toString().c_str() );
+					egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 					return;
 				}
@@ -581,7 +581,7 @@ void CPVPManager::enterPVPZone( CCharacter * user, TAIAlias pvpZoneAlias )
 		_UsersEnteringPVPZone.push_back( make_pair(endDate,pendingUser) );
 
 #ifdef PVP_DEBUG
-		egs_pvpinfo("PVP_DEBUG: player %s has been added to _UsersEnteringPVPZone", user->getName().toString().c_str() );
+		egs_pvpinfo("PVP_DEBUG: player %s has been added to _UsersEnteringPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 
 		// send client message about the zone user entered in
@@ -593,7 +593,7 @@ void CPVPManager::enterPVPZone( CCharacter * user, TAIAlias pvpZoneAlias )
 		CCharacter::sendDynamicSystemMessage( user->getEntityRowId(), "PVP_ZONE_ENTER_TIME", params );
 
 #ifdef PVP_DEBUG
-		egs_pvpinfo("PVP_DEBUG: player %s is entering in PVP zone '%s'", user->getName().toString().c_str(), zone->getName().c_str());
+		egs_pvpinfo("PVP_DEBUG: player %s is entering in PVP zone '%s'", user->getName().c_str(), zone->getName().c_str());
 #endif // PVP_DEBUG
 	}
 	else if( user->getEnterFlag() )
@@ -637,7 +637,7 @@ void CPVPManager::doEnterPVPZone(CCharacter * user, TAIAlias pvpZoneAlias)
 	zone->addPlayer( user );
 
 #ifdef PVP_DEBUG
-	egs_pvpinfo("PVP_DEBUG: player %s has entered in PVP zone '%s'", user->getName().toString().c_str(), zone->getName().c_str() );
+	egs_pvpinfo("PVP_DEBUG: player %s has entered in PVP zone '%s'", user->getName().c_str(), zone->getName().c_str() );
 #endif // PVP_DEBUG
 }
 
@@ -654,7 +654,7 @@ bool CPVPManager::removeFromLeavingPVPZoneUsers(TDataSetRow rowId)
 #ifdef PVP_DEBUG
 			CCharacter * user = PlayerManager.getChar(rowId);
 			if (user)
-				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().toString().c_str() );
+				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersLeavingPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 
 			return true;
@@ -676,7 +676,7 @@ bool CPVPManager::removeFromEnteringPVPZoneUsers(TDataSetRow rowId)
 #ifdef PVP_DEBUG
 			CCharacter * user = PlayerManager.getChar(rowId);
 			if (user)
-				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersEnteringPVPZone", user->getName().toString().c_str() );
+				egs_pvpinfo("PVP_DEBUG: player %s has been removed from _UsersEnteringPVPZone", user->getName().c_str() );
 #endif // PVP_DEBUG
 
 			return true;
@@ -1301,7 +1301,7 @@ NLMISC_COMMAND(dumpUsersEnteringLeavingPVPZones, "dump users entering or leaving
 				zoneName = "not found!";
 
 			log.displayNL("\t%s %s [%s PVP interface] is entering in PVP zone '%s' [remaining time: %u seconds]",
-				user->getName().toString().c_str(),
+				user->getName().c_str(),
 				user->getId().toString().c_str(),
 				user->getPVPInterface().isValid() ? "valid" : "invalid",
 				zoneName.c_str(),
@@ -1328,7 +1328,7 @@ NLMISC_COMMAND(dumpUsersEnteringLeavingPVPZones, "dump users entering or leaving
 			}
 
 			log.displayNL("\t%s %s [%s PVP interface] [remaining time: %u seconds]",
-				user->getName().toString().c_str(),
+				user->getName().c_str(),
 				user->getId().toString().c_str(),
 				user->getPVPInterface().isValid() ? "valid" : "invalid",
 				remainingTimeInSeconds

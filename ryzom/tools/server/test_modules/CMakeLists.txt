@@ -1,1 +1,2 @@
 add_subdirectory(game_share_test)
+add_subdirectory(egs_smoke_test)

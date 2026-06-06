@@ -166,6 +166,21 @@
         "WITH_EXTERNAL": false,
         "WITH_STATIC_CURL": false
       }
+    },
+    {
+      "name": "ryzom-modernize",
+      "inherits": [
+        "linux-ryzom",
+        "ccache"
+      ],
+      "displayName": "Ryzom Modernize (C++17 + sanitizers ready)",
+      "description": "Phase 0 foundation preset: C++17 enforced, MSQUIC on, stricter warnings. Use for smoke tests, ASAN, tidy.",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "WITH_MSQUIC": "ON",
+        "WITH_PCH": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -178,6 +193,11 @@
       "name": "ci-linux-ryzom",
       "inherits": "ryzom",
       "configurePreset": "ci-linux-ryzom-dynamic"
+    },
+    {
+      "name": "modernize",
+      "configurePreset": "ryzom-modernize",
+      "configuration": "Debug"
     },
     {
       "name": "ci-linux-ryzom/install",

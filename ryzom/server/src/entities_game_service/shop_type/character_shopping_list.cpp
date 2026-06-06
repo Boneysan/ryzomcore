@@ -596,7 +596,7 @@ void CCharacterShoppingList::fillTradePage( uint16 session )
 		tradeElem.setSLOT_TYPE(_Character->_PropertyDatabase, 0);
 //		_Character->_PropertyDatabase.setProp( NLMISC::toString("TRADING:%u:INFO_VERSION",index  ), 0 );
 		tradeElem.setINFO_VERSION(_Character->_PropertyDatabase, 0);
-		const ucstring& vendorName = CEntityIdTranslator::getInstance()->getByEntity( trade->ItemTrade->getOwner() );
+		std::string vendorName = CEntityIdTranslator::getInstance()->getByEntity( trade->ItemTrade->getOwner() ).toUtf8();
 //		_Character->_PropertyDatabase.setPropString( NLMISC::toString("TRADING:%u:VENDOR_NAMEID", index), vendorName );
 		tradeElem.setVENDOR_NAMEID(_Character->_PropertyDatabase, vendorName);
 

@@ -1710,7 +1710,7 @@ namespace R2
 		//
 		NLMISC::CSheetId	_ItemSheet;
 		//
-		ucstring	_Name;
+		std::string	_Name;
 	public:
 		//
 		const NLMISC::CSheetId &getItemSheet() const
@@ -1733,18 +1733,18 @@ namespace R2
 
 		}
 			//
-		const ucstring &getName() const
+		const std::string &getName() const
 		{
 			return _Name;
 		}
 
-		ucstring &getName()
+		std::string &getName()
 		{
 			return _Name;
 		}
 
 
-		void setName(const ucstring &value)
+		void setName(const std::string &value)
 		{
 
 

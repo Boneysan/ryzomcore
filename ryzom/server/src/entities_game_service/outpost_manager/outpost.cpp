@@ -174,10 +174,10 @@ void COutpost::fillOutpostDB()
 	CGuild* attacker = CGuildManager::getInstance()->getGuildFromId(_AttackerGuildId);
 	uint32 const SHEET					= _Sheet.asInt();
 	uint8 const LEVEL					= getStaticForm()?getStaticForm()->Level:0;
-	ucstring const GUILD_NAME			= owner?owner->getName():ucstring();
+	std::string const GUILD_NAME			= owner?owner->getName():std::string();
 	uint64 const GUILD_ICON				= owner?owner->getIcon():0;
 //	uint32 const TRIBE					= isBelongingToAGuild()?0:1;
-	ucstring const GUILD_NAME_ATT			= attacker?attacker->getName():ucstring();
+	std::string const GUILD_NAME_ATT			= attacker?attacker->getName():std::string();
 	uint8 const STATUS					= computeStatusForClient();
 	uint32 const STATE_END_DATE			= computeStateEndDateTickForClient();
 //	uint32 const DISPLAY_CRASH			= _CrashHappened?1:0;
@@ -810,7 +810,7 @@ std::string COutpost::getStateName() const
 //----------------------------------------------------------------------------
 COutpost::TChallengeOutpostErrors COutpost::challengeOutpost( CGuild *attackerGuild, bool simulate )
 {
-	OUTPOST_DBG( "Outpost %s: Challenged by %s", _Name.c_str(), attackerGuild->getName().toString().c_str() );
+	OUTPOST_DBG( "Outpost %s: Challenged by %s", _Name.c_str(), attackerGuild->getName().c_str() );
 
 	nlassert( attackerGuild->getId() != 0 );
 
@@ -857,8 +857,8 @@ COutpost::TChallengeOutpostErrors COutpost::challengeOutpost( CGuild *attackerGu
 	}
 
 	log_Outpost_Challenge(_Name, 
-		this->_OwnerGuildId ? CGuildManager::getInstance()->getGuildFromId(this->_OwnerGuildId)->getName().toUtf8() : "TRIBES_OWNED",
-		attackerGuild->getName().toUtf8());
+		this->_OwnerGuildId ? CGuildManager::getInstance()->getGuildFromId(this->_OwnerGuildId)->getName() : "TRIBES_OWNED",
+		attackerGuild->getName());
 
 	return COutpost::NoError;
 }
@@ -2367,7 +2367,7 @@ void COutpost::actionPayBackMoneySpent()
 		ownerGuild->addMoney(_MoneySpentByOwner);
 		OUTPOST_INF("%u dappers have been paid back to the owner guild '%s' (id=%u) of the outpost %s",
 			_MoneySpentByOwner,
-			ownerGuild->getName().toUtf8().c_str(),
+			ownerGuild->getName().c_str(),
 			ownerGuild->getId(),
 			_Sheet.toString().c_str()
 			);
@@ -2379,7 +2379,7 @@ void COutpost::actionPayBackMoneySpent()
 		attackerGuild->addMoney(_MoneySpentByAttacker);
 		OUTPOST_INF("%u dappers have been paid back to the attacker guild '%s' (id=%u) of the outpost %s",
 			_MoneySpentByAttacker,
-			attackerGuild->getName().toUtf8().c_str(),
+			attackerGuild->getName().c_str(),
 			attackerGuild->getId(),
 			_Sheet.toString().c_str()
 			);
@@ -2883,7 +2883,7 @@ void COutpost::dumpOutpost(NLMISC::CLog & log) const
 	{
 		CGuild * ownerGuild = CGuildManager::getInstance()->getGuildFromId(_OwnerGuildId);
 		if (ownerGuild != NULL)
-			ownerName = ownerGuild->getName().toUtf8();
+			ownerName = ownerGuild->getName();
 		else
 			ownerName = "unknown guild";
 	}
@@ -2896,7 +2896,7 @@ void COutpost::dumpOutpost(NLMISC::CLog & log) const
 	{
 		CGuild * attackerGuild = CGuildManager::getInstance()->getGuildFromId(_AttackerGuildId);
 		if (attackerGuild != NULL)
-			attackerName = attackerGuild->getName().toUtf8();
+			attackerName = attackerGuild->getName();
 		else
 			attackerName = "unknown guild";
 	}
@@ -3105,7 +3105,7 @@ std::string COutpost::toString() const
 	{
 		CGuild * ownerGuild = CGuildManager::getInstance()->getGuildFromId(_OwnerGuildId);
 		if (ownerGuild != NULL)
-			ownerName = "'" + ownerGuild->getName().toUtf8() + "'";
+			ownerName = "'" + ownerGuild->getName() + "'";
 		else
 			ownerName = NLMISC::toString("unknown guild (id=%u)", _OwnerGuildId);
 	}

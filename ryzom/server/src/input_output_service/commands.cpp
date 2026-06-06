@@ -432,7 +432,7 @@ NLMISC_COMMAND(smTest, "Send a test dyn string to a client (look at first phrase
 		{
 			ucstring str = args[2];
 			p.Type = STRING_MANAGER::literal;
-			p.Literal = str;
+			p.Literal = str.toUtf8(); // bridge ucstring (from args) to Literal string
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_LITERAL", params, &IosLocalSender);
 		}
@@ -440,7 +440,7 @@ NLMISC_COMMAND(smTest, "Send a test dyn string to a client (look at first phrase
 		{
 			ucstring str = args[2];
 			p.Type = STRING_MANAGER::title;
-			p.Identifier = str.toString();
+			p.Identifier = str.toUtf8();
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_TITLE", params, &IosLocalSender);
 		}
@@ -448,7 +448,7 @@ NLMISC_COMMAND(smTest, "Send a test dyn string to a client (look at first phrase
 		{
 			ucstring str = args[2];
 			p.Type = STRING_MANAGER::event_faction;
-			p.Identifier = str.toString();
+			p.Identifier = str.toUtf8();
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_EVENT_FACTION", params, &IosLocalSender);
 		}

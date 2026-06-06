@@ -73,16 +73,16 @@ namespace CHATUNI
 			nlRead(__message, serial, senderCharId);
 		bool	havePrivilege;
 			nlRead(__message, serial, havePrivilege);
-		ucstring	destName;
+		std::string	destName;
 			nlRead(__message, serial, destName);
-		ucstring	text;
+		std::string	text;
 			nlRead(__message, serial, text);
 		sendFarTell(sender, senderCharId, havePrivilege, destName, text);
 	}
 		// IOS forward a tell message to the unifier
 		// If IOS can't find the player localy, it forward
 		// the tell to the unifier
-	void CChatUnifierProxy::sendFarTell(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	void CChatUnifierProxy::sendFarTell(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -101,13 +101,13 @@ namespace CHATUNI
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierProxy::buildMessageFor_sendFarTell(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	const NLNET::CMessage &CChatUnifierProxy::buildMessageFor_sendFarTell(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
 		__message.setType("CUSFT");
 			nlWrite(__message, serial, const_cast < NLMISC::CEntityId& > (senderCharId));
 			nlWrite(__message, serial, havePrivilege);
-			nlWrite(__message, serial, const_cast < ucstring& > (destName));
-			nlWrite(__message, serial, const_cast < ucstring& > (text));
+			nlWrite(__message, serial, const_cast < std::string& > (destName));
+			nlWrite(__message, serial, const_cast < std::string& > (text));
 
 
 		return __message;
@@ -187,7 +187,7 @@ namespace CHATUNI
 		H_AUTO(CChatUnifierClientSkel_recvFarTellFail_CURFTF);
 		NLMISC::CEntityId	senderCharId;
 			nlRead(__message, serial, senderCharId);
-		ucstring	destName;
+		std::string	destName;
 			nlRead(__message, serial, destName);
 		TFailInfo	failInfo;
 			nlRead(__message, serial, failInfo);
@@ -199,13 +199,13 @@ namespace CHATUNI
 		H_AUTO(CChatUnifierClientSkel_recvFarTell_CURFT);
 		NLMISC::CEntityId	senderCharId;
 			nlRead(__message, serial, senderCharId);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
 		bool	havePrivilege;
 			nlRead(__message, serial, havePrivilege);
-		ucstring	destName;
+		std::string	destName;
 			nlRead(__message, serial, destName);
-		ucstring	text;
+		std::string	text;
 			nlRead(__message, serial, text);
 		recvFarTell(sender, senderCharId, senderName, havePrivilege, destName, text);
 	}
@@ -213,11 +213,11 @@ namespace CHATUNI
 	void CChatUnifierClientSkel::farGuildChat_skel(NLNET::IModuleProxy *sender, const NLNET::CMessage &__message)
 	{
 		H_AUTO(CChatUnifierClientSkel_farGuildChat_CURFGC);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	text;
+		std::string	text;
 			nlRead(__message, serial, text);
 		farGuildChat(sender, senderName, guildId, text);
 	}
@@ -225,11 +225,11 @@ namespace CHATUNI
 	void CChatUnifierClientSkel::farGuildChat2_skel(NLNET::IModuleProxy *sender, const NLNET::CMessage &__message)
 	{
 		H_AUTO(CChatUnifierClientSkel_farGuildChat2_CURFGC2);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
-		ucstring	phraseName;
+		std::string	phraseName;
 			nlRead(__message, serial, phraseName);
 		farGuildChat2(sender, senderName, guildId, phraseName);
 	}
@@ -237,7 +237,7 @@ namespace CHATUNI
 	void CChatUnifierClientSkel::farGuildChat2Ex_skel(NLNET::IModuleProxy *sender, const NLNET::CMessage &__message)
 	{
 		H_AUTO(CChatUnifierClientSkel_farGuildChat2Ex_CURFGC2E);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
 		uint32	guildId;
 			nlRead(__message, serial, guildId);
@@ -249,11 +249,11 @@ namespace CHATUNI
 	void CChatUnifierClientSkel::universeBroadcast_skel(NLNET::IModuleProxy *sender, const NLNET::CMessage &__message)
 	{
 		H_AUTO(CChatUnifierClientSkel_universeBroadcast_CURUB);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
 		uint32	senderHomeSession;
 			nlRead(__message, serial, senderHomeSession);
-		ucstring	text;
+		std::string	text;
 			nlRead(__message, serial, text);
 		universeBroadcast(sender, senderName, senderHomeSession, text);
 	}
@@ -263,9 +263,9 @@ namespace CHATUNI
 		H_AUTO(CChatUnifierClientSkel_dynChanBroadcast_CUDCB);
 		NLMISC::CEntityId	chanId;
 			nlRead(__message, serial, chanId);
-		ucstring	senderName;
+		std::string	senderName;
 			nlRead(__message, serial, senderName);
-		ucstring	text;
+		std::string	text;
 			nlRead(__message, serial, text);
 		dynChanBroadcast(sender, chanId, senderName, text);
 	}
@@ -273,12 +273,12 @@ namespace CHATUNI
 	void CChatUnifierClientSkel::recvBroadcastMessage_skel(NLNET::IModuleProxy *sender, const NLNET::CMessage &__message)
 	{
 		H_AUTO(CChatUnifierClientSkel_recvBroadcastMessage_CURBM);
-		ucstring	message;
+		std::string	message;
 			nlRead(__message, serial, message);
 		recvBroadcastMessage(sender, message);
 	}
 		// SU send a far tell failure to IOS. This mean that the player is offline or unknow
-	void CChatUnifierClientProxy::recvFarTellFail(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, const ucstring &destName, TFailInfo failInfo)
+	void CChatUnifierClientProxy::recvFarTellFail(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, const std::string &destName, TFailInfo failInfo)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -296,7 +296,7 @@ namespace CHATUNI
 		}
 	}
 		// SU send a far tell to the IOS hosting the addresse character
-	void CChatUnifierClientProxy::recvFarTell(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, const ucstring &senderName, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	void CChatUnifierClientProxy::recvFarTell(NLNET::IModule *sender, const NLMISC::CEntityId &senderCharId, const std::string &senderName, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -314,7 +314,7 @@ namespace CHATUNI
 		}
 	}
 		// IOS forward a guild chat message to the IOS
-	void CChatUnifierClientProxy::farGuildChat(NLNET::IModule *sender, const ucstring &senderName, uint32 guildId, const ucstring &text)
+	void CChatUnifierClientProxy::farGuildChat(NLNET::IModule *sender, const std::string &senderName, uint32 guildId, const std::string &text)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -332,7 +332,7 @@ namespace CHATUNI
 		}
 	}
 		// IOS forward a guild chat message to the IOS
-	void CChatUnifierClientProxy::farGuildChat2(NLNET::IModule *sender, const ucstring &senderName, uint32 guildId, const ucstring &phraseName)
+	void CChatUnifierClientProxy::farGuildChat2(NLNET::IModule *sender, const std::string &senderName, uint32 guildId, const std::string &phraseName)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -350,7 +350,7 @@ namespace CHATUNI
 		}
 	}
 		// IOS forward a guild chat message to the IOS
-	void CChatUnifierClientProxy::farGuildChat2Ex(NLNET::IModule *sender, const ucstring &senderName, uint32 guildId, uint32 phraseId)
+	void CChatUnifierClientProxy::farGuildChat2Ex(NLNET::IModule *sender, const std::string &senderName, uint32 guildId, uint32 phraseId)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -368,7 +368,7 @@ namespace CHATUNI
 		}
 	}
 		// IOS forward a univers chat message to the IOSs
-	void CChatUnifierClientProxy::universeBroadcast(NLNET::IModule *sender, const ucstring &senderName, uint32 senderHomeSession, const ucstring &text)
+	void CChatUnifierClientProxy::universeBroadcast(NLNET::IModule *sender, const std::string &senderName, uint32 senderHomeSession, const std::string &text)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -386,7 +386,7 @@ namespace CHATUNI
 		}
 	}
 		// IOS forward a dyn chat chat message to the IOSs
-	void CChatUnifierClientProxy::dynChanBroadcast(NLNET::IModule *sender, const NLMISC::CEntityId &chanId, const ucstring &senderName, const ucstring &text)
+	void CChatUnifierClientProxy::dynChanBroadcast(NLNET::IModule *sender, const NLMISC::CEntityId &chanId, const std::string &senderName, const std::string &text)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -404,7 +404,7 @@ namespace CHATUNI
 		}
 	}
 		// SU send a broadcast message to the IOS
-	void CChatUnifierClientProxy::recvBroadcastMessage(NLNET::IModule *sender, const ucstring &message)
+	void CChatUnifierClientProxy::recvBroadcastMessage(NLNET::IModule *sender, const std::string &message)
 	{
 		if (_LocalModuleSkel && _LocalModule->isImmediateDispatchingSupported())
 		{
@@ -423,11 +423,11 @@ namespace CHATUNI
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvFarTellFail(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, const ucstring &destName, TFailInfo failInfo)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvFarTellFail(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, const std::string &destName, TFailInfo failInfo)
 	{
 		__message.setType("CURFTF");
 			nlWrite(__message, serial, const_cast < NLMISC::CEntityId& > (senderCharId));
-			nlWrite(__message, serial, const_cast < ucstring& > (destName));
+			nlWrite(__message, serial, const_cast < std::string& > (destName));
 			nlWrite(__message, serial, failInfo);
 
 
@@ -435,48 +435,48 @@ namespace CHATUNI
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvFarTell(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, const ucstring &senderName, bool havePrivilege, const ucstring &destName, const ucstring &text)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvFarTell(NLNET::CMessage &__message, const NLMISC::CEntityId &senderCharId, const std::string &senderName, bool havePrivilege, const std::string &destName, const std::string &text)
 	{
 		__message.setType("CURFT");
 			nlWrite(__message, serial, const_cast < NLMISC::CEntityId& > (senderCharId));
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
 			nlWrite(__message, serial, havePrivilege);
-			nlWrite(__message, serial, const_cast < ucstring& > (destName));
-			nlWrite(__message, serial, const_cast < ucstring& > (text));
+			nlWrite(__message, serial, const_cast < std::string& > (destName));
+			nlWrite(__message, serial, const_cast < std::string& > (text));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat(NLNET::CMessage &__message, const ucstring &senderName, uint32 guildId, const ucstring &text)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat(NLNET::CMessage &__message, const std::string &senderName, uint32 guildId, const std::string &text)
 	{
 		__message.setType("CURFGC");
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (text));
+			nlWrite(__message, serial, const_cast < std::string& > (text));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat2(NLNET::CMessage &__message, const ucstring &senderName, uint32 guildId, const ucstring &phraseName)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat2(NLNET::CMessage &__message, const std::string &senderName, uint32 guildId, const std::string &phraseName)
 	{
 		__message.setType("CURFGC2");
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
 			nlWrite(__message, serial, guildId);
-			nlWrite(__message, serial, const_cast < ucstring& > (phraseName));
+			nlWrite(__message, serial, const_cast < std::string& > (phraseName));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat2Ex(NLNET::CMessage &__message, const ucstring &senderName, uint32 guildId, uint32 phraseId)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_farGuildChat2Ex(NLNET::CMessage &__message, const std::string &senderName, uint32 guildId, uint32 phraseId)
 	{
 		__message.setType("CURFGC2E");
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
 			nlWrite(__message, serial, guildId);
 			nlWrite(__message, serial, phraseId);
 
@@ -485,34 +485,34 @@ namespace CHATUNI
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_universeBroadcast(NLNET::CMessage &__message, const ucstring &senderName, uint32 senderHomeSession, const ucstring &text)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_universeBroadcast(NLNET::CMessage &__message, const std::string &senderName, uint32 senderHomeSession, const std::string &text)
 	{
 		__message.setType("CURUB");
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
 			nlWrite(__message, serial, senderHomeSession);
-			nlWrite(__message, serial, const_cast < ucstring& > (text));
+			nlWrite(__message, serial, const_cast < std::string& > (text));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_dynChanBroadcast(NLNET::CMessage &__message, const NLMISC::CEntityId &chanId, const ucstring &senderName, const ucstring &text)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_dynChanBroadcast(NLNET::CMessage &__message, const NLMISC::CEntityId &chanId, const std::string &senderName, const std::string &text)
 	{
 		__message.setType("CUDCB");
 			nlWrite(__message, serial, const_cast < NLMISC::CEntityId& > (chanId));
-			nlWrite(__message, serial, const_cast < ucstring& > (senderName));
-			nlWrite(__message, serial, const_cast < ucstring& > (text));
+			nlWrite(__message, serial, const_cast < std::string& > (senderName));
+			nlWrite(__message, serial, const_cast < std::string& > (text));
 
 
 		return __message;
 	}
 
 	// Message serializer. Return the message received in reference for easier integration
-	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvBroadcastMessage(NLNET::CMessage &__message, const ucstring &message)
+	const NLNET::CMessage &CChatUnifierClientProxy::buildMessageFor_recvBroadcastMessage(NLNET::CMessage &__message, const std::string &message)
 	{
 		__message.setType("CURBM");
-			nlWrite(__message, serial, const_cast < ucstring& > (message));
+			nlWrite(__message, serial, const_cast < std::string& > (message));
 
 
 		return __message;

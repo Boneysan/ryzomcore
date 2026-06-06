@@ -58,8 +58,8 @@ public:
 	* application is the name of the application. the LS will return all shards that is available for this application (sample, snowballs, ...)
 	* If the authentication is ok, the function return an empty string else it returns the reason of the failure.
 	*/
-	static std::string authenticate(const std::string &loginServiceAddr, const ucstring &login, const std::string &cpassword, const std::string &application);
-	static std::string authenticateBegin(const std::string &loginServiceAddr, const ucstring &login, const std::string &cpassword, const std::string &application);
+	static std::string authenticate(const std::string &loginServiceAddr, const std::string &login, const std::string &cpassword, const std::string &application);
+	static std::string authenticateBegin(const std::string &loginServiceAddr, const std::string &login, const std::string &cpassword, const std::string &application);
 	static bool authenticateUpdate(std::string &error);
 	/** Todo: fix comment.
 	*/

@@ -58,9 +58,9 @@ public:
 
 	virtual const NLMISC::CEntityId& getCharId() const =0;
 
-	virtual void setName(const ucstring &name) =0;
+	virtual void setName(const std::string &name) =0;
 	/// Register the character name in the IOS
-	virtual void registerName(const ucstring &newName = std::string("")) =0;
+	virtual void registerName(const std::string &newName = std::string()) =0;
 
 	virtual bool getEnterFlag() const =0;
 

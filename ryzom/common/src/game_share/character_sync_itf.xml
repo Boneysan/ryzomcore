@@ -170,14 +170,14 @@
 			<property type="TCharacterNameResult"	name="Result"/>
 			<property type="uint32"					name="UserId"/>
 			<property type="uint8"					name="CharIndex"/>
-			<property type="ucstring"				name="FullName"/>
+			<property type="string"				name="FullName"/>
 
 		</class>
 
 		<class name="CGuildInfo">
 			<serial/>
 
-			<property type="ucstring"		name="GuildName"	byref="true"/>
+			<property type="string"		name="GuildName"	byref="true"/>
 			<property type="uint32"			name="GuildId"/>
 		</class>
 
@@ -244,7 +244,7 @@
 				<doc line="EGS ask to the name unifier to validate a new guild name"/>
 
 				<param type="uint32"		name="guildId"/>
-				<param type="ucstring"		name="guildName" byref="true"/>
+				<param type="string"		name="guildName" byref="true"/>
 
 			</method>
 
@@ -254,7 +254,7 @@
 
 				<param type="uint32"		name="shardId"/>
 				<param type="uint32"		name="guildId"/>
-				<param type="ucstring"		name="guildName" byref="true"/>
+				<param type="string"		name="guildName" byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
@@ -274,7 +274,7 @@
 
 			<property type="uint32"			name="UserId"/>
 			<property type="uint8"			name="CharIndex"/>
-			<property type="ucstring"		name="Name"			byref="true"/>
+			<property type="string"		name="Name"			byref="true"/>
 			<property type="std::string"	name="UserName"		byref="true"/>
 			<property type="uint32"			name="ShardId"		byref="true"/>
 		</class>
@@ -284,7 +284,7 @@
 			<serial/>
 
 			<property type="uint32"			name="CharId"/>
-			<property type="ucstring"		name="CharName"		byref="true"/>
+			<property type="string"		name="CharName"		byref="true"/>
 			<property type="uint32"			name="HomeSessionId"/>
 			<property type="bool"			name="IsOwnerOfActiveAnimSession"/>
 			<property type="uint32"			name="ActiveAnimSessionId" default = "0"/>
@@ -374,7 +374,7 @@
 				<doc line="The name unifier has renamed a guild to resolve a name conflict"/>
 
 				<param type="uint32"				name="guildId"/>
-				<param type="ucstring"				name="newName" byref="true"/>
+				<param type="string"				name="newName" byref="true"/>
 			</method>
 
 			<!-- ========================================================== -->
@@ -382,7 +382,7 @@
 				<doc line="The name unifier respond to EGS about guild name validation request"/>
 
 				<param type="uint32"				name="guildId"/>
-				<param type="ucstring"				name="guildName" byref="true"/>
+				<param type="string"				name="guildName" byref="true"/>
 				<param type="TCharacterNameResult"	name="result"/>
 
 			</method>

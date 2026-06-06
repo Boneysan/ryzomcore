@@ -215,14 +215,14 @@ public:
 	 * \param name is name of entity
 	 */
 	
-	void setName( const ucstring& name );
+	void setName( const std::string& name );
 
 	/**
 	 * get the Name
 	 * \return name of entity
 	 */
 	
-	inline const ucstring& getName() const { return _Name; }
+	inline const std::string& getName() const { return _Name; }
 
 	/**
 	 * Set the Surname

@@ -88,7 +88,7 @@ bool CStringManager::CParameterTraits::eval(CStringManager::TLanguages lang,cons
 	}
 	
 	uint32 stringId = ew.getStringId(rowIndex, colIndex);
-	std::string str = NLMISC::toLowerAscii(SM->getString(stringId).toString());
+	std::string str = NLMISC::toLowerAscii(SM->getString(stringId));
 
 	LOG("SM : (paramTraits) eval condition for property %s [%s] %s [%s]", cond.Property.c_str(), str.c_str(), OperatorNames[cond.Operator], cond.ReferenceStr.c_str());
 
@@ -260,7 +260,7 @@ public:
 				}
 				// No translated title or translated phrase found send ''
 				//		ucstring temp(EId.toString());
-				const ucstring NoName("''");
+				const std::string NoName("''");
 				uint32 index = SM->storeString(NoName);
 				bms.serial(index);
 				return;
@@ -316,7 +316,7 @@ public:
 
 		// no info on the name, just send the EID as string.
 //		ucstring temp(EId.toString());
-		const ucstring NoName("''");
+		const std::string NoName("''");
 		uint32 index = SM->storeString(NoName);
 		bms.serial(index);
 	}
@@ -463,7 +463,7 @@ public:
 					else
 					{
 						// not a valid replacement, return a 'backspace' character
-						static uint32 noString = SM->storeString(ucstring()+ucchar(8));
+						static uint32 noString = SM->storeString(std::string(1, (char)8));
 						bms.serial(noString);
 					}
 
@@ -507,12 +507,12 @@ public:
 
 		uint32 nameId1 = SM->storeString(Identifier);
 		uint32 nameId2 = SM->translateShortName(nameId1);
-		const ucstring &name = SM->getString(nameId2);
+		const std::string &name = SM->getString(nameId2);
 		if (!name.empty() && name[0] == '$')
 		{
 			// this name is a generic name, translate the title
-			ucstring title = name.substr(1, name.size()-2);
-			nameId2 = SM->translateTitle(title.toString(), language);
+			std::string title = name.substr(1, name.size()-2);
+			nameId2 = SM->translateTitle(title, language);
 		}
 		// serial the string ID
 		bms.serial(nameId2);
@@ -622,7 +622,7 @@ public:
 /*	void fillBitMemStream(CStringManager::TLanguages language, const CStringManager::TReplacement &rep, NLMISC::CBitMemStream &bms)
 	{
 		// need to evaluate the name of the creature : name from the sheet id
-		ucstring temp;
+		std::string temp;
 		NLMISC::CSheetId sid = SM->getSheetId(EId);
 		if (sid != NLMISC::CSheetId::Unknown)
 		{
@@ -1028,7 +1028,7 @@ public:
 	}
 	void fillBitMemStream( const CCharacterInfos *charInfo,CStringManager::TLanguages language, const CStringManager::TReplacement &rep, NLMISC::CBitMemStream &bms)
 	{
-		ucstring temp;
+		std::string temp;
 
 		CCharacterInfos	*playerInfo = IOS->getCharInfos(EId);
 		if (playerInfo != 0)
@@ -1563,7 +1563,7 @@ public:
 	/// set a default value
 	virtual void setDefaultValue()
 	{
-		Literal = ucstring();
+		Literal = std::string();
 	}
 
 };

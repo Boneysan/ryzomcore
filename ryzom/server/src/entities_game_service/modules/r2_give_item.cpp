@@ -219,7 +219,7 @@ void CR2GiveItem::_SendAckToAIS( bool ok, const TItemRequest &req )
 uint32 CR2GiveItem::_regiserLiteralString( TDataSetRow userRowId, const ucstring &litStr )
 {
 	SM_STATIC_PARAMS_1(params,STRING_MANAGER::literal);
-	params[0].Literal = litStr;
+	params[0].Literal = litStr.toUtf8();
 	return STRING_MANAGER::sendStringToClient( userRowId,"LITERAL", params );
 }
 

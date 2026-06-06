@@ -497,8 +497,8 @@ extern void operator delete[](void *p) throw();
 #		define CHashSet ::std::hash_set
 #		define CHashMultiMap ::std::hash_multimap
 #	endif // _STLP_HASH_MAP
-#	define CUniquePtr ::std::auto_ptr
-#	define CUniquePtrMove
+#	define CUniquePtr ::std::unique_ptr
+#	define CUniquePtrMove ::std::move
 #elif defined(NL_ISO_CPP0X_AVAILABLE) || (defined(NL_COMP_VC) && (NL_COMP_VC_VERSION >= 100))
 #	include <unordered_map>
 #	include <unordered_set>
@@ -514,8 +514,8 @@ extern void operator delete[](void *p) throw();
 #	define CHashMap NL_ISO_STDTR1_NAMESPACE::unordered_map
 #	define CHashSet NL_ISO_STDTR1_NAMESPACE::unordered_set
 #	define CHashMultiMap NL_ISO_STDTR1_NAMESPACE::unordered_multimap
-#	define CUniquePtr ::std::auto_ptr
-#	define CUniquePtrMove
+#	define CUniquePtr ::std::unique_ptr
+#	define CUniquePtrMove ::std::move
 #	define NL_OVERRIDE
 #elif defined(NL_COMP_VC) && (NL_COMP_VC_VERSION >= 70 && NL_COMP_VC_VERSION <= 90) // VC7 through 9
 #	include <hash_map>
@@ -523,8 +523,8 @@ extern void operator delete[](void *p) throw();
 #	define CHashMap stdext::hash_map
 #	define CHashSet stdext::hash_set
 #	define CHashMultiMap stdext::hash_multimap
-#	define CUniquePtr ::std::auto_ptr
-#	define CUniquePtrMove
+#	define CUniquePtr ::std::unique_ptr
+#	define CUniquePtrMove ::std::move
 #	define NL_OVERRIDE
 #elif defined(NL_COMP_GCC) // GCC4
 #	include <ext/hash_map>
@@ -532,8 +532,8 @@ extern void operator delete[](void *p) throw();
 #	define CHashMap ::__gnu_cxx::hash_map
 #	define CHashSet ::__gnu_cxx::hash_set
 #	define CHashMultiMap ::__gnu_cxx::hash_multimap
-#	define CUniquePtr ::std::auto_ptr
-#	define CUniquePtrMove
+#	define CUniquePtr ::std::unique_ptr
+#	define CUniquePtrMove ::std::move
 
 namespace __gnu_cxx {
 

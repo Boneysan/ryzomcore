@@ -80,7 +80,7 @@ namespace R2
 	private:
 
 		typedef void (CServerEditionItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -184,7 +184,7 @@ namespace R2
 	private:
 
 		typedef void (CServerAnimationItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -245,7 +245,7 @@ namespace R2
 		// EGS Message to indicates that an easter egg is looted
 		virtual void onEasterEggLooted(NLNET::IModuleProxy *sender, uint32 eggId, TSessionId scenarioId) =0;
 		// EGS message to indicates info of the target of a player
-		virtual void onCharTargetReceived(NLNET::IModuleProxy *sender, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const ucstring &name, uint32 nameId, const std::vector<std::string> &params, bool alived) =0;
+		virtual void onCharTargetReceived(NLNET::IModuleProxy *sender, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const std::string &name, uint32 nameId, const std::vector<std::string> &params, bool alived) =0;
 		// AIS message to ask the dss to teleport a character to a position
 		virtual void teleportCharacter(NLNET::IModuleProxy *sender, const NLMISC::CEntityId &player, float x, float y, float z) =0;
 		// EGS message to indicates that a character is ready in mirror
@@ -321,7 +321,7 @@ namespace R2
 		// EGS Message to indicates that an easter egg is looted
 		void onEasterEggLooted(NLNET::IModule *sender, uint32 eggId, TSessionId scenarioId);
 		// EGS message to indicates info of the target of a player
-		void onCharTargetReceived(NLNET::IModule *sender, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const ucstring &name, uint32 nameId, const std::vector<std::string> &params, bool alived);
+		void onCharTargetReceived(NLNET::IModule *sender, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const std::string &name, uint32 nameId, const std::vector<std::string> &params, bool alived);
 		// AIS message to ask the dss to teleport a character to a position
 		void teleportCharacter(NLNET::IModule *sender, const NLMISC::CEntityId &player, float x, float y, float z);
 		// EGS message to indicates that a character is ready in mirror
@@ -355,7 +355,7 @@ namespace R2
 		static const NLNET::CMessage &buildMessageFor_onEasterEggLooted(NLNET::CMessage &__message, uint32 eggId, TSessionId scenarioId);
 
 		// Message serializer. Return the message received in reference for easier integration
-		static const NLNET::CMessage &buildMessageFor_onCharTargetReceived(NLNET::CMessage &__message, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const ucstring &name, uint32 nameId, const std::vector<std::string> &params, bool alived);
+		static const NLNET::CMessage &buildMessageFor_onCharTargetReceived(NLNET::CMessage &__message, const NLMISC::CEntityId &eid, const NLMISC::CEntityId &creatureId, uint32 creatureAlias, TDataSetRow creatureRowId, const std::string &name, uint32 nameId, const std::vector<std::string> &params, bool alived);
 
 		// Message serializer. Return the message received in reference for easier integration
 		static const NLNET::CMessage &buildMessageFor_teleportCharacter(NLNET::CMessage &__message, const NLMISC::CEntityId &player, float x, float y, float z);
@@ -402,7 +402,7 @@ namespace R2
 	private:
 
 		typedef void (CCharacterControlItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -748,7 +748,7 @@ namespace R2
 	private:
 
 		typedef void (CAisControlItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -916,7 +916,7 @@ namespace R2
 	private:
 
 		typedef void (CR2SessionBackupModuleItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
