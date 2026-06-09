@@ -20,8 +20,14 @@
 
 
 #include "stdpch.h"
+#include <cstdlib>
+#if __has_include(<httplib.h>)
 #include <httplib.h>
 #include <thread>
+#define RYZOM_EGS_HAS_HTTPLIB 1
+#else
+#define RYZOM_EGS_HAS_HTTPLIB 0
+#endif
 
 /////////////
 // INCLUDE //
@@ -168,7 +174,7 @@ uint32 CharacterSaveCounter = 0;
 uint32 CharacterLoadCounter = 0;
 
 // Smoke test support (Phase 0.6)
-// -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exit(0).
+// -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exits immediately.
 CVariable<uint32> SmokeTestNumTicks("egs", "SmokeTestNumTicks", "Number of ticks to advance in --smoke-test / -T mode before clean exit", 10, 0, true);
 CVariable<bool> EnableRestApi("egs", "EnableRestApi", "Enable EGS REST API (Phase 1.4, cpp-httplib on separate thread)", true, 0, true);
 
@@ -715,6 +721,7 @@ void CPlayerService::egsUpdate()
 		// To tackle remaining (live EGS state/locking): after full init, replace stubs with real data from PlayerManager/CEntityBase etc. (e.g. for /character/:id pull hp/pos; use mutex for tick safety).
 		// Started only if enabled (default for dev); runs on 47800 as per compose.
 		if (EnableRestApi) {  // Phase 1.4: enable via var (default true for dev; compose sets "1")
+#if RYZOM_EGS_HAS_HTTPLIB
 			static std::thread restThread([]() {
 				httplib::Server svr;
 				svr.Get("/health", [](const httplib::Request &, httplib::Response &res) {
@@ -754,6 +761,14 @@ void CPlayerService::egsUpdate()
 				svr.listen("0.0.0.0", 47800);
 			});
 			restThread.detach();
+#else
+			static bool warnedMissingHttpLib = false;
+			if (!warnedMissingHttpLib)
+			{
+				nlwarning("EGS REST API requested but httplib.h is not available at build time; REST API disabled");
+				warnedMissingHttpLib = true;
+			}
+#endif
 		}
 		EGSPD::update();
 	}
@@ -1405,7 +1420,7 @@ void CPlayerService::init()
 			egsUpdate();
 		}
 		nlinfo("EGS smoke test SUCCESS: %u ticks completed without crash", SmokeTestNumTicks.get());
-		exit(0);
+		std::_Exit(EXIT_SUCCESS);
 	}
 
 	// register the shared class
