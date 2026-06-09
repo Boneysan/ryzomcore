@@ -105,13 +105,11 @@ public:
 	/// Return a valid free guild id for new guild creation
 	uint32 getFreeGuildId();
 
-//	void addGuildsAwaitingString( const ucstring & guildStr, uint32 guildId );
 	/// get a guild from its name
 	CGuild * getGuildByName( const std::string & name );
 	/// get a guild from its id
 	CGuild * getGuildFromId( EGSPD::TGuildId id );
 	/// update the guild strings. This method checks if a guild was awaiting for the string id corresponding to the param str. If yes, it updates the guild string id
-//	bool updateGuildStringIds( const ucstring & str );
 	/// check coherency between character and guild data
 	bool checkGuildMemberShip( const EGSPD::TCharacterId & userId, const EGSPD::TGuildId & guildId )const;
 	/// a users connects to the game. Register it in our system by creating the appropriate modules
@@ -231,8 +229,6 @@ private:
 //	uint32										_HighestGuildId;
 	/// guild invitations
 	std::vector< CGuildInvitation* >			_Invitations;
-	/// guild awaiting their names / description from IOS
-//	std::multimap<ucstring,EGSPD::TGuildId>		_GuildsAwaitingString;
 	/// guild names registered in system. Stored as strings as checks were donne before. Registered names are lower case
 	std::set<std::string>						_ExistingGuildNames;
 	/// if true, updateGuildMembersStringIds() will be called when IOS is up
@@ -278,12 +274,6 @@ private:
 	NLMISC_CLASS_COMMAND_DECL(unloadGuild);
 	NLMISC_CLASS_COMMAND_DECL(loadGuild);
 };
-
-//----------------------------------------------------------------------------
-//inline void CGuildManager::addGuildsAwaitingString( const ucstring & guildStr, uint32 guildId )
-//{
-//	_GuildsAwaitingString.insert( std::make_pair( guildStr, guildId ) );
-//}
 
 //----------------------------------------------------------------------------
 inline CGuildManager* CGuildManager::getInstance()

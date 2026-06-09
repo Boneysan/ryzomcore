@@ -89,15 +89,9 @@ namespace GUS
 		virtual void removeClient(GUS::TClientId clientId)=0;
 
 		// send a text to the chat channel for all clients
-		virtual void broadcastMessage(const ucstring& speakerName, const ucstring& txt)=0;
-
-		// send a text to the chat channel for all clients (UTF-8 encoded)
 		virtual void broadcastMessage(const std::string& speakerNameUtf8, const std::string& txtUtf8)=0;
 
 		// send a text to the chat channel for the given client
-		virtual void sendMessage(GUS::TClientId clientId, const ucstring& speakerName, const ucstring& txt)=0;
-
-		// send a text to the chat channel for the given client (UTF-8 encoded)
 		virtual void sendMessage(GUS::TClientId clientId, const std::string& speakerNameUtf8, const std::string& txtUtf8)=0;
 
 		// setup a callback to be called whenever a player sends a text to this chat channel

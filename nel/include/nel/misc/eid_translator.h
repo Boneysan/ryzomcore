@@ -148,6 +148,23 @@ public:
 
 	static void removeShardFromName(ucstring& name);
 
+	// UTF-8 std::string convenience wrappers (0.5 migration — avoids ucstring at call sites)
+	CEntityId getByEntity(const std::string& entityName) { return getByEntity(ucstring::makeFromUtf8(entityName)); }
+	std::string getEntityNameStr(const NLMISC::CEntityId& eid) { return getByEntity(eid).toUtf8(); }
+	void getEntityIdInfo(const CEntityId& eid, std::string& entityName, sint8& entitySlot, uint32& uid, std::string& userName, bool& online, std::string* additional = NULL) {
+		ucstring ucName;
+		getEntityIdInfo(eid, ucName, entitySlot, uid, userName, online, additional);
+		entityName = ucName.toUtf8();
+	}
+	void updateEntity(const CEntityId& eid, const std::string& entityName, sint8 entitySlot, uint32 uid, const std::string& userName, uint32 shardId = 0) {
+		updateEntity(eid, ucstring::makeFromUtf8(entityName), entitySlot, uid, userName, shardId);
+	}
+	static void removeShardFromName(std::string& name) {
+		ucstring ucs = ucstring::makeFromUtf8(name);
+		removeShardFromName(ucs);
+		name = ucs.toUtf8();
+	}
+
 private:
 	// get all eid for a user using the user name or the user id
 	void				getByUser (uint32 uid, std::vector<NLMISC::CEntityId> &res);

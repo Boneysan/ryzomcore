@@ -2598,10 +2598,9 @@ void rename_s_(CStateInstance* entity, CScriptStack& stack)
 					if (spawnBot)
 					{
 						TDataSetRow	row = spawnBot->dataSetRow();
-						ucstring nameU; nameU.fromUtf8(newName);
 						NLNET::CMessage	msgout("CHARACTER_NAME");
 						msgout.serial(row);
-						msgout.serial(nameU);
+						msgout.serial(const_cast<std::string&>(newName));
 						sendMessageViaMirror("IOS", msgout);
 						bot->setCustomName(newName);
 					}

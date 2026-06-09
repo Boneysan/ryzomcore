@@ -212,7 +212,7 @@ bool CDynChatEGS::addSession(TChanID chan, const TDataSetRow &client, bool write
 		if (!session->getChan()->Localized)
 		{			
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-			params[0].Literal= session->getChan()->Title;  // now string after 0.5 (was ucstring)
+			params[0].Literal= session->getChan()->Title;
 			session->StringID = STRING_MANAGER::sendStringToClient(client, "LITERAL", params);
 		}
 		else

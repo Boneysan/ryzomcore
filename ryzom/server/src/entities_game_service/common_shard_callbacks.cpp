@@ -31,19 +31,6 @@ extern CPlayerManager				PlayerManager;
 /// Received an string-id association from IOS
 void cbStoreStringResult( NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId )
 {
-	/*
-	ucstring str;
-	uint32 stringId;
-	
-	msgin.serial( str );
-	msgin.serial( stringId );
-	
-	// put here code for other managers
-	if (PlayerManager.setStringId(str, stringId))
-		return;
-
-	nlwarning("<cbStoreStringResult> unused string '%s'", str.toString().c_str() ); 
-	*/
 }
 
 // received stall order form backup service due to server problem on writing player saves

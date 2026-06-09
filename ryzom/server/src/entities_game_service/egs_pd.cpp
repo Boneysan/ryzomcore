@@ -500,18 +500,6 @@ void							update()
 	PDSLib.update();
 }
 
-void							logChat(const ucstring& sentence, const NLMISC::CEntityId& from, const std::vector<NLMISC::CEntityId>& to)
-{
-	PDSLib.logChat(sentence, from, to);
-}
-
-void							logTell(const ucstring& sentence, const NLMISC::CEntityId& from, const NLMISC::CEntityId& to)
-{
-	std::vector<NLMISC::CEntityId>	ids;
-	ids.push_back(to);
-	PDSLib.logChat(sentence, from, ids);
-}
-
 void							release()
 {
 	PDSLib.release();

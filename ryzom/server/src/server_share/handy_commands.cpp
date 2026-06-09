@@ -517,10 +517,18 @@ NLMISC_CATEGORISED_COMMAND(utils,viewTxtFile,"view a text file segment","<file_n
 	if (fileBody.size()>=2 && ((fileBody[0]==char(0xff) && fileBody[1]==char(0xfe)) || (fileBody[0]==char(0xfe) && fileBody[1]==char(0xff))) )
 	{
 		nlinfo("Displaying unicode UTF16 text:");
-		ucstring ucs;
-		ucs.resize((fileBody.size()-2)/2);
-		memcpy((char*)&ucs[0],(char*)&fileBody[0],fileBody.size()-2);
-		fileBody=ucs.toUtf8();
+		const bool bigEndian = (fileBody[0] == char(0xfe));
+		const uint8* src = (const uint8*)fileBody.c_str();
+		const size_t nBytes = fileBody.size() - 2;
+		std::string utf8;
+		utf8.reserve(nBytes);
+		for (size_t j = 0; j + 1 < nBytes; j += 2) {
+			uint16 cp = bigEndian ? (uint16)((src[j]<<8)|src[j+1]) : (uint16)(src[j]|(src[j+1]<<8));
+			if (cp < 0x80)       { utf8 += (char)cp; }
+			else if (cp < 0x800) { utf8 += (char)(0xC0|(cp>>6)); utf8 += (char)(0x80|(cp&0x3F)); }
+			else                 { utf8 += (char)(0xE0|(cp>>12)); utf8 += (char)(0x80|((cp>>6)&0x3F)); utf8 += (char)(0x80|(cp&0x3F)); }
+		}
+		fileBody = utf8;
 	}
 
 	// split the new file into lines

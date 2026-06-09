@@ -307,15 +307,6 @@ NLMISC_COMMAND( spawnFakePlayers, "Temp", "<nb>" )
 }
 
 
-/// callback called when ther PDS string manager sent a string id for a unicode string
-//void onPDSStringReadyCallback (const ucstring& str, uint32 id)
-//{
-//	if (  CGuildManager::getInstance()->updateGuildStringIds( str ) )
-//		return;
-//	/// todo guild remove that when player is in PDS, as strings will be managed entirely by PDS
-//	if ( PlayerManager.setStringId(str, id) )
-//		return;
-//}
 
 /*
  * Process the entity events from the mirror (note: the additions/removals done by EGS is not included)

@@ -420,8 +420,8 @@ void CPVPManager2::broadcastMessage(TChanID channel, const std::string& speakerN
 {
 	CMessage msgout("DYN_CHAT:SERVICE_CHAT");
 	msgout.serial(channel);
-	ucstring ucSpeaker; ucSpeaker.fromUtf8(speakerName); msgout.serial(ucSpeaker);
-	ucstring ucTxt;     ucTxt.fromUtf8(txt);             msgout.serial(ucTxt);
+	msgout.serial(const_cast<std::string&>(speakerName));
+	msgout.serial(const_cast<std::string&>(txt));
 	sendMessageViaMirror("IOS", msgout);
 }
 
@@ -437,10 +437,10 @@ void CPVPManager2::sendChannelUsers(TChanID channel, CCharacter * user, bool out
 		uint32 shardId = CEntityIdTranslator::getInstance()->getEntityShardId(user->getId());
 		for (uint i = 0; i < lst.size(); i++)
 		{
-			ucstring nameUc = CEntityIdTranslator::getInstance()->getByEntity(lst[i]);
+			std::string nameStr = CEntityIdTranslator::getInstance()->getEntityNameStr(lst[i]);
 			if (shardId == CEntityIdTranslator::getInstance()->getEntityShardId(lst[i]))
-				CEntityIdTranslator::removeShardFromName(nameUc);
-			players += "\n" + nameUc.toUtf8();
+				CEntityIdTranslator::removeShardFromName(nameStr);
+			players += "\n" + nameStr;
 		}
 
 		TDataSetRow senderRow = TheDataset.getDataSetRow(user->getId());
@@ -457,9 +457,9 @@ void CPVPManager2::sendChannelUsers(TChanID channel, CCharacter * user, bool out
 		{
 			CMessage msgout("DYN_CHAT:SERVICE_TELL");
 			msgout.serial(channel);
-			ucstring ucUsers; ucUsers.fromUtf8("<USERS>"); msgout.serial(ucUsers);
+			std::string usersTag("<USERS>"); msgout.serial(usersTag);
 			msgout.serial(senderRow);
-			ucstring ucPlayers; ucPlayers.fromUtf8(players); msgout.serial(ucPlayers);
+			msgout.serial(players);
 
 			sendMessageViaMirror("IOS", msgout);
 		}

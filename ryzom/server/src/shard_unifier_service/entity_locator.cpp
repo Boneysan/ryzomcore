@@ -92,29 +92,6 @@ namespace ENTITYLOC
 		typedef uint32 TCharId;
 		typedef uint32 TShardId;
 
-/*		struct CHash
-		{
-			size_t	operator () (const uint32 id) const 
-			{
-				// recall the standard hashing function
-				std::hash<size_t> h;
-				return h((size_t)id);
-			}
-		};
-
-		struct CHashUCString
-		{
-			size_t	operator () (const ucstring &str) const 
-			{
-			  unsigned long __h = 0; 
-			  ucstring::const_iterator first(str.begin()), last(str.end());
-			  for ( ; first != last; ++first)
-				__h = 5*__h + *first;
-
-			  return size_t(__h);
-			}
-		};
-*/
 		struct TCharInfo
 		{
 			TShardId	ShardId;

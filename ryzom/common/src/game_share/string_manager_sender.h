@@ -21,7 +21,6 @@
 
 #include "nel/misc/entity_id.h"
 #include "nel/misc/sheet_id.h"
-#include "nel/misc/ucstring.h"  // kept for now during 0.5 migration (some legacy)
 #include "nel/net/message.h"
 #include "base_types.h"
 #include "chat_group.h"

@@ -668,9 +668,9 @@ void CChatManager::chat( const TDataSetRow& sender, const std::string& ucstr )
 						CDynChatChan::CHistoricEntry entry;
 						entry.String = ucstr;
 						if (ci != NULL)
-							entry.SenderString.fromUtf8(ci->Name);
+							entry.SenderString = ci->Name;
 						else
-							entry.SenderString = ucstring();
+							entry.SenderString.clear();
 
 						session->getChan()->Historic.push(entry);
 
@@ -2303,7 +2303,7 @@ void CChatManager::sendHistoric(const TDataSetRow &receiver, TChanID chanID)
 	for(uint k = 0; k < chan->Historic.getSize(); ++k)
 	{
 //		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String, chan->Historic[k].Sender, chanID);
-		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String.toUtf8(), TDataSetRow(), chanID, chan->Historic[k].SenderString.toUtf8()); // bridge: Historic stores ucstring (chat wire/historic)
+		sendChat(CChatGroup::dyn_chat, receiver, chan->Historic[k].String, TDataSetRow(), chanID, chan->Historic[k].SenderString);
 	}
 }
 

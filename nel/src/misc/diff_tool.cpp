@@ -923,5 +923,18 @@ ucstring prepareExcelSheet(const TWorksheet &worksheet)
 
 
 
+// UTF-8 / std::string adapters for Phase 1.1 (TWorksheet remains ucstring internally during transition).
+bool readExcelSheet(const std::string &textUtf8, TWorksheet &worksheet, bool checkUnique)
+{
+	ucstring u;
+	u.fromUtf8(textUtf8);
+	return readExcelSheet(u, worksheet, checkUnique);
+}
+
+std::string prepareExcelSheetUtf8(const TWorksheet &worksheet)
+{
+	return prepareExcelSheet(worksheet).toUtf8();
+}
+
 }	// namespace STRING_MANAGER
 

@@ -461,10 +461,7 @@ void CContestExecutorImplementation::setTitle(const NLMISC::CSString& title)
 //
 //	NLNET::CMessage msg("SET_PHRASE");
 //	msg.serial(chatChannelName);
-//	ucstring ucTitle;
-//	ucTitle.fromUtf8(title);
-//	ucTitle=ucstring(chatChannelName+"(){[")+ucTitle+ucstring("]}");
-//	msg.serial(ucTitle);
+//	(phrase building removed — use sendDynamicMessage instead)
 //	CUnifiedNetwork::getInstance()->send("IOS",msg);
 
 	// open the chat channel
@@ -547,7 +544,7 @@ void CContestExecutorImplementation::acknowledgeWinners(const vector<CSString>& 
 		uint32 displayTime = uint32(_WinnerRecords[i].Time-_StartTime)/1000;
 		if (j<winners.size())
 		{
-//			_ChatChannel->broadcastMessage(getChatText(systemName), ucstring("* "+_WinnerRecords[i].Name));
+//			_ChatChannel->broadcastMessage(getChatText(systemName), "* "+_WinnerRecords[i].Name);
 			nlinfo("- %5u: %s: %s",
 				displayTime ,
 				_WinnerRecords[i].Name.c_str(),
@@ -787,9 +784,9 @@ void CContestExecutorImplementation::initChatTexts()
 bool CContestExecutorImplementation::readChatTextFile(const CSString& fileName)
 {
 	// load the file
-	ucstring ucFileBody;
-	CI18N::readTextFile(fileName,ucFileBody);
-	CSString fileBody=	ucFileBody.toUtf8();
+	std::string fileBodyUtf8;
+	CI18N::readTextFile(fileName,fileBodyUtf8);
+	CSString fileBody= fileBodyUtf8;
 	if (fileBody.empty())
 		return false;
 

@@ -21,7 +21,7 @@
 
 //#include <nel/misc/types_nl.h>
 //#include <nel/misc/entity_id.h>
-//#include <nel/misc/ucstring.h>
+//#include <nel/misc/std::string.h>
 //#include <nel/misc/stream.h>
 //#include <nel/misc/debug.h>
 //#include <nel/misc/path.h>
@@ -70,7 +70,7 @@
 //	typedef uint32			TStringId;
 //
 //	/// String Ready callback
-//	typedef void			(*TStringCallback)(const ucstring& string, TStringId id);
+//	typedef void			(*TStringCallback)(const std::string& string, TStringId id);
 //
 //
 //	/**
@@ -91,7 +91,7 @@
 //	 * \param string is the string to add
 //	 * \return the persistant string id
 //	 */
-//	void					addString(NLMISC::CEntityId eid, const ucstring& str, bool addToLog = true);
+//	void					addString(NLMISC::CEntityId eid, const std::string& str, bool addToLog = true);
 //
 //	/**
 //	 * Unmap EntityId
@@ -111,17 +111,17 @@
 //	/**
 //	 * Get String
 //	 */
-//	const ucstring&			getString(const NLMISC::CEntityId &eid) const;
+//	const std::string&			getString(const NLMISC::CEntityId &eid) const;
 //
 //	/**
 //	 * Get String
 //	 */
-//	const ucstring&			getString(TStringId id) const;
+//	const std::string&			getString(TStringId id) const;
 //
 //	/**
-//	 * Get Session String Id (from the ucstring itself)
+//	 * Get Session String Id (from the std::string itself)
 //	 */
-//	TStringId				getStringId(const ucstring& str) const;
+//	TStringId				getStringId(const std::string& str) const;
 //
 //	/**
 //	 * Get Session String Id (from the string entity id)
@@ -132,12 +132,12 @@
 //	/**
 //	 * Get Mapped Ids
 //	 */
-//	bool					getMappedIds(const ucstring& str, std::vector<NLMISC::CEntityId>& ids) const;
+//	bool					getMappedIds(const std::string& str, std::vector<NLMISC::CEntityId>& ids) const;
 //
 //	/**
 //	 * Does string exists with given type
 //	 */
-//	bool					stringExists(const ucstring& str, uint8 type, NLMISC::CEntityId* foundEid = NULL) const;
+//	bool					stringExists(const std::string& str, uint8 type, NLMISC::CEntityId* foundEid = NULL) const;
 //
 //
 //
@@ -171,7 +171,7 @@
 //	/**
 //	 * Set string Id
 //	 */
-//	void					setStringId(const ucstring& str, TStringId id);
+//	void					setStringId(const std::string& str, TStringId id);
 //
 //
 //	/// Load String manager default file (to be used by client when PDS is not connected)
@@ -203,7 +203,7 @@
 //	static bool				isLogFileName(const std::string& filename, CTimestamp& timestamp);
 //
 //	/// Store string in IOS
-//	static void				storeStringInIOS(const ucstring& str);
+//	static void				storeStringInIOS(const std::string& str);
 //
 //	/// Returns true if IOS has not processed all store string requests
 //	static bool				isWaitingIOSStoreStringResult();
@@ -216,7 +216,7 @@
 //	static bool				_InitCb;
 //
 //	/// Null String
-//	static ucstring			_NullStr;
+//	static std::string			_NullStr;
 //
 //	/// Number of store string requests that have not been processed by IOS yet
 //	static uint				_NbProcessingStoreStringRequests;
@@ -249,7 +249,7 @@
 //		CStringEntry() : Hash(0), NextInHash(InvalidEntryId), StringId(InvalidStringId)		{ }
 //
 //		/// String in entry (this value is persistent)
-//		ucstring						String;
+//		std::string						String;
 //
 //		// following values are not persistent and can be rebuilt from persistent values
 //		/// Hash code of the string (see getHash() static method)
@@ -289,10 +289,10 @@
 //	std::vector<TEntryId>			_HashTable;
 //
 //	/// Get string entry (allocate a new entry if not yet in container)
-//	TEntryId		getEntryIdNonConst(const ucstring& str);
+//	TEntryId		getEntryIdNonConst(const std::string& str);
 //
 //	/// Get string entry only if exists
-//	TEntryId		getEntryId(const ucstring& str) const;
+//	TEntryId		getEntryId(const std::string& str) const;
 //
 //	// @}
 //
@@ -350,7 +350,7 @@
 //		NLMISC::CEntityId			EntityId;
 //
 //		/// Mapped String
-//		ucstring					String;
+//		std::string					String;
 //
 //		void		serial(NLMISC::IStream& f)
 //		{
@@ -413,7 +413,7 @@
 //
 //
 //	/// Get String Hash
-//	static THash	getHash(const ucstring& str);
+//	static THash	getHash(const std::string& str);
 //
 //	/// Get String Hash
 //	static THash	getHash(const ucchar* str);
@@ -434,7 +434,7 @@
 ///*
 // * Get string entry only if exists
 // */
-//inline CPDStringManager::TEntryId	CPDStringManager::getEntryId(const ucstring& str) const
+//inline CPDStringManager::TEntryId	CPDStringManager::getEntryId(const std::string& str) const
 //{
 //	THash		hash = getHash(str);
 //	TEntryId	entryId = InvalidEntryId;
@@ -454,7 +454,7 @@
 ///*
 // * Get String Hash
 // */
-//inline CPDStringManager::THash	CPDStringManager::getHash(const ucstring& str)
+//inline CPDStringManager::THash	CPDStringManager::getHash(const std::string& str)
 //{
 //	return getHash(str.c_str());
 //	//return str.empty() ? (THash)0 : getHash(str.c_str());
@@ -477,7 +477,7 @@
 ///*
 // * Get String
 // */
-//inline const ucstring&	CPDStringManager::getString(const NLMISC::CEntityId &eid) const
+//inline const std::string&	CPDStringManager::getString(const NLMISC::CEntityId &eid) const
 //{
 //	TEIdMap::const_iterator	it = _EIdMap.find(eid);
 //
@@ -487,7 +487,7 @@
 ///*
 // * Get String
 // */
-//inline const ucstring&	CPDStringManager::getString(TStringId id) const
+//inline const std::string&	CPDStringManager::getString(TStringId id) const
 //{
 //	TStringIdMap::const_iterator	it = _StringIdMap.find(id);
 //
@@ -495,9 +495,9 @@
 //}
 //
 ///*
-// * Get Session String Id (from the ucstring itself)
+// * Get Session String Id (from the std::string itself)
 // */
-//inline CPDStringManager::TStringId	CPDStringManager::getStringId(const ucstring& str) const
+//inline CPDStringManager::TStringId	CPDStringManager::getStringId(const std::string& str) const
 //{
 //	TEntryId	entry = getEntryId(str);
 //
@@ -518,7 +518,7 @@
 ///*
 // * Does string exists with given type
 // */
-//inline bool	CPDStringManager::stringExists(const ucstring& str, uint8 type, NLMISC::CEntityId* foundEid) const
+//inline bool	CPDStringManager::stringExists(const std::string& str, uint8 type, NLMISC::CEntityId* foundEid) const
 //{
 //	TEntryId	entry = getEntryId(str);
 //
@@ -544,7 +544,7 @@
 ///*
 // * Get Mapped Ids
 // */
-//inline bool	CPDStringManager::getMappedIds(const ucstring& str, std::vector<NLMISC::CEntityId>& ids) const
+//inline bool	CPDStringManager::getMappedIds(const std::string& str, std::vector<NLMISC::CEntityId>& ids) const
 //{
 //	TEntryId	entry = getEntryId(str);
 //

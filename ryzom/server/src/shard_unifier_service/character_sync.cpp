@@ -886,8 +886,7 @@ namespace CHARSYNC
 //			NLMISC_BROADCAST_TO_LISTENER(ICharacterSyncCb, onCharacterNameUpdated(charId, oldName, charName));
 //
 //			// update the name manager
-//			ucstring ucName;
-//			ucName.fromUtf8(charName);
+//			std::string ucName = charName;
 //			_NameManager.assignName(charId, ucName, character->getHomeMainlandSessionId());
 //		}
 
@@ -1531,7 +1530,7 @@ namespace CHARSYNC
 			// update the entity translator
 			CEntityId eid(RYZOMID::player, charId);
 
-			ucstring charName;
+			std::string charName;
 			sint8 charSlot;
 			uint32 tempUserId;
 			string userName;

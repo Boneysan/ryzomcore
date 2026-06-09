@@ -76,51 +76,51 @@ namespace R2
 		{
 			std::pair < TMessageHandlerMap::iterator, bool > res;
 
-			res = handlers.insert(std::make_pair(ucstring("GSP"), &CServerAnimationItfSkel::getStartParams_skel));
+			res = handlers.insert(std::make_pair(std::string("GSP"), &CServerAnimationItfSkel::getStartParams_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("ASUCAP"), &CServerAnimationItfSkel::askSetUserCharActPosition_skel));
+			res = handlers.insert(std::make_pair(std::string("ASUCAP"), &CServerAnimationItfSkel::askSetUserCharActPosition_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SAEE"), &CServerAnimationItfSkel::activateEasterEgg_skel));
+			res = handlers.insert(std::make_pair(std::string("SAEE"), &CServerAnimationItfSkel::activateEasterEgg_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SDSSM"), &CServerAnimationItfSkel::dssMessage_skel));
+			res = handlers.insert(std::make_pair(std::string("SDSSM"), &CServerAnimationItfSkel::dssMessage_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SSSP"), &CServerAnimationItfSkel::setScenarioPoints_skel));
+			res = handlers.insert(std::make_pair(std::string("SSSP"), &CServerAnimationItfSkel::setScenarioPoints_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SST"), &CServerAnimationItfSkel::startScenarioTiming_skel));
+			res = handlers.insert(std::make_pair(std::string("SST"), &CServerAnimationItfSkel::startScenarioTiming_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("EST"), &CServerAnimationItfSkel::endScenarioTiming_skel));
+			res = handlers.insert(std::make_pair(std::string("EST"), &CServerAnimationItfSkel::endScenarioTiming_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SDEE"), &CServerAnimationItfSkel::deactivateEasterEgg_skel));
+			res = handlers.insert(std::make_pair(std::string("SDEE"), &CServerAnimationItfSkel::deactivateEasterEgg_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SOEEL"), &CServerAnimationItfSkel::onEasterEggLooted_skel));
+			res = handlers.insert(std::make_pair(std::string("SOEEL"), &CServerAnimationItfSkel::onEasterEggLooted_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SCTR"), &CServerAnimationItfSkel::onCharTargetReceived_skel));
+			res = handlers.insert(std::make_pair(std::string("SCTR"), &CServerAnimationItfSkel::onCharTargetReceived_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("STOCTO"), &CServerAnimationItfSkel::teleportCharacter_skel));
+			res = handlers.insert(std::make_pair(std::string("STOCTO"), &CServerAnimationItfSkel::teleportCharacter_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("CRDY"), &CServerAnimationItfSkel::characterReady_skel));
+			res = handlers.insert(std::make_pair(std::string("CRDY"), &CServerAnimationItfSkel::characterReady_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
@@ -680,107 +680,107 @@ namespace R2
 		{
 			std::pair < TMessageHandlerMap::iterator, bool > res;
 
-			res = handlers.insert(std::make_pair(ucstring("RSP"), &CCharacterControlItfSkel::setUserCharStartParams_skel));
+			res = handlers.insert(std::make_pair(std::string("RSP"), &CCharacterControlItfSkel::setUserCharStartParams_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("CJAS"), &CCharacterControlItfSkel::charJoinAnimSession_skel));
+			res = handlers.insert(std::make_pair(std::string("CJAS"), &CCharacterControlItfSkel::charJoinAnimSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("CLAS"), &CCharacterControlItfSkel::charLeaveAnimSession_skel));
+			res = handlers.insert(std::make_pair(std::string("CLAS"), &CCharacterControlItfSkel::charLeaveAnimSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("RSPP"), &CCharacterControlItfSkel::setUserCharActPosition_skel));
+			res = handlers.insert(std::make_pair(std::string("RSPP"), &CCharacterControlItfSkel::setUserCharActPosition_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("AST"), &CCharacterControlItfSkel::animSessionStarted_skel));
+			res = handlers.insert(std::make_pair(std::string("AST"), &CCharacterControlItfSkel::animSessionStarted_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("ASE"), &CCharacterControlItfSkel::animSessionEnded_skel));
+			res = handlers.insert(std::make_pair(std::string("ASE"), &CCharacterControlItfSkel::animSessionEnded_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SSE"), &CCharacterControlItfSkel::scenarioEnded_skel));
+			res = handlers.insert(std::make_pair(std::string("SSE"), &CCharacterControlItfSkel::scenarioEnded_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SSIT"), &CCharacterControlItfSkel::sendItemDescription_skel));
+			res = handlers.insert(std::make_pair(std::string("SSIT"), &CCharacterControlItfSkel::sendItemDescription_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("AEE"), &CCharacterControlItfSkel::activateEasterEgg_skel));
+			res = handlers.insert(std::make_pair(std::string("AEE"), &CCharacterControlItfSkel::activateEasterEgg_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("DEE1"), &CCharacterControlItfSkel::deactivateEasterEgg_skel));
+			res = handlers.insert(std::make_pair(std::string("DEE1"), &CCharacterControlItfSkel::deactivateEasterEgg_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("DEE2"), &CCharacterControlItfSkel::deactivateEasterEggs_skel));
+			res = handlers.insert(std::make_pair(std::string("DEE2"), &CCharacterControlItfSkel::deactivateEasterEggs_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SCT"), &CCharacterControlItfSkel::sendCharTargetToDss_skel));
+			res = handlers.insert(std::make_pair(std::string("SCT"), &CCharacterControlItfSkel::sendCharTargetToDss_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("STPA"), &CCharacterControlItfSkel::onTpPositionAsked_skel));
+			res = handlers.insert(std::make_pair(std::string("STPA"), &CCharacterControlItfSkel::onTpPositionAsked_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SDC"), &CCharacterControlItfSkel::disconnectChar_skel));
+			res = handlers.insert(std::make_pair(std::string("SDC"), &CCharacterControlItfSkel::disconnectChar_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRPS"), &CCharacterControlItfSkel::returnToPreviousSession_skel));
+			res = handlers.insert(std::make_pair(std::string("SRPS"), &CCharacterControlItfSkel::returnToPreviousSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SSPR"), &CCharacterControlItfSkel::setPioneerRight_skel));
+			res = handlers.insert(std::make_pair(std::string("SSPR"), &CCharacterControlItfSkel::setPioneerRight_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("STOCTA"), &CCharacterControlItfSkel::teleportOneCharacterToAnother_skel));
+			res = handlers.insert(std::make_pair(std::string("STOCTA"), &CCharacterControlItfSkel::teleportOneCharacterToAnother_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("STCTN"), &CCharacterControlItfSkel::teleportCharacterToNpc_skel));
+			res = handlers.insert(std::make_pair(std::string("STCTN"), &CCharacterControlItfSkel::teleportCharacterToNpc_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SUCCS"), &CCharacterControlItfSkel::setUserCharCurrentSession_skel));
+			res = handlers.insert(std::make_pair(std::string("SUCCS"), &CCharacterControlItfSkel::setUserCharCurrentSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRLS"), &CCharacterControlItfSkel::reportLinkedSession_skel));
+			res = handlers.insert(std::make_pair(std::string("SRLS"), &CCharacterControlItfSkel::reportLinkedSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRUS"), &CCharacterControlItfSkel::reportUnlinkedSession_skel));
+			res = handlers.insert(std::make_pair(std::string("SRUS"), &CCharacterControlItfSkel::reportUnlinkedSession_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SGRM"), &CCharacterControlItfSkel::giveRewardMessage_skel));
+			res = handlers.insert(std::make_pair(std::string("SGRM"), &CCharacterControlItfSkel::giveRewardMessage_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRNC"), &CCharacterControlItfSkel::reportNpcControl_skel));
+			res = handlers.insert(std::make_pair(std::string("SRNC"), &CCharacterControlItfSkel::reportNpcControl_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRSNC"), &CCharacterControlItfSkel::reportStopNpcControl_skel));
+			res = handlers.insert(std::make_pair(std::string("SRSNC"), &CCharacterControlItfSkel::reportStopNpcControl_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SCIRU"), &CCharacterControlItfSkel::subscribeCharacterInRingUniverse_skel));
+			res = handlers.insert(std::make_pair(std::string("SCIRU"), &CCharacterControlItfSkel::subscribeCharacterInRingUniverse_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("UCIRU"), &CCharacterControlItfSkel::unsubscribeCharacterInRingUniverse_skel));
+			res = handlers.insert(std::make_pair(std::string("UCIRU"), &CCharacterControlItfSkel::unsubscribeCharacterInRingUniverse_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
@@ -1927,19 +1927,19 @@ namespace R2
 		{
 			std::pair < TMessageHandlerMap::iterator, bool > res;
 
-			res = handlers.insert(std::make_pair(ucstring("SRDS"), &CR2SessionBackupModuleItfSkel::reportDeletedSessions_skel));
+			res = handlers.insert(std::make_pair(std::string("SRDS"), &CR2SessionBackupModuleItfSkel::reportDeletedSessions_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRHS"), &CR2SessionBackupModuleItfSkel::reportHibernatedSessions_skel));
+			res = handlers.insert(std::make_pair(std::string("SRHS"), &CR2SessionBackupModuleItfSkel::reportHibernatedSessions_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRSS"), &CR2SessionBackupModuleItfSkel::reportSavedSessions_skel));
+			res = handlers.insert(std::make_pair(std::string("SRSS"), &CR2SessionBackupModuleItfSkel::reportSavedSessions_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 
-			res = handlers.insert(std::make_pair(ucstring("SRDSS"), &CR2SessionBackupModuleItfSkel::registerDss_skel));
+			res = handlers.insert(std::make_pair(std::string("SRDSS"), &CR2SessionBackupModuleItfSkel::registerDss_skel));
 			// if this assert, you have a doubly message name in your interface definition !
 			nlassert(res.second);
 

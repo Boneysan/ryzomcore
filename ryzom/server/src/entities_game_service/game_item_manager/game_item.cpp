@@ -1244,7 +1244,7 @@ uint32 CGameItem::sendNameId(CCharacter * user)
 			if (_PhraseLiteral)
 			{
 				SM_STATIC_PARAMS_1(params, STRING_MANAGER::literal);
-				params[0].Literal = *_PhraseId; // UTF-8 after 0.5 migration (was ucstring)
+				params[0].Literal = *_PhraseId;
 				return STRING_MANAGER::sendStringToClient(user->getEntityRowId(), "LITERAL", params);
 			}
 			else

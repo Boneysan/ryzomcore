@@ -160,6 +160,19 @@ public:
 								TLineFormat lineFmt = LINE_FMT_NO_CARE,
 							    bool warnIfIncludesNotFound = true);
 
+	// UTF-8 overload — reads file and returns UTF-8 string (0.5 migration convenience wrapper)
+	static void readTextFile(const std::string &filename,
+								std::string &result,
+								bool fileLookup = true,
+								bool preprocess = false,
+								TLineFormat lineFmt = LINE_FMT_NO_CARE,
+							    bool warnIfIncludesNotFound = true)
+	{
+		ucstring tmp;
+		readTextFile(filename, tmp, fileLookup, preprocess, lineFmt, warnIfIncludesNotFound);
+		result = tmp.toUtf8();
+	}
+
 	/** Read the content of a buffer as a Unicode text.
 	 *	This is to read preloaded Unicode files.
 	 *	The method support 16 bits or 8bits utf-8 tagged buffer.
@@ -205,6 +218,23 @@ public:
 	static bool		matchToken(const char* token, ucstring::const_iterator &it, ucstring::const_iterator end);
 	/// Advance iterator to the start of next line or to the end of string
 	static void		skipLine(ucstring::const_iterator &it, ucstring::const_iterator end, uint32 &lineCounter);
+	//@}
+
+	//@{
+	//\name UTF-8 / std::string parsing utilities (Phase 0.5/1.1 ucstring migration)
+	// These allow string_manager_parser and other code to avoid ucstring entirely.
+	// Byte-wise safe for ASCII controls + delimiters (labels, [ ], escapes); non-ASCII content copied as UTF-8 bytes.
+	static void		removeCComment		(std::string &commentedString);
+	static void		skipWhiteSpace		(const std::string &text, size_t &pos, std::string *storeComments = NULL, bool newLineAsWhiteSpace = true);
+	/// Parse a label (ASCII [0-9A-Za-z@_] only)
+	static bool		parseLabel			(const std::string &text, size_t &pos, std::string &label);
+	/// Parse a marked string using UTF-8 std::string + byte pos (marks are ASCII).
+	static bool		parseMarkedString	(char openMark, char closeMark, const std::string &text, size_t &pos, std::string &result, uint32 *lineCounter = NULL, bool allowNewline = true);
+	/** Try to read a given token at current position (std::string version).
+	 */
+	static bool		matchToken(const char* token, const std::string &text, size_t &pos);
+	/// Advance pos to the start of next line or to the end of string
+	static void		skipLine(const std::string &text, size_t &pos, uint32 &lineCounter);
 	//@}
 
 	//@{

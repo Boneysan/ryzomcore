@@ -735,26 +735,6 @@ sint64 CCDBSynchronised::x_getProp( ICDBStructNode *node ) const
 //	getProp by name
 //	
 //-----------------------------------------------
-//const ucstring &CCDBSynchronised::getPropString( const std::string& name ) const
-//{
-//	H_AUTO(CCDBSynchronisedGetProp)
-//#error : very bad and not terminated code, don't uncomment or reimplement it
-//	//if ( _DataStructRoot )
-//	//{
-//		ICDBStructNode::CTextId txtId( name );
-//		TCDBDataIndex dataIndex = _DataStructRoot->findDataIndex( txtId );
-//		if ( _DataContainer.checkIndex( dataIndex ) )
-//		{
-//			return CStringMapper::unmap(_DataContainer.getValue64( dataIndex ));
-//		}
-//		else
-//		{
-//			throw CCDBSynchronised::ECDBNotFound();
-//		}
-//	//}
-//	//else
-//	//	throw CCDBSynchronised::EDBNotInit();
-//} // getProp //
 
 
 const std::string &CCDBSynchronised::x_getPropString( ICDBStructNode *node ) const

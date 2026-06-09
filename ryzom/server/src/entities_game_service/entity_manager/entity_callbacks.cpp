@@ -365,7 +365,6 @@ void cbClientReady( CMessage& msgin, const std::string &serviceName, NLNET::TSer
 
 	{
 		// validate player web account
-		// \todo this is unsafe, because name is an ucstring which might be fucked up when casted into string
 		CMailForumValidator::validateUserEntry( c->getHomeMainlandSessionId(), c->getName(), player->getLoginCookie().toString() );
 
 		NLNET::CMessage	msgout( "IMPULSION_ID" );

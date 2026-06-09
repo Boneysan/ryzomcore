@@ -442,15 +442,6 @@ public:
 
 
 	/// Add string
-	void					addString(uint64 skey, const ucstring& str)
-	{
-		setHeader(AddString);
-
-		_Value3[0] = skey;
-		_String = str;
-	}
-
-	/// Add string
 	void					unmapString(uint64 skey)
 	{
 		setHeader(UnmapString);
@@ -508,28 +499,6 @@ public:
 	}
 
 
-
-
-	/// Log Chat sentence
-	void					logChat(const ucstring& sentence, const NLMISC::CEntityId& sender, const std::vector<NLMISC::CEntityId>& receivers)
-	{
-		setHeader(LogChat);
-		_String = sentence;
-		*(NLMISC::CEntityId*)(&(_Value3[0])) = sender;
-
-		uint	bufferSize = (uint)receivers.size()*sizeof(NLMISC::CEntityId);
-		if (bufferSize > 0)
-		{
-			_LogBuffer.resize(bufferSize);
-			NLMISC::CEntityId*	srcBuffer = (NLMISC::CEntityId*)(&(receivers[0]));
-			NLMISC::CEntityId*	dstBuffer = (NLMISC::CEntityId*)(&(_LogBuffer[0]));
-			memcpy(dstBuffer, srcBuffer, bufferSize);
-		}
-		else
-		{
-			_LogBuffer.clear();
-		}
-	}
 
 
 	// @}

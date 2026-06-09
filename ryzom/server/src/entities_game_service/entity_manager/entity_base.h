@@ -224,17 +224,6 @@ public:
 	
 	inline const std::string& getName() const { return _Name; }
 
-	/**
-	 * Set the Surname
-	 * \param name is surname of entity
-	 */
-//	inline void setSurname( const ucstring& name ) { _Surname = name; }
-
-	/**
-	 * get the Surname
-	 * \return surname of entity
-	 */
-//	inline const ucstring& getSurname() const { return _Surname; }
 
 	/**
 	 * get the Race of the entity

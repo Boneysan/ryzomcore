@@ -149,7 +149,7 @@ void CNameManager::liberateName(uint32 charId)
 
 
 //-----------------------------------------------------------------------------
-//void CNameManager::checkCharacterSlot(uint32 charId, const ucstring & ucName)
+//void CNameManager::checkCharacterSlot(uint32 charId, const std::string & name)
 //{
 ////	if (eId == CEntityId::Unknown)
 ////		return;
@@ -1032,7 +1032,7 @@ bool CNameManager::loadCharacterNamesFromDatabase()
 //		const TCharSlot charSlot = TCharSlot( (*it).second.UserId, (*it).second.CharIndex );
 //
 //		// Check the name is usable, otherwise skip (to resolve corrupted names)
-//		if ( isNameUsable( ucstring(name), charSlot.UserId, charSlot.CharIndex ) != TCharacterNameResult::cnr_ok)
+//		if ( isNameUsable( name, charSlot.UserId, charSlot.CharIndex ) != TCharacterNameResult::cnr_ok)
 //		{
 //			nlwarning( "Invalid character name '%s' for user %u char slot %u in %s, will be reset to default", name.c_str(), charSlot.UserId, (uint)charSlot.CharIndex, fileName.c_str() );
 //			mustSaveFile = true;

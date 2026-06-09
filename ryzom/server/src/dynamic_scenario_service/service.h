@@ -69,7 +69,7 @@ public:
 	void forwardToStringManagerModule (NLNET::CMessage &msgin);
 	
 
-	void forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence);
+	void forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence);
 	
 
 private:

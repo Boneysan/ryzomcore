@@ -205,9 +205,6 @@ public:
 	/// Load a row and its dependent rows from a mapped table
 	void						load(TTableIndex table, uint64 key);
 
-	/// Add a string in pds
-	void						addString(const NLMISC::CEntityId& eid, const ucstring& str);
-
 	/// Unmap a string in pds
 	void						unmapString(const NLMISC::CEntityId& eid);
 
@@ -346,22 +343,6 @@ public:
 	}
 
 	// @}
-
-	/// \name LogChat methods
-	// @{
-
-	/// Log Chat sentence
-	void						logChat(const ucstring& sentence, const NLMISC::CEntityId& sender, const std::vector<NLMISC::CEntityId>& receivers)
-	{
-		if (PDVerbose)
-			nlinfo("CPDSLib: %12s", "popContext");
-
-		CDbMessage&	msg = nextMessage();
-		msg.logChat(sentence, sender, receivers);
-	}
-
-	// @}
-
 
 	/// Fetch data
 	void						fetchPDSData(NLMISC::IStream &f);

@@ -143,8 +143,7 @@ void CDBStringUpdater::storeAStringInIOS(const std::string &str)
 	if (_IOSIsUp && !str.empty())
 	{
 		CMessage msgios("STORE_STRING");
-		ucstring ucStr; ucStr.fromUtf8(str);
-		nlWrite(msgios, serial, ucStr);
+		nlWrite(msgios, serial, const_cast<std::string&>(str));
 		CUnifiedNetwork::getInstance()->send("IOS", msgios);
 	}
 }
@@ -157,13 +156,13 @@ void	CDBStringUpdater::cbStoreStringResult(CMessage& msgin, const string &servic
 
 void	CDBStringUpdater::storeStringResult(CMessage& msgin, const string &serviceName, NLNET::TServiceId serviceId)
 {
-	ucstring			ucStr;
+	std::string			str;
 	TIOSStringId		iosStringId;
 
-	msgin.serial(ucStr);
+	msgin.serial(str);
 	msgin.serial(iosStringId);
 
-	TLocalStringId localStringId = CStringMapper::map(ucStr.toUtf8());
+	TLocalStringId localStringId = CStringMapper::map(str);
 
 	// store the mapping for later uses
 	_MappedIOSStrings.insert(make_pair(localStringId, iosStringId));

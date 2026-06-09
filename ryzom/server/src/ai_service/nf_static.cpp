@@ -999,13 +999,9 @@ void setSimplePhrase_ss_(CStateInstance* entity, CScriptStack& stack)
 	phraseContent2 += phraseContent;
 	phraseContent2 += "]}";
 
-	ucstring ucPhraseContent;
-	ucPhraseContent.fromUtf8(phraseContent2); // utf-8 version
-	//ucPhraseContent = phraseContent2; // iso-8859-1 version
-	
 	NLNET::CMessage	msgout("SET_PHRASE");
 	msgout.serial(phraseName);
-	msgout.serial(ucPhraseContent);
+	msgout.serial(phraseContent2);
 	sendMessageViaMirror("IOS", msgout);
 }
 
@@ -1017,20 +1013,16 @@ void setSimplePhrase_sss_(CStateInstance* entity, CScriptStack& stack)
 	stack.pop();
 	std::string phraseName = (std::string)stack.top();
 	stack.pop();
-	
+
 	std::string phraseContent2;
 	phraseContent2 += phraseName;
 	phraseContent2 += "(){[";
 	phraseContent2 += phraseContent;
 	phraseContent2 += "]}";
 
-	ucstring ucPhraseContent;
-	ucPhraseContent.fromUtf8(phraseContent2); // utf-8 version
-	//ucPhraseContent = phraseContent2; // iso-8859-1 version
-	
 	NLNET::CMessage	msgout("SET_PHRASE_LANG");
 	msgout.serial(phraseName);
-	msgout.serial(ucPhraseContent);
+	msgout.serial(phraseContent2);
 	msgout.serial(lang);
 	sendMessageViaMirror("IOS", msgout);
 }

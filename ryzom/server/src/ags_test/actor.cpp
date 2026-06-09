@@ -482,8 +482,7 @@ void CActor::addToOtherServices()
 		CMessage msgout("CHARACTER_NAME");
 		TDataSetRow raw = TheDataset.getDataSetRow( _id );
 		msgout.serial( raw );
-		ucstring uname( _visualName );
-		msgout.serial( uname );
+		msgout.serial( _visualName );
 		sendMessageViaMirror( "IOS", msgout );
 	}
 

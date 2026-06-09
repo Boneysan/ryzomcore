@@ -818,31 +818,8 @@ void sendSimpleMessage( const CEntityId &entityId, const std::string &msgName )
 //--------------------------------------------------------------
 //					sendMessage()  
 //--------------------------------------------------------------
-void sendMessage( const NLMISC::CEntityId &entityId, const std::string &msgName, const ucstring &txt )
-{
-	if ( entityId.getType() != RYZOMID::player && entityId.getType() != RYZOMID::chatGroup && entityId.getType() != RYZOMID::dynChatGroup )
-		return;
-
-	/// TEMP : convert the uctring to a string
-	const string txtStr = txt.toString();
-
-	CMessage msg("STATIC_STRING");
-
-	msg.serial( const_cast<CEntityId&> (entityId) );
-	
-	set<CEntityId> excluded;
-	msg.serialCont( excluded );
-	
-	msg.serial( const_cast<string&> (msgName) );
-	msg.serial( const_cast<string&> (txtStr) );
-
-	sendMessageViaMirror ("IOS", msg);
-
-	INFOLOG("<sendMessage>send %s (param %s) for entity %s",msgName.c_str(), txt.toString().c_str(), entityId.toString().c_str());
-} // sendMessage //
-
 //--------------------------------------------------------------
-//					sendMessage()  
+//					sendMessage()
 //--------------------------------------------------------------
 void sendMessage( const NLMISC::CEntityId &entityId, const std::string &msgName, const NLMISC::CEntityId &entityIdForText )
 {

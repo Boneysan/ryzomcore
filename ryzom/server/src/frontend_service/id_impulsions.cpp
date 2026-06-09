@@ -371,7 +371,7 @@ void routeImpulsionIdFromClient( NLMISC::CBitMemStream& bms, const NLMISC::CEnti
 				} store;
 				CEntityId	e;
 				string		s;
-				string		str;  // was ucstring (now std::string after 0.5 UTF-8 migration)
+				string		str;
 
 				uint	i;
 				// for each message field, serial in and serial out

@@ -552,6 +552,231 @@ void CI18N::removeCComment(ucstring &commentedString)
 	commentedString.swap(temp);
 }
 
+// UTF-8 / std::string versions for Phase 1.1 (no ucstring in callers like string_manager_parser).
+// Byte scans are safe: ASCII control/delimiter bytes never appear inside UTF-8 multi-byte sequences.
+void CI18N::removeCComment(std::string &commentedString)
+{
+	ucstring tmp;
+	tmp.fromUtf8(commentedString);
+	removeCComment(tmp);
+	commentedString = tmp.toUtf8();
+}
+
+void CI18N::skipWhiteSpace(const std::string &text, size_t &pos, std::string *storeComments, bool newLineAsWhiteSpace)
+{
+	while (pos < text.size() &&
+			(
+					((unsigned char)text[pos] == 0xa && newLineAsWhiteSpace)
+				||	((unsigned char)text[pos] == 0xd && newLineAsWhiteSpace)
+				||	text[pos] == ' '
+				||	text[pos] == '\t'
+				||	(storeComments && text[pos] == '/' && pos+1 < text.size() && text[pos+1] == '/')
+				||	(storeComments && text[pos] == '/' && pos+1 < text.size() && text[pos+1] == '*')
+			))
+	{
+		if (storeComments && text[pos] == '/' && pos+1 < text.size() && text[pos+1] == '/')
+		{
+			// found a one line C comment. Store it until end of line.
+			while (pos < text.size() && (text[pos] != '\n' && text[pos] != '\r'))
+				storeComments->push_back(text[pos++]);
+
+			// store the final '\n'
+			if (pos < text.size())
+				storeComments->push_back('\n');
+		}
+		else if (storeComments && text[pos] == '/' && pos+1 < text.size() && text[pos+1] == '*')
+		{
+			// found a multi line C++ comment. store until we found the closing '*/'
+			while (pos < text.size() && !(text[pos] == '*' && pos + 1 < text.size() && text[pos + 1] == '/'))
+			{
+				// don't put \r
+				if (text[pos] == '\r')
+				{
+					// skip it
+					++pos;
+				}
+				else
+				{
+					storeComments->push_back(text[pos]);
+					++pos;
+				}
+			}
+			// skip the closing '*/'
+			if (pos < text.size())
+				++pos;
+			if (pos < text.size())
+				++pos;
+		}
+		else
+		{
+			++pos;
+		}
+	}
+}
+
+bool CI18N::parseLabel(const std::string &text, size_t &pos, std::string &label)
+{
+	size_t rewind = pos;
+	label.clear();
+
+	// first char must be A-Za-z@_
+	unsigned char firstCh = (pos < text.size()) ? (unsigned char)text[pos] : 0;
+	if (pos < text.size() &&
+			(
+				(firstCh >= '0' && firstCh <= '9')
+			||	(firstCh >= 'A' && firstCh <= 'Z')
+			||	(firstCh >= 'a' && firstCh <= 'z')
+			||	(firstCh == '_')
+			||	(firstCh == '@')
+			)
+		)
+		label.push_back(text[pos++]);
+	else
+	{
+		pos = rewind;
+		return false;
+	}
+
+	// other char must be [0-9A-Za-z@_]*
+	while (pos < text.size())
+	{
+		unsigned char ch = (unsigned char)text[pos];
+		if ( ! (
+				(ch >= '0' && ch <= '9')
+			||	(ch >= 'A' && ch <= 'Z')
+			||	(ch >= 'a' && ch <= 'z')
+			||	(ch == '_')
+			||	(ch == '@')
+			) )
+			break;
+		label.push_back(text[pos++]);
+	}
+
+	return true;
+}
+
+bool CI18N::parseMarkedString(char openMark, char closeMark, const std::string &text, size_t &pos, std::string &result, uint32 *lineCounter, bool allowNewline)
+{
+	result.clear();
+
+	// parse a string delimited by the specified opening and closing mark
+	if (pos < text.size() && text[pos] == openMark)
+	{
+		++pos;
+
+		while (pos < text.size() && text[pos] != closeMark && (allowNewline || text[pos] != '\n'))
+		{
+			// ignore tab, new lines and line feed
+			if (text[pos] == openMark)
+			{
+				nlwarning("I18N: Found a non escaped openmark %c in a delimited string (Delimiters : '%c' - '%c')", openMark, openMark, closeMark);
+				return false;
+			}
+			if (text[pos] == '\t'
+				|| (text[pos] == '\n' && allowNewline)
+				|| text[pos] == '\r')
+				++pos;
+			else if (text[pos] == '\\' && pos+1 < text.size() && text[pos+1] != '\\')
+			{
+				++pos;
+				// this is an escape sequence !
+				char esc = (pos < text.size()) ? text[pos] : 0;
+				switch(esc)
+				{
+				case 't':
+					result.push_back('\t');
+					break;
+				case 'n':
+					result.push_back('\n');
+					break;
+				case 'd':
+					// insert a delete
+					result.push_back(8);
+					break;
+				default:
+					// escape the close mark ?
+					if(esc == closeMark)
+						result.push_back(closeMark);
+					// escape the open mark ?
+					else if(esc == openMark)
+						result.push_back(openMark);
+					else
+					{
+						nlwarning("I18N: Ignoring unknown escape code \\%c (char value : %u)", esc, (unsigned)esc);
+						return false;
+					}
+				}
+				++pos;
+			}
+			else if (text[pos] == '\\' && pos+1 < text.size() && text[pos+1] == '\\')
+			{
+				// escape the \ char
+				++pos;
+				if (pos < text.size())
+					result.push_back(text[pos]);
+				++pos;
+			}
+			else
+			{
+				if (text[pos] == '\n' && lineCounter != NULL)
+					// update line counter
+					++(*lineCounter);
+
+				result.push_back(text[pos]);
+				++pos;
+			}
+		}
+
+		if (pos >= text.size() || text[pos] != closeMark)
+		{
+			nlwarning("I18N: Missing end of delimited string (Delimiters : '%c' - '%c')", openMark, closeMark);
+			return false;
+		}
+		else
+			++pos;
+	}
+	else
+	{
+		nlwarning("I18N: Malformed or non existent delimited string (Delimiters : '%c' - '%c')", openMark, closeMark);
+		return false;
+	}
+
+	return true;
+}
+
+bool CI18N::matchToken(const char* token, const std::string &text, size_t &pos)
+{
+	size_t rewind = pos;
+	skipWhiteSpace(text, pos, NULL, false);
+	while (pos < text.size() && *token != 0 && text[pos] == *token)
+	{
+		++pos;
+		++token;
+	}
+
+	if (*token == 0)
+	{
+		// we found the token
+		return true;
+	}
+
+	// not found
+	pos = rewind;
+	return false;
+}
+
+void CI18N::skipLine(const std::string &text, size_t &pos, uint32 &lineCounter)
+{
+	while (pos < text.size() && text[pos] != '\n')
+		++pos;
+
+	if (pos < text.size())
+	{
+		++lineCounter;
+		++pos;
+	}
+}
+
 void CI18N::skipWhiteSpace(ucstring::const_iterator &it, ucstring::const_iterator &last, ucstring *storeComments, bool newLineAsWhiteSpace)
 {
 	while (it != last &&

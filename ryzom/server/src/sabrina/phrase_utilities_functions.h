@@ -412,13 +412,6 @@ inline void sendSimpleMessage( const TDataSetRow &entityRowId, const std::string
 
 
 /**
- * send a message with a string param to the specified entity (or chat group)
- * \param entityId CEntityId of the entity to whom the message is sent 
- * \param msgName name of the message
- * \param txt the text param
- */
-void sendMessage( const NLMISC::CEntityId &entityId, const std::string &msgName, const ucstring &txt );
-
 /**
  * send a message with a string param to the specified entity (or chat group)
  * \param entityId CEntityId of the entity to whom the message is sent 

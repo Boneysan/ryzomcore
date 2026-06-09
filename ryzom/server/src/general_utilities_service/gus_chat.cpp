@@ -65,9 +65,7 @@ namespace GUS
 		void addClient(GUS::TClientId clientId);
 		void removeClient(GUS::TClientId clientId);
 
-		void broadcastMessage(const ucstring& speakerName, const ucstring& txt);
 		void broadcastMessage(const std::string& speakerNameUtf8, const std::string& txtUtf8);
-		void sendMessage(GUS::TClientId clientId, const ucstring& speakerName,const ucstring& txt);
 		void sendMessage(GUS::TClientId clientId, const std::string& speakerNameUtf8, const std::string& txtUtf8);
 
 		void setChatCallback(IChatCallback *callback);
@@ -526,55 +524,37 @@ namespace GUS
 		sendMessageViaMirror( "EGS", msgout);
 	}
 
-	void CChatChannelImplementation::broadcastMessage(const ucstring& speakerName, const ucstring& txt)
+	void CChatChannelImplementation::broadcastMessage(const std::string& speakerNameUtf8, const std::string& txtUtf8)
 	{
 		nldebug("Channel %s : broadcasting \"'%s' says '%s'\"",
 			_ChannelTitle.c_str(),
-			speakerName.toString().c_str(),
-			txt.toString().c_str());
+			speakerNameUtf8.c_str(),
+			txtUtf8.c_str());
 
 		CMessage msgout("DYN_CHAT:SERVICE_CHAT");
 		msgout.serial(_ChannelID);
-		msgout.serial(const_cast<ucstring&>(speakerName));
-		msgout.serial(const_cast<ucstring&>(txt));
-
-		sendMessageViaMirror( "IOS", msgout);
-	}
-
-	void CChatChannelImplementation::broadcastMessage(const std::string& speakerNameUtf8, const std::string& txtUtf8)
-	{
-		ucstring speakerName, txt;
-		speakerName.fromUtf8(speakerNameUtf8);
-		txt.fromUtf8(txtUtf8);
-
-		broadcastMessage(speakerName, txt);
-	}
-
-	void CChatChannelImplementation::sendMessage(GUS::TClientId clientId, const ucstring& speakerName,const ucstring& txt)
-	{
-		CEntityId eid = CGusMirror::getInstance()->getDataSet("fe_temp")->getEntityId(clientId);
-		nldebug("Channel %s : sending \"'%s' says '%s'\" to client %s",
-			_ChannelTitle.c_str(),
-			speakerName.toString().c_str(),
-			txt.toString().c_str(),
-			eid.toString().c_str());
-
-		CMessage msgout("DYN_CHAT:SERVICE_TELL");
-		msgout.serial(_ChannelID);
-		msgout.serial(const_cast<ucstring&>(speakerName));
-		msgout.serial(clientId);
-		msgout.serial(const_cast<ucstring&>(txt));
+		msgout.serial(const_cast<std::string&>(speakerNameUtf8));
+		msgout.serial(const_cast<std::string&>(txtUtf8));
 
 		sendMessageViaMirror( "IOS", msgout);
 	}
 
 	void CChatChannelImplementation::sendMessage(GUS::TClientId clientId, const std::string& speakerNameUtf8, const std::string& txtUtf8)
 	{
-		ucstring speakerName, txt;
-		speakerName.fromUtf8(speakerNameUtf8);
-		txt.fromUtf8(txtUtf8);
+		CEntityId eid = CGusMirror::getInstance()->getDataSet("fe_temp")->getEntityId(clientId);
+		nldebug("Channel %s : sending \"'%s' says '%s'\" to client %s",
+			_ChannelTitle.c_str(),
+			speakerNameUtf8.c_str(),
+			txtUtf8.c_str(),
+			eid.toString().c_str());
 
-		sendMessage(clientId, speakerName, txt);
+		CMessage msgout("DYN_CHAT:SERVICE_TELL");
+		msgout.serial(_ChannelID);
+		msgout.serial(const_cast<std::string&>(speakerNameUtf8));
+		msgout.serial(clientId);
+		msgout.serial(const_cast<std::string&>(txtUtf8));
+
+		sendMessageViaMirror( "IOS", msgout);
 	}
 
 	void CChatChannelImplementation::setChatCallback(IChatCallback* callback)

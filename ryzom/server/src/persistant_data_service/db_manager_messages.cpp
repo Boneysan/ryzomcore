@@ -203,7 +203,7 @@ void	cbUpdateDb(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::T
 //		case RY_PDS::CDbMessage::AddString:
 //			{
 //				NLMISC::CEntityId			eId = NLMISC::CEntityId(updMsg.getValue64bits());
-//				const ucstring&				str = updMsg.getString();
+//				const std::string&			str = updMsg.getString();
 //				RY_PDS::CPDStringManager&	sm = database->getStringManager();
 //				sm.addString(eId, str);
 //			}
@@ -243,25 +243,6 @@ void	cbUpdateDb(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::T
 
 
 
-/* *** DEPRECATED *** */
-/*
-void	cbAddString(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId)
-{
-	TDatabaseId	id = CDbManager::getDatabaseId(serviceId);
-	if (id == INVALID_DATABASE_ID)
-		return;
-
-	CEntityId							eId;
-	RY_PDS::CPDStringManager::TEntryId	id;
-	ucstring							str;
-
-	msgin.serial(eId);
-	msgin.serial(id);
-	msgin.serial(str);
-
-	CDbManager::addString(id, eId, pdId, str);
-}
-*/
 
 
 void	cbSheetIdMapping(NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId)

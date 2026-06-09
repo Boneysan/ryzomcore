@@ -51,7 +51,7 @@ inline std::string capitalize(const std::string & s)
 	return res + NLMISC::toLower(s.substr(i));
 }
 
-// (duplicate capitalize removed during 0.5 ucstring batch; the one above is the active impl)
+// (duplicate capitalize removed during 0.5 migration; the one above is the active impl)
 
 //-------------------------------------------------------------------------------------------------
 // HANDY MACROS - For forcing the pre-preprocessor to evaluate concatenation operations nicely

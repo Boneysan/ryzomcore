@@ -62,7 +62,7 @@ public:
 	void forwardToStringManagerModule (NLNET::CMessage &msgin);
 	
 
-	void forwardIncarnChat(TChanID id,TDataSetRow senderId,ucstring sentence);
+	void forwardIncarnChat(TChanID id,TDataSetRow senderId,std::string sentence);
 
 	void setR2Sbm(NLNET::IModule* module) { _R2Sbm = module; }
 	

@@ -65,9 +65,7 @@ public:
 	CMirrorPropValueAlice< TYPE_SHEET, CPropLocationPacked<2> >	_SheetId;
 	/// name
 	std::string								_Name;
-	/// name (family)	
-//	ucstring								_Surname;
-	/// Race of entity 
+	/// Race of entity
 	EGSPD::CPeople::TPeople					_Race;
 	/// Gender
 	uint8									_Gender;

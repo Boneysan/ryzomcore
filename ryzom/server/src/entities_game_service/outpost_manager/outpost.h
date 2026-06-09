@@ -584,7 +584,6 @@ public:
 
 private:
 //	void setClientDBProp(std::string const& prop, sint64 value );
-//	void setClientDBPropString(std::string const& prop, const ucstring &value );
 //	sint64 getClientDBProp(std::string const& prop);
 	void fillOutpostDB();
 	void sendOutpostDBDeltas();

@@ -5865,8 +5865,7 @@ void CCharacter::setAnimalName(uint8 petIndex, const std::string &customName)
 	TDataSetRow row = animal.SpawnedPets;
 	NLNET::CMessage msgout("CHARACTER_NAME");
 	msgout.serial(row);
-	ucstring ucCustom(customName); // bridge for msg serial
-	msgout.serial(ucCustom);
+	msgout.serial(const_cast<std::string&>(customName));
 	sendMessageViaMirror("IOS", msgout);
 }
 
@@ -12320,8 +12319,7 @@ void CCharacter::registerName(const std::string &newName)
 		registeredName = getName() + string("$") + sTitle + string("$");
 	else
 		registeredName = newName + string("$") + sTitle + string("$");
-	ucstring ucRegistered(registeredName); // bridge for msg
-	msgName.serial( ucRegistered );
+	msgName.serial( registeredName );
 	// added 27/04/2006 : now for domain unification, we transmit home mainland session to IOS
 	nlWrite(msgName, serial, getHomeMainlandSessionId());
 
@@ -13079,10 +13077,8 @@ uint16 CCharacter::getFirstFreeSlotInKnownPhrase()
 void CCharacter::sendDynamicMessage(const string &phrase, const string &message)
 {
 	TVectorParamCheck messageParams;
-	ucstring phraseText;
 	string phraseName = phrase;
-	phraseText.fromUtf8(message);
-	ucstring phraseContent = phrase+"(){["+phraseText+"]}";
+	string phraseContent = phrase + "(){[" + message + "]}";
 	NLNET::CMessage	msgout("SET_PHRASE");
 	msgout.serial(phraseName);
 	msgout.serial(phraseContent);
@@ -14315,7 +14311,7 @@ uint32 CCharacter::getMagicResistance(DMGTYPE::EDamageType dmgType)
 void CCharacter::addPlayerToFriendList(const std::string &name)
 {
 	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name);
-	addPlayerToFriendList(NLMISC::CEntityIdTranslator::getInstance()->getByEntity(ucstring::makeFromUtf8(fullName)));
+	addPlayerToFriendList(NLMISC::CEntityIdTranslator::getInstance()->getByEntity(fullName));
 }
 
 //--------------------------------------------------------------
@@ -14324,7 +14320,7 @@ void CCharacter::addPlayerToFriendList(const std::string &name)
 void CCharacter::addPlayerToIgnoreList(const std::string &name)
 {
 	std::string fullName = CShardNames::getInstance().makeFullNameFromRelative(getHomeMainlandSessionId(), name);
-	addPlayerToIgnoreList( NLMISC::CEntityIdTranslator::getInstance()->getByEntity(ucstring::makeFromUtf8(fullName)));
+	addPlayerToIgnoreList( NLMISC::CEntityIdTranslator::getInstance()->getByEntity(fullName));
 }
 
 /// Compute the 'visual' online state of a friend character
@@ -16049,7 +16045,7 @@ void CCharacter::sendCustomEmote( const NLMISC::CEntityId& id, MBEHAV::EBehaviou
 	// send emote message to IOS
 	NLNET::CMessage	msgout("CUSTOM_EMOTE");
 	msgout.serial( const_cast<TDataSetRow&>( getEntityRowId() ) );
-	ucstring ucEmote; ucEmote.fromUtf8(emoteCustomText); msgout.serial(ucEmote);
+	msgout.serial(emoteCustomText);
 	sendMessageViaMirror("IOS", msgout);
 
 } // sendCustomEmote //
@@ -18852,9 +18848,8 @@ void CCharacter::setTeamId(uint16 id)
 void CCharacter::setLeagueId(TChanID id, bool removeIfEmpty)
 {
 
-	ucstring nameUc = CEntityIdTranslator::getInstance()->getByEntity(getId());
-	CEntityIdTranslator::removeShardFromName(nameUc);
-	const std::string name = nameUc.toUtf8();
+	std::string name = CEntityIdTranslator::getInstance()->getEntityNameStr(getId());
+	CEntityIdTranslator::removeShardFromName(name);
 
 	// Remove old dynamic channel
 	if (_LeagueId != DYN_CHAT_INVALID_CHAN)

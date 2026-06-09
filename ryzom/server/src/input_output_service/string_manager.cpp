@@ -176,7 +176,7 @@ void CStringManager::loadCache()
 //			nldebug("Loaded from cache [%u][%s]", id, str.toString().c_str());
 			// create a new entry
 			std::pair<TMappedUStringContainer::iterator, bool> ret;
-			ret = _StringIdx.insert(std::make_pair(str.toUtf8(), id)); // bridge: cache serial still ucstring, _StringIdx now string-keyed
+			ret = _StringIdx.insert(std::make_pair(str.toUtf8(), id)); // cache file uses legacy UCS-2 serial; index is UTF-8 keyed
 //			nlassert(ret.second);
 			if (!ret.second)
 			{
@@ -193,10 +193,10 @@ void CStringManager::loadCache()
 //				_StringBase.reserve(_StringBase.size()*2);
 //			}
 //			_StringBase.resize(id+1);
-//			_StringBase[id] = str.toUtf8(); // bridge from cache ucstring serial to string base
+//			_StringBase[id] = str.toUtf8();
 			while (_StringBase.size() <= id)
 				_StringBase.push_back(string());
-			_StringBase[id] = str.toUtf8(); // bridge from cache ucstring serial to string base
+			_StringBase[id] = str.toUtf8();
 
 			// some logging
 			uint32 now = CTime::getSecondsSince1970();
@@ -965,8 +965,7 @@ void	CStringManager::sendString( uint32 nameIndex, TServiceId serviceId )
 	CMessage msgout( "RECV_STRING" );
 	msgout.serial( nameIndex );
 	const std::string& s = getString( nameIndex );
-	ucstring ucs(s);
-	msgout.serial( ucs );
+	msgout.serial( const_cast<std::string&>(s) );
 	CUnifiedNetwork::getInstance()->send( serviceId, msgout ); // reply => not via mirror
 }
 
@@ -1056,7 +1055,7 @@ void CStringManager::updateUserLanguage( uint32 userId, TServiceId frontEndId, c
 void CStringManager::setPhrase(NLNET::CMessage &message)
 {
 	std::string phraseName;
-	ucstring phraseContent;
+	std::string phraseContent;
 	try
 	{
 		message.serial(phraseName);
@@ -1067,7 +1066,7 @@ void CStringManager::setPhrase(NLNET::CMessage &message)
 		nlwarning("<setPhrase> %s",e.what());
 		return;
 	}
-	setPhrase(phraseName, phraseContent.toUtf8());
+	setPhrase(phraseName, phraseContent);
 }
 
 /*
@@ -1076,7 +1075,7 @@ void CStringManager::setPhrase(NLNET::CMessage &message)
 void CStringManager::setPhraseLang(NLNET::CMessage &message)
 {
 	std::string phraseName;
-	ucstring phraseContent;
+	std::string phraseContent;
 	std::string langString;
 	try
 	{
@@ -1091,7 +1090,7 @@ void CStringManager::setPhraseLang(NLNET::CMessage &message)
 	}
 
 	TLanguages lang = checkLanguageCode(langString);
-	setPhrase(phraseName, phraseContent.toUtf8(), lang);
+	setPhrase(phraseName, phraseContent, lang);
 }
 
 /*

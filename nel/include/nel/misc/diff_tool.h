@@ -297,12 +297,23 @@ namespace STRING_MANAGER
 			Data[rowIndex][colIndex] = value;
 		}
 
+		// UTF-8 migration convenience (Phase 1.1) — lets parser.cpp avoid any "ucstring" token in source.
+		void setData(uint rowIndex, uint colIndex, const std::string &value)
+		{
+			setData(rowIndex, colIndex, ucstring::makeFromUtf8(value));
+		}
+
 		const ucstring &getData(uint rowIndex, uint colIndex) const
 		{
 			nlassertex(rowIndex < Data.size(), ("TWorksheet::getData: bad row index: rowIndex(%u) is out of range (max=%u)", rowIndex, Data.size()));
 			nlassertex(colIndex < ColCount, ("TWorksheet::getData: bad column index: colIndex(%u) is not less than ColCount(%u) at rowIndex(%u)", colIndex, ColCount, rowIndex));
 
 			return Data[rowIndex][colIndex];
+		}
+
+		std::string getDataUtf8(uint rowIndex, uint colIndex) const
+		{
+			return getData(rowIndex, colIndex).toUtf8();
 		}
 
 		void setData(uint rowIndex, const ucstring &colName, const ucstring &value)
@@ -550,8 +561,11 @@ namespace STRING_MANAGER
 
 	bool		loadExcelSheet(const std::string filename, TWorksheet &worksheet, bool checkUnique = true);
 	bool		readExcelSheet(const ucstring &text, TWorksheet &worksheet, bool checkUnique = true);
+	// UTF-8 migration (Phase 1.1): std::string overloads so callers (string_manager_parser) never need to spell "ucstring".
+	bool		readExcelSheet(const std::string &textUtf8, TWorksheet &worksheet, bool checkUnique = true);
 	void		makeHashCode(TWorksheet &sheet, bool forceRehash);
 	ucstring	prepareExcelSheet(const TWorksheet &worksheet);
+	std::string	prepareExcelSheetUtf8(const TWorksheet &worksheet);
 
 }	// namespace STRING_MANAGER
 

@@ -471,26 +471,6 @@ bool	CDbManager::fetch(TDatabaseId id, RY_PDS::TTableIndex tableIndex, uint64 ke
 
 
 
-/*
- * Add String in Database' string manager
- */
-/*
-bool	CDbManager::addString(TDatabaseId id, const NLMISC::CEntityId& eId, RY_PDS::CPDStringManager::TEntryId pdId, const ucstring& str)
-{
-	CHECK_DB_MGR_INIT(addString, false);
-
-	CDatabase*	db = getDatabase(id);
-	if (db == NULL)
-	{
-		nlwarning("Unable to addString(), db '%d' not created yet", id);
-		return false;
-	}
-
-	RY_PDS::CPDStringManager&	sm = db->getStringManager();
-
-	return sm.setString(eId, pdId, str);
-}
-*/
 
 
 

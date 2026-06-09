@@ -188,7 +188,6 @@ public:
 	/**
 	 * Add String in Database' string manager
 	 */
-	//static bool				addString(TDatabaseId id, const NLMISC::CEntityId& eId, RY_PDS::CPDStringManager::TEntryId pdId, const ucstring& str);
 
 	// @}
 

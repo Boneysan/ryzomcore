@@ -690,7 +690,7 @@ void initPositionFlags(const std::string & fileName)
 
 string getStringFromHash(const string &hash)
 {
-	ucstring tmp;
+	string result;
 	string fullhash = hash;
 	if (hash.size() % 2)
 		fullhash += " ";
@@ -699,9 +699,19 @@ string getStringFromHash(const string &hash)
 		uint ch, n;
 		if (sscanf(part.c_str(), "%4x%n", &ch, &n) != 1)
 			break;
-		tmp.push_back((ucchar)ch);
+		// encode Unicode code point as UTF-8
+		if (ch < 0x80) {
+			result += (char)ch;
+		} else if (ch < 0x800) {
+			result += (char)(0xC0 | (ch >> 6));
+			result += (char)(0x80 | (ch & 0x3F));
+		} else {
+			result += (char)(0xE0 | (ch >> 12));
+			result += (char)(0x80 | ((ch >> 6) & 0x3F));
+			result += (char)(0x80 | (ch & 0x3F));
+		}
 	}
-	return tmp.toUtf8();
+	return result;
 }
 
 static void selectEntities (const string &entityName, vector <CEntityId> &entities)

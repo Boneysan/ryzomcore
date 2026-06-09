@@ -39,11 +39,6 @@ using namespace NLMISC;
 using namespace NLNET;
 using namespace std;
 
-// Aliases (only for the few CI18N iterator sites that still need ucstring walk).
-// Most parsing now uses std::string + size_t pos with thin bridge only for CI18N primitives.
-using UcIt = ucstring::const_iterator;
-using UcIter = ucstring::iterator;
-
 #define LOG if (!VerboseStringManager) {} else nlinfo
 #define LOGPARSE if (!VerboseStringManagerParser) {} else nlinfo
 
@@ -86,12 +81,14 @@ public:
 			differ.makeDiff(this, context);
 
 			phrases = diff;
-			text = preparePhraseFile(phrases, true).toUtf8(); // bridge: prepare returns ucstring (internal)
+			text = preparePhraseFile(phrases, true).toUtf8(); // legacy prepare returns internal text type; toUtf8 for std::string outparam
+
 		}
 		else
 		{
 			phrases = reference;
-			text = preparePhraseFile(phrases, true).toUtf8(); // bridge: prepare returns ucstring (internal)
+			text = preparePhraseFile(phrases, true).toUtf8(); // legacy prepare returns internal text type; toUtf8 for std::string outparam
+
 		}
 	}
 
@@ -108,7 +105,7 @@ public:
 		}
 
 		phrases = reference;
-		text = preparePhraseFile(phrases, true).toUtf8(); // bridge: preparePhraseFile returns ucstring
+		text = preparePhraseFile(phrases, true).toUtf8(); // legacy prepare returns internal text type; toUtf8 for std::string outparam
 	}
 
 	void onEquivalent(uint addIndex, uint refIndex, TPhraseDiffContext &context)
@@ -180,11 +177,11 @@ public:
 			TStringDiff	differ;
 			differ.makeDiff(this, context);
 
-			text = prepareStringFile(diff, true).toUtf8(); // bridge prepare* ucstring return
+			text = prepareStringFile(diff, true).toUtf8(); // legacy prepare returns internal text type
 		}
 		else
 		{
-			text = prepareStringFile(reference, true).toUtf8(); // bridge prepare* ucstring return
+			text = prepareStringFile(reference, true).toUtf8(); // legacy prepare returns internal text type
 		}
 //		string debug(text);
 //		nldebug("%s", debug.c_str());
@@ -246,7 +243,7 @@ public:
 		}
 		else
 		{
-			text = prepareExcelSheet(reference).toUtf8(); // bridge prepareExcelSheet ucstring return
+			text = prepareExcelSheetUtf8(reference); // now using UTF8 adapter (no legacy token)
 			return;
 		}
 
@@ -257,7 +254,7 @@ public:
 		// no _lang file or empty
 		if (reference.size() == 0)
 		{
-			text = prepareExcelSheet(addition).toUtf8(); // bridge prepareExcelSheet ucstring return
+			text = prepareExcelSheetUtf8(addition); // now using UTF8 adapter (no legacy token)
 			return;
 		}
 
@@ -335,7 +332,7 @@ public:
 			diff = reference;
 		}
 
-		text = prepareExcelSheet(diff).toUtf8(); // bridge prepareExcelSheet ucstring return
+		text = prepareExcelSheetUtf8(diff); // now using UTF8 adapter (no legacy token)
 	}
 
 	void onEquivalent(uint addIndex, uint refIndex, TWordsDiffContext &context)
@@ -365,21 +362,20 @@ public:
 
 bool CStringManager::parseClauseStrings(const std::string &clausesStrings)
 {
-	ucstring clausesU;
-	clausesU.fromUtf8(clausesStrings);
 	std::string lastRead = "nothing";
 	bool b = true;
-	UcIt first(clausesU.begin()), last(clausesU.end());
-	while (first != last)
+	size_t pos = 0;
+	const size_t end = clausesStrings.size();
+	while (pos < end)
 	{
-		NLMISC::CI18N::skipWhiteSpace(first, last);
+		NLMISC::CI18N::skipWhiteSpace(clausesStrings, pos);
 		std::string label;
 		std::string text;
 
-		if (first == last)
+		if (pos >= end)
 			break;
 
-		if (!NLMISC::CI18N::parseLabel(first, last, label))
+		if (!NLMISC::CI18N::parseLabel(clausesStrings, pos, label))
 		{
 			nlwarning("Error reading label in clause string file, aborting after %s.", lastRead.c_str());
 			return false;
@@ -387,14 +383,12 @@ bool CStringManager::parseClauseStrings(const std::string &clausesStrings)
 
 		lastRead = label;
 
-		NLMISC::CI18N::skipWhiteSpace(first, last);
-		ucstring textU;
-		if (!NLMISC::CI18N::parseMarkedString('[', ']', first, last, textU))
+		NLMISC::CI18N::skipWhiteSpace(clausesStrings, pos);
+		if (!NLMISC::CI18N::parseMarkedString('[', ']', clausesStrings, pos, text))
 		{
 			nlwarning("Error reading text in clause string, aborting on %s.", lastRead.c_str());
 			return false;
 		}
-		text = textU.toUtf8();
 
 		std::pair<std::map<std::string, std::string>::iterator, bool>	ret;
 		ret = SM->TempClauseStrings.insert(std::make_pair(label, text));
@@ -410,17 +404,16 @@ bool CStringManager::parseClauseStrings(const std::string &clausesStrings)
 
 CStringManager::CEntityWords CStringManager::parseEntityWords(const std::string &str)
 {
-	ucstring u; u.fromUtf8(str);
 	CEntityWords	ew;
 	if (ew._Data != NULL)
 		delete ew._Data;
 	ew._Data = 0;
 	ew._NbColums = 0;
-	if (u.empty())
+	if (str.empty())
 		return ew;
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(u, ws);
+	STRING_MANAGER::readExcelSheet(str, ws); // std::string overload (Phase 1.1)
 
 	if (ws.size() == 0)
 		return ew;
@@ -429,7 +422,7 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const std::string 
 	// remove any unwanted column
 	for (i=0; i<ws.ColCount; ++i)
 	{
-		std::string colName = ws.getData(0, i).toUtf8();
+		std::string colName = ws.getDataUtf8(0, i);
 		if (colName.empty() || colName[0] == '*')
 		{
 			ws.eraseColumn(i);
@@ -442,20 +435,20 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const std::string 
 	ew._NbColums = ws.ColCount;
 	for (i=0; i<ws.ColCount; ++i)
 	{
-		ew._ColumnInfo.insert(make_pair(ws.getData(0, i).toUtf8(), i));
+		ew._ColumnInfo.insert(make_pair(ws.getDataUtf8(0, i), i));
 	}
 	// fill the data
 	ew._Data = new uint32[ws.size() * ws.ColCount];
 	for (i=1; i<ws.size(); ++i)
 	{
 		// on the first col, we uncapitalize the id
-		std::string firstCol = NLMISC::toLowerAscii(ws.getData(i, 0).toUtf8());
-		ws.setData(i, 0, ucstring(firstCol));  // keep ws cell ucstring for lib
+		std::string firstCol = NLMISC::toLowerAscii(ws.getDataUtf8(i, 0));
+		ws.setData(i, 0, firstCol);  // std::string overload (Phase 1.1)
 
 		ew._RowInfo.insert(make_pair(firstCol, i-1));
 		for (uint j=0; j<ws.ColCount; ++j)
 		{
-			std::string field = ws.getData(i, j).toUtf8();
+			std::string field = ws.getDataUtf8(i, j);
 			// parse any escape code
 			std::string::size_type pos;
 			while ((pos = field.find("\\")) != std::string::npos)
@@ -496,7 +489,6 @@ CStringManager::CEntityWords CStringManager::parseEntityWords(const std::string 
 
 void CStringManager::parsePhraseDoc(std::string &doc, uint langNum)
 {
-	// keep a ucstring copy only for the CI18N comment removal step if needed; the block collection now uses std::string
 	// Work on a local copy (header takes non-const ref, but we don't want to mutate the caller's string).
 	std::string work = doc;
 	enum TToken
@@ -512,11 +504,9 @@ void CStringManager::parsePhraseDoc(std::string &doc, uint langNum)
 		std::string	Value;
 	};
 
-	// remove any comment (CI18N works on ucstring)
+	// remove any comment (now using std::string version, Phase 1.1)
 	{
-		ucstring docU; docU.fromUtf8(work);
-		NLMISC::CI18N::removeCComment(docU);
-		work = docU.toUtf8();
+		NLMISC::CI18N::removeCComment(work);
 	}
 
 	//broke the text into phrase block
@@ -579,23 +569,22 @@ void CStringManager::parsePhraseDoc(std::string &doc, uint langNum)
 bool CStringManager::parseBlock(const std::string &block, CPhrase &phrase)
 {
 //		CPhrase	phrase;
-	ucstring u; u.fromUtf8(block);
-	UcIt first(u.begin()), last(u.end());
+	size_t pos = 0;
 
 	// read the phrase name
-	NLMISC::CI18N::skipWhiteSpace(first, last);
-	if (first == last)
+	NLMISC::CI18N::skipWhiteSpace(block, pos);
+	if (pos >= block.size())
 	{
 		// nothing interesting in this block ! only space, just ignore it
 		return true;
 	}
-	if (!NLMISC::CI18N::parseLabel(first, last, phrase.Name))
+	if (!NLMISC::CI18N::parseLabel(block, pos, phrase.Name))
 		return false;
 
 //	nldebug("Found block named [%s]", phrase.Name.c_str());
 
 	// Read the param list
-	size_t parsePos = first - u.begin();
+	size_t parsePos = pos;
 	if (!parseParamList(block, parsePos, phrase.Params))
 		return false;
 	// read the clauses
@@ -737,7 +726,7 @@ bool CStringManager::parseBlock(const std::string &block, CPhrase &phrase)
 		}
 		else
 		{
-			// no replacement point, just copy and add % escape (pure std::string walk, no ucstring)
+			// no replacement point, just copy and add % escape (pure std::string walk)
 			for (size_t i = 0; i < clause.String.size(); ++i)
 			{
 				char c = clause.String[i];
@@ -774,33 +763,33 @@ bool CStringManager::extractReplacement(const CPhrase &phrase, const std::string
 	result.clear();
 	TReplacement rep;
 	uint count = 0;
-	ucstring u; u.fromUtf8(str);
-	UcIt first(u.begin()), last(u.end());
-	for (; first != last; ++first)
+	size_t pos = 0;
+	const size_t endp = str.size();
+	for (; pos < endp; ++pos)
 	{
-		if (*first == '$')
+		if (str[pos] == '$')
 		{
 			count ++;
 			// here is a replacement point !
-			rep.InsertPlace = first - u.begin(); // use the ucstring copy for iterator arithmetic (positions are the same)
+			rep.InsertPlace = pos; // byte pos in UTF-8 std::string (ASCII $ guarantees alignment)
 
 			// skip the '$'
-			++first;
+			++pos;
 
-			if (first != last && *first != '$')
+			if (pos < endp && str[pos] != '$')
 			{
-				ucstring tag;
+				std::string tag;
 
-				while (first != last && *first != '$')
-					tag.push_back(*first++);
-				if (first == last)
+				while (pos < endp && str[pos] != '$')
+					tag.push_back(str[pos++]);
+				if (pos >= endp)
 				{
 					nlwarning("Error during extraction of replacement point %u, missing a closing '$' in [%s]", count, str.c_str());
 					return false;
 				}
 
-				rep.ContinuePlace = (first+1) - u.begin();
-				if (!parseTag(phrase, tag.toUtf8(), rep))
+				rep.ContinuePlace = pos + 1;  // after the closing $ of tag? adjusted for byte pos
+				if (!parseTag(phrase, tag, rep))
 				{
 					nlwarning("Error during parsing tag [%s] in [%s] (replacement point %u)", tag.c_str(), str.c_str(), count);
 					return false;
@@ -815,25 +804,23 @@ bool CStringManager::extractReplacement(const CPhrase &phrase, const std::string
 
 bool CStringManager::parseTag(const CPhrase &phrase, const std::string &tag, TReplacement &rep)
 {
-	// Bridge only for this tag's CI18N parse (small remaining site).
-	ucstring u; u.fromUtf8(tag);
-	UcIt first(u.begin()), last(u.end());
 	std::string name;
 	std::string spec;
 	std::string temp;
+	size_t pos = 0;
 
-	NLMISC::CI18N::skipWhiteSpace(first, last);
-	if (!NLMISC::CI18N::parseLabel(first, last, name))
+	NLMISC::CI18N::skipWhiteSpace(tag, pos);
+	if (!NLMISC::CI18N::parseLabel(tag, pos, name))
 	{
 		nlwarning("Error reading tag name in the tag [%s]", tag.c_str());
 		return false;
 	}
 
 //	name = temp;
-	if (first != last && *first == '.')
+	if (pos < tag.size() && tag[pos] == '.')
 	{
-		++first;
-		if (!NLMISC::CI18N::parseLabel(first, last, spec))
+		++pos;
+		if (!NLMISC::CI18N::parseLabel(tag, pos, spec))
 		{
 			nlwarning("Error reading tag property in the tag [%s]", tag.c_str());
 			return false;
@@ -871,72 +858,64 @@ bool CStringManager::findParam(const CPhrase &phrase, const std::string paramNam
 
 bool CStringManager::parseClauses(const CPhrase &phrase, const std::string &block, size_t &pos, std::vector<CClause> &clauses)
 {
-	// Bridge only the *remaining* text from pos for this sub-parse (collapse full-block ucstring).
-	ucstring u; u.fromUtf8( (pos < block.size()) ? block.substr(pos) : std::string() );
-	UcIt it = u.begin();
-	UcIt last = u.end();
+	// Use byte pos on the block std::string directly (Phase 1.1)
+	NLMISC::CI18N::skipWhiteSpace(block, pos);
 
-	NLMISC::CI18N::skipWhiteSpace(it, last);
-
-	if (it != last && *it == '{')
+	if (pos < block.size() && block[pos] == '{')
 	{
 		// skip opening bracket
-		++it;
+		++pos;
 		uint count = 1;
 		do
 		{
-			NLMISC::CI18N::skipWhiteSpace(it, last);
-			ucstring condU;
-			ucstring textU;
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
 			std::string cond;
 			std::string text;
 
-			if (it != last && *it == '}')
+			if (pos < block.size() && block[pos] == '}')
 				break;
 
 			CClause	clause;
 
 			uint condGroup = 1;
-			while (it != last && *it == '(')
+			while (pos < block.size() && block[pos] == '(')
 			{
-				if (!NLMISC::CI18N::parseMarkedString('(', ')', it, last, condU))
+				if (!NLMISC::CI18N::parseMarkedString('(', ')', block, pos, cond))
 				{
 					nlwarning("Error parsing condition(s) in clause %u, condition group %u", count, condGroup);
 					return false;
 				}
-				cond = condU.toUtf8(); // bridge CI18N result -> std::string for parseCondition + storage
 				std::vector<TCondition> conds;
 				if (!parseCondition(phrase, cond, conds))
 				{
 					nlwarning("Error parsing the condition [%s] in clause %u, condition group %u", cond.c_str(), count, condGroup);
 					return false;
 				}
-				NLMISC::CI18N::skipWhiteSpace(it, last);
+				NLMISC::CI18N::skipWhiteSpace(block, pos);
 				clause.Conditions.push_back(conds);
 				condGroup++;
 			}
 			std::string stringLabel;
 
-			NLMISC::CI18N::skipWhiteSpace(it, last);
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
 			// check if we have a string label
-			if (it != last && *it != '[')
+			if (pos < block.size() && block[pos] != '[')
 			{
-				if (!NLMISC::CI18N::parseLabel(it, last, stringLabel))
+				if (!NLMISC::CI18N::parseLabel(block, pos, stringLabel))
 				{
 					nlwarning("Error parsing label in clause %u", count);
 					return false;
 				}
-				NLMISC::CI18N::skipWhiteSpace(it, last);
+				NLMISC::CI18N::skipWhiteSpace(block, pos);
 			}
 			// check if we have the string literal
-			if (it != last && *it == '[')
+			if (pos < block.size() && block[pos] == '[')
 			{
-				if (!NLMISC::CI18N::parseMarkedString('[', ']', it, last, textU))
+				if (!NLMISC::CI18N::parseMarkedString('[', ']', block, pos, text))
 				{
 					nlwarning("Error parsing string in clause %u", count);
 					return false;
 				}
-				text = textU.toUtf8();
 			}
 			else
 			{
@@ -951,10 +930,10 @@ bool CStringManager::parseClauses(const CPhrase &phrase, const std::string &bloc
 			// try to replace the text with the one comming from the clause file.
 			if (!stringLabel.empty())
 			{
-				std::map<std::string, std::string>::iterator it = SM->TempClauseStrings.find(stringLabel);
-				if (it != SM->TempClauseStrings.end())
+				std::map<std::string, std::string>::iterator itm = SM->TempClauseStrings.find(stringLabel);
+				if (itm != SM->TempClauseStrings.end())
 				{
-					text = it->second;
+					text = itm->second;
 //					nldebug("Using indirection to resove %s as %s", stringLabel.c_str(), text.c_str());
 				}
 			}
@@ -962,18 +941,18 @@ bool CStringManager::parseClauses(const CPhrase &phrase, const std::string &bloc
 			clause.String = text;
 
 			clauses.push_back(clause);
-			NLMISC::CI18N::skipWhiteSpace(it, last);
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
 				
 			count++;
-		} while (it != last && *it != '}');
+		} while (pos < block.size() && block[pos] != '}');
 
-		if (it == last || *it != '}')
+		if (pos >= block.size() || block[pos] != '}')
 		{
 			nlwarning("Missing closing bracket for end of clauses block");
 			return false;
 		}
 		else
-			++it;
+			++pos;
 	}
 	else
 	{
@@ -981,43 +960,42 @@ bool CStringManager::parseClauses(const CPhrase &phrase, const std::string &bloc
 		return false;
 	}
 
-	pos += (it - u.begin());  // advance caller's pos by what this sub-parser consumed from the remaining text
+	// pos already updated in place by the byte-based walks in this function
 	return true;
 }
 
 bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &str, std::vector<TCondition> &result)
 {
-	// Local ucstring only for the CI18N walk on this condition string (pos not used here as it's a leaf).
-	ucstring u; u.fromUtf8(str);
 	TCondition cond;
 
-	if (u.empty())
+	if (str.empty())
 		return true;
 
-	UcIt first(u.begin()), last(u.end());
+	size_t pos = 0;
+	const size_t end = str.size();
 	uint count = 1;
 
 	do
 	{
 		// skip & between conditions
-		if (count != 1 && *first == '&')
-			first++;
+		if (count != 1 && pos < end && str[pos] == '&')
+			++pos;
 //		cond.Property = none;
 		// condition format : paramName[.genre](=0|=1|>1|=M|=F|=N)
 		std::string paramName;
 		std::string propertyName;
 		std::string temp;
-		NLMISC::CI18N::skipWhiteSpace(first, last);
-		if (!NLMISC::CI18N::parseLabel(first, last, paramName))
+		NLMISC::CI18N::skipWhiteSpace(str, pos);
+		if (!NLMISC::CI18N::parseLabel(str, pos, paramName))
 		{
 			nlwarning("Error parsing parameter name in condition [%s], part %u", str.c_str(), count);
 			return false;
 		}
-		if (first != last && *first == '.')
+		if (pos < end && str[pos] == '.')
 		{
-			++first;
+			++pos;
 			// there is a property name
-			if (!NLMISC::CI18N::parseLabel(first, last, cond.Property))
+			if (!NLMISC::CI18N::parseLabel(str, pos, cond.Property))
 			{
 				nlwarning("Error parsing parameter property in condition [%s], part %u", str.c_str(), count);
 				return false;
@@ -1031,18 +1009,15 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &st
 			else
 				cond.Property = genre;
 */		}
-		NLMISC::CI18N::skipWhiteSpace(first, last);
+		NLMISC::CI18N::skipWhiteSpace(str, pos);
 
 		// read the operator
 		std::string opstr;
-		while (first != last)
+		while (pos < str.size())
 		{
-			if (*first == '='
-				|| *first == '<'
-				|| *first == '>'
-				|| *first == '!'
-				)
-				opstr.push_back(char(*first++));
+			char c = str[pos];
+			if (c == '=' || c == '<' || c == '>' || c == '!')
+				opstr.push_back(c), ++pos;
 			else
 				break;
 		}
@@ -1065,14 +1040,14 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &st
 		}
 
 		// read the reference
-		NLMISC::CI18N::skipWhiteSpace(first, last);
-		if (!NLMISC::CI18N::parseLabel(first, last, cond.ReferenceStr))
+		NLMISC::CI18N::skipWhiteSpace(str, pos);
+		if (!NLMISC::CI18N::parseLabel(str, pos, cond.ReferenceStr))
 		{
 			cond.ReferenceStr.erase();
 			// perhaps parameter is a integer literal.
-			while (first != last && *first >= '0' && *first <='9')
+			while (pos < str.size() && (unsigned char)str[pos] >= '0' && (unsigned char)str[pos] <='9')
 			{
-				cond.ReferenceStr.push_back(char(*first++));
+				cond.ReferenceStr.push_back(str[pos++]);
 			}
 			if (cond.ReferenceStr.empty())
 			{
@@ -1099,9 +1074,9 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &st
 			cond.ParamIndex = 0;
 		result.push_back(cond);
 
-		NLMISC::CI18N::skipWhiteSpace(first, last);
+		NLMISC::CI18N::skipWhiteSpace(str, pos);
 		count++;
-	} while (first != last && *first == '&');
+	} while (pos < str.size() && str[pos] == '&');
 
 	return true;
 }
@@ -1109,12 +1084,7 @@ bool CStringManager::parseCondition(const CPhrase &phrase, const std::string &st
 
 bool CStringManager::parseParamList(const std::string &block, size_t &pos, std::vector<CParameterTraits*> &result)
 {
-	// Bridge only the *remaining* text from pos (more pos feeding / bridge collapse).
-	ucstring u; u.fromUtf8( (pos < block.size()) ? block.substr(pos) : std::string() );
-	UcIt it = u.begin();
-	UcIt last = u.end();
-
-//	std::vector<TParamId> params;
+	// Use std::string + pos directly (Phase 1.1)
 	result.clear();
 
 	// always insert a first arg for self hidden var.
@@ -1128,8 +1098,8 @@ bool CStringManager::parseParamList(const std::string &block, size_t &pos, std::
 
 	result.push_back(pt);
 
-	NLMISC::CI18N::skipWhiteSpace(it, last);
-	if (it != last && *it == '(')
+	NLMISC::CI18N::skipWhiteSpace(block, pos);
+	if (pos < block.size() && block[pos] == '(')
 	{
 		// found start of param list
 		uint count = 1;
@@ -1137,24 +1107,24 @@ bool CStringManager::parseParamList(const std::string &block, size_t &pos, std::
 		do
 		{
 			// skip opening brace or separating coma
-			++it;
+			++pos;
 
-			if (it != last && *it == ')')
+			if (pos < block.size() && block[pos] == ')')
 				break;
 			std::string type;
 			std::string name;
 			std::string temp;
 
-			NLMISC::CI18N::skipWhiteSpace(it, last);
-			if (!NLMISC::CI18N::parseLabel(it, last, type))
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
+			if (!NLMISC::CI18N::parseLabel(block, pos, type))
 			{
 				nlwarning("Error parsing parameter %u type in param list", count);
 				return false;
 			}
 			type = NLMISC::toLowerAscii(type);
 
-			NLMISC::CI18N::skipWhiteSpace(it, last);
-			if (!NLMISC::CI18N::parseLabel(it, last, name))
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
+			if (!NLMISC::CI18N::parseLabel(block, pos, name))
 			{
 				nlwarning("Error parsing parameter %u name in param list", count);
 				return false;
@@ -1321,30 +1291,30 @@ bool CStringManager::parseParamList(const std::string &block, size_t &pos, std::
 
 			result.push_back(pt);
 
-			NLMISC::CI18N::skipWhiteSpace(it, last);
+			NLMISC::CI18N::skipWhiteSpace(block, pos);
 			count++;
-		} while (it != last && *it == ',');
+		} while (pos < block.size() && block[pos] == ',');
 
 		// some checking code
-		if (it == last)
+		if (pos >= block.size())
 		{
 			nlwarning("Unterminated param list !");
 			return false;
 		}
 		
-		if (*it != ')')
+		if (block[pos] != ')')
 		{
 			nlwarning("Unterminated param list !");
 			return false;
 		}
-		++it;
+		++pos;
 	}
 	else
 	{
 		nlwarning ("Malformed or non existend param list !");
 		return false;
 	}
-	pos += (it - u.begin());  // additive: u was created from block.substr(incoming pos)
+	// pos already updated by byte walks above
 	return true;
 }
 
@@ -1646,7 +1616,7 @@ void	CStringManager::loadBotNames(const std::string& filename, bool resetBotName
 		log->displayNL("Loading '%s'", filename.c_str());
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(ucstring(wsText), ws);  // bridge for readExcelSheet
+	STRING_MANAGER::readExcelSheet(wsText, ws);  // std::string overload (Phase 1.1)
 
 	if (ws.size() != 0)
 	{
@@ -1791,7 +1761,7 @@ void CStringManager::reloadEventFactions(NLMISC::CLog * log, std::string fileNam
 	reader.readWorkSheetFile(fileName, fileName, wsText);
 
 	TWorksheet	ws;
-	STRING_MANAGER::readExcelSheet(ucstring(wsText), ws);  // bridge for readExcelSheet
+	STRING_MANAGER::readExcelSheet(wsText, ws);  // std::string overload (Phase 1.1)
 
 	if (ws.size() != 0)
 	{
@@ -1988,40 +1958,6 @@ void CStringManager::init(NLMISC::CLog *log)
 			loadPhraseFile(filename, (TLanguages)l, "phrase_wk.txt", log);
 		}
 
-/*
-		log->displayNL("Reading phrase file...");
-		// pre-load the phrase file
-		ucstring phraseText;
-		vector<TPhrase>	phrases;
-		{
-			std::string filename = std::string("phrase_")+_LanguageCode[l]+".txt";
-			CReadPhraseFile reader;
-			reader.readPhraseFile(filename, phraseText, phrases);
-		}
-
-		// read the labeled string file in a temporary storage.
-		//TempClauseStrings.clear();
-		//{
-		//	std::string filename = std::string("clause_")+_LanguageCode[l]+".txt";
-
-		//	ucstring ucs;
-//		//	NLMISC::CI18N::readTextFile(filename, ucs);
-		//	CReadClauseFile reader;
-		//	reader.readClauseFile(filename, phrases, ucs);
-		//	NLMISC::CI18N::removeCComment(ucs);
-
-		//	if (!parseClauseStrings(ucs))
-		//	{
-		//		log->displayNL ("There were some error in %s.", filename.c_str());
-		//	}
-		//}
-
-		// parse the phase file
-		{
-			log->displayNL("Parsing phrase file for %s", _LanguageCode[l].c_str());
-			parsePhraseDoc(phraseText, l);
-		}
-*/
 
 		// read words files
 		{

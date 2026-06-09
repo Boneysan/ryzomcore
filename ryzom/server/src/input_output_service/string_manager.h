@@ -655,7 +655,7 @@ public:
 	const std::string &getString(uint32 stringId);
 
 	// TODO : temp, remove when dyndb removed.
-//	ucstring	getEntityDisplayName(const NLMISC::CEntityId &eid);
+//	std::string	getEntityDisplayName(const NLMISC::CEntityId &eid);
 
 	/// Send the requested string
 	void					sendString( uint32 nameIndex, NLNET::TServiceId serviceId );

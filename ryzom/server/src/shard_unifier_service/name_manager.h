@@ -65,7 +65,6 @@ public:
 	void liberateName(uint32 charId);
 
 	// check character slot, remove duplicated entries if needed
-//	void checkCharacterSlot(uint32 charId, const ucstring & ucName);
 
 	// return true if name is free or usable
 	CHARSYNC::TCharacterNameResult isNameUsable(const std::string& name, uint32 userId, uint8 charIndex, uint32 homeSessionId);

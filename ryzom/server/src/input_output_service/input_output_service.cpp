@@ -850,27 +850,6 @@ void CInputOutputService::removeEntity( const TDataSetRow &chId )
 		itInfos->second = NULL;
 		_IdToInfos.erase( itInfos );
 
-		// erase the entry in _NameToInfos		
-/*		CDynamicStringInfos * infos = _ChatManager.getDynamicDB().getInfos( index );
-		if( infos )
-		{
-			name = infos->Str;
-			map<ucstring,CCharacterInfos *>::iterator itInfos2 = _NameToInfos.find( name );
-			if( itInfos2 != _NameToInfos.end() )
-			{
-				_NameToInfos.erase( itInfos2 );
-			}
-*/
-/*			else
-			{
-				nlwarning("<CInputOutputService::removeEntity> Unknown entity : %s",name.toString().c_str());
-			}
-*//*		}
-		else
-		{
-			nlwarning("<CInputOutputService::removeEntity> Dynamic string %d unknown",index);
-		}
-*/
 	}
 	else
 	{

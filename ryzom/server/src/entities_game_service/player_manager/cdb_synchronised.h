@@ -148,8 +148,6 @@ public:
 	 * \param name is the name of the property
 	 * \return the value of the property
 	 */
-//	const ucstring &getPropString( const std::string& name ) const;
-	
 	/**
 	 * Return the value of a property
 	 * Use getICDBStructNodeFromName() to store the node pointer.

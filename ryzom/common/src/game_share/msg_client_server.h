@@ -29,8 +29,6 @@
 #include "nel/misc/types_nl.h"
 #include "nel/misc/bit_mem_stream.h"
 #include "nel/misc/sheet_id.h"
-#include "nel/misc/ucstring.h"  // temporary during 0.5 migration
-
 #include "game_share/characteristics.h"
 #include "game_share/character_summary.h"
 #include "game_share/starting_point.h"

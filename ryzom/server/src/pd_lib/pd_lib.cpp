@@ -987,13 +987,6 @@ void	CPDSLib::release(TTableIndex table, TRowIndex row)
 
 
 
-// Add a string in pds
-void	CPDSLib::addString(const NLMISC::CEntityId& eid, const ucstring& str)
-{
-	CDbMessage&	msg = nextMessage();
-	msg.addString(eid.asUint64(), str);
-}
-
 // Unmap a string in pds
 void	CPDSLib::unmapString(const NLMISC::CEntityId& eid)
 {

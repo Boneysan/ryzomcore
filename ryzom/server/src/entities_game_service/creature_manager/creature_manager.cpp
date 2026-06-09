@@ -120,8 +120,7 @@ void CGenNpcDescMsgImp::callback (const std::string &serviceName, NLNET::TServic
 				if (!_UserModelId.empty() && CDynamicSheetManager::getInstance()->scriptErrors(_PrimAlias, _UserModelId) == true)
 				{
 					TDataSetRow row = creature->getEntityRowId();
-					ucstring name;
-					name.fromUtf8("<"+ _UserModelId + ":ERROR>");
+					std::string name = "<" + _UserModelId + ":ERROR>";
 					NLNET::CMessage	msgout("CHARACTER_NAME");
 					msgout.serial(row);
 					msgout.serial(name);

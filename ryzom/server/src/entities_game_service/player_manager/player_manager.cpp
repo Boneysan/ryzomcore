@@ -1381,7 +1381,7 @@ void CPlayerManager::disconnectPlayer( uint32 userId )
 				if ( character->getTeamId() != CTEAM::InvalidTeamId )
 					TeamManager.removeCharacter( charId );
 				// unvalidate player web account
-				// \todo this is unsafe, because name is an ucstring which might be fucked up when casted into string
+				// \todo verify encoding safety when casting name to string
 //				CMailForumValidator::unvalidateUserEntry( character->getName().toString() );
 				CMailForumValidator::unvalidateUserEntry( character->getHomeMainlandSessionId(), character->getName() );
 
@@ -1636,7 +1636,7 @@ void CPlayerManager::tickUpdate()
 //		// process only 100 players per tick
 //		for ( ; it != itEnd && count < 100 ; ++it )
 //		{
-//			ucstring name = CEntityIdTranslator::getInstance()->getByEntity(*it);		
+//			std::string name = CEntityIdTranslator::getInstance()->getByEntity(*it).toUtf8();
 //			if ( name.empty() )
 //			{
 //				nlwarning("empty entity name for %s", (*it).toString().c_str());
@@ -2430,7 +2430,7 @@ void CPlayerManager::forceDisconnectUserWithoutPrivileges()
 //--------------------------------------------------------------
 //	Set name/stringId association, returns true if association has been succesfully set
 //--------------------------------------------------------------
-//bool CPlayerManager::setStringId( const ucstring &str, uint32 stringId)
+//bool CPlayerManager::setStringId( const std::string &str, uint32 stringId)
 //{
 //	bool result = NLMISC::CEntityIdTranslator::getInstance()->setEntityNameStringId(str, stringId);
 //
@@ -2493,7 +2493,7 @@ static void	mailNotification(const std::string& to, const std::string& from)
 
 	// first, build a valid character (upper case first, then lower case);
 	// second, get char id that matches the name
-	CEntityId	charId = NLMISC::CEntityIdTranslator::getInstance()->getByEntity(ucstring::makeFromUtf8(capitalize(to)));
+	CEntityId	charId = NLMISC::CEntityIdTranslator::getInstance()->getByEntity(capitalize(to));
 	// valid name?
 	if (charId == CEntityId::Unknown)
 		return;

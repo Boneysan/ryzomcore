@@ -328,7 +328,6 @@ protected:
 	/// set a guild client database property
 //	void setClientDBProp(const std::string & prop, sint64 value );
 	/// set a guild client database property as string
-//	void setClientDBPropString(const std::string & prop, const ucstring &value );
 
 private:
 	/// add a player in the guild chat group

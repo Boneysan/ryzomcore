@@ -69,13 +69,6 @@ COutpostGuildDBHandler::~COutpostGuildDBHandler()
 //}
 //
 ////----------------------------------------------------------------------------
-//void COutpostGuildDBHandler::setPropString(const std::string & name, const ucstring &val)
-//{
-//	ICDBStructNode::CTextId txtId(name);
-//	ICDBStructNode * node = _GuildDBOutpostNode->getNode(txtId, false);
-//	nlassert(node != NULL);
-//	nlverify( _GuildDB->setPropString(node, val) );
-//}
 
 //----------------------------------------------------------------------------
 void COutpostGuildDBHandler::setOWNED(bool val)

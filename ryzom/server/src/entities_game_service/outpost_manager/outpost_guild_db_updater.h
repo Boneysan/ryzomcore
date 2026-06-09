@@ -85,8 +85,6 @@ protected:
 private:
 	/// set an outpost property in the database
 //	void setProp(const std::string & name, sint64 val);
-	/// set an outpost property in the database
-//	void setPropString(const std::string & name, const ucstring &val);
 
 private:
 	/// guild client database

@@ -43,7 +43,6 @@ public:
 	virtual void	updateGuildMembersStringIds() =0;
 	virtual void	createGuildStep2		(uint32 guildId, const std::string &guildName, CHARSYNC::TCharacterNameResult result) =0;
 	virtual CGuild	*getGuildFromId			(uint32 guildId) =0;
-//	virtual void	addGuildsAwaitingString	( const ucstring & guildStr, uint32 guildId ) =0;
 
 	/// get raw access to the guild list (not const)
 	virtual const EGSPD::CGuildContainerPD *getGuildContainer() const =0;

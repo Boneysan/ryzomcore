@@ -155,11 +155,6 @@ void COutpost::sendOutpostDBDeltas()
 //	CBankAccessor_OUTPOST::Database.setProp( prop, value );
 //}
 //
-//void COutpost::setClientDBPropString(std::string const& prop, const ucstring &value )
-//{
-//	CBankAccessor_OUTPOST::Database.setPropString( prop, value );
-//}
-//
 ////----------------------------------------------------------------------------
 //sint64 COutpost::getClientDBProp(std::string const& prop)
 //{

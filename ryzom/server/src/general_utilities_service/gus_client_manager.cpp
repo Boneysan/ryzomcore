@@ -225,7 +225,7 @@ namespace GUS
 		CClientManagerImplementation *cmi = CClientManagerImplementation::getInstance();
 		// We receive response from IOS for the requested string
 		uint32		nameIndex;
-		ucstring	charName;
+		std::string	charName;
 
 		msgin.serial(nameIndex);
 		msgin.serial(charName);
@@ -240,7 +240,7 @@ namespace GUS
 			if (ci.NameIndex == nameIndex)
 			{
 				// Ok, we found the correct one
-				ci.CharacterName = charName.toString();
+				ci.CharacterName = charName;
 				cmi->_NameToEidMap[ci.CharacterName]= ci.EntityId;
 				cmi->_CharIdToClientIdMap[ci.EntityId]=it->first;
 				found = true;

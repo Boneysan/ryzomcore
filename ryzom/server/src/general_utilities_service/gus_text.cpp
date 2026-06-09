@@ -99,9 +99,9 @@ namespace GUS
 	bool CText::read(const CSString& fileName)
 	{
 		// load the file
-		ucstring ucFileBody;
-		CI18N::readTextFile(fileName,ucFileBody);
-		CSString fileBody=	ucFileBody.toUtf8();
+		std::string fileBodyUtf8;
+		CI18N::readTextFile(fileName,fileBodyUtf8);
+		CSString fileBody= fileBodyUtf8;
 		if (fileBody.empty())
 			return false;
 

@@ -444,12 +444,12 @@ void clientAuthentication(CMessage &msgin, TSockId from, CCallbackNetBase &netba
 void cbReceiveString( CMessage& msgin, const string &serviceName, TServiceId  serviceId )
 {
 	uint32 nameIndex;
-	ucstring ucs;
+	std::string ucs;
 	msgin.serial( nameIndex );
 	msgin.serial( ucs );
 
 	// Add the string to the map
-	StringMap.insert (std::map<TYPE_NAME_STRING_ID, std::string>::value_type (nameIndex, ucs.toString()));
+	StringMap.insert (std::map<TYPE_NAME_STRING_ID, std::string>::value_type (nameIndex, ucs));
 	StringAsked.erase (nameIndex);
 
 	// Add string a id to send to the clients

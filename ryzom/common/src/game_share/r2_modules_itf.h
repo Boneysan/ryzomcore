@@ -80,7 +80,7 @@ namespace R2
 	private:
 
 		typedef void (CServerEditionItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -184,7 +184,7 @@ namespace R2
 	private:
 
 		typedef void (CServerAnimationItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -402,7 +402,7 @@ namespace R2
 	private:
 
 		typedef void (CCharacterControlItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -748,7 +748,7 @@ namespace R2
 	private:
 
 		typedef void (CAisControlItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 
@@ -916,7 +916,7 @@ namespace R2
 	private:
 
 		typedef void (CR2SessionBackupModuleItfSkel::*TMessageHandler)(NLNET::IModuleProxy *sender, const NLNET::CMessage &message);
-		typedef std::map<ucstring, TMessageHandler>	TMessageHandlerMap;
+		typedef std::map<std::string, TMessageHandler>	TMessageHandlerMap;
 
 		const TMessageHandlerMap &getMessageHandlers() const;
 

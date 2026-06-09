@@ -84,9 +84,7 @@ NLMISC_COMMAND(smString, "display a string from the string manager <string_id>",
 	uint32 stringId;
 	NLMISC::fromString(args[0], stringId);
 
-	const ucstring &str = SM->getString(stringId);
-
-	log.displayNL("String id %u = [%s]", stringId, str.toString().c_str());
+	log.displayNL("String id %u = [%s]", stringId, SM->getString(stringId).c_str());
 
 	return true;
 }
@@ -430,25 +428,22 @@ NLMISC_COMMAND(smTest, "Send a test dyn string to a client (look at first phrase
 		}
 		else if (args[1] == "TEST_LITERAL")
 		{
-			ucstring str = args[2];
 			p.Type = STRING_MANAGER::literal;
-			p.Literal = str.toUtf8(); // bridge ucstring (from args) to Literal string
+			p.Literal = args[2];
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_LITERAL", params, &IosLocalSender);
 		}
 		else if (args[1] == "TEST_TITLE")
 		{
-			ucstring str = args[2];
 			p.Type = STRING_MANAGER::title;
-			p.Identifier = str.toUtf8();
+			p.Identifier = args[2];
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_TITLE", params, &IosLocalSender);
 		}
 		else if (args[1] == "TEST_EVENT_FACTION")
 		{
-			ucstring str = args[2];
 			p.Type = STRING_MANAGER::event_faction;
-			p.Identifier = str.toUtf8();
+			p.Identifier = args[2];
 			params.push_back(p);
 			dynId = sendStringToClient(ci->DataSetIndex, "TEST_EVENT_FACTION", params, &IosLocalSender);
 		}

@@ -24,8 +24,6 @@
 #include "ai_mgr.h"
 #include "game_share/synchronised_message.h"
 
-//#include "nel/misc/ucstring.h"
-
 /*
 // Nel Include
 #include "nel/net/unified_network.h"
@@ -74,9 +72,8 @@ void	CVisualPropertiesInterface::setName(const TDataSetRow& dataSetRow, const st
 	if (!IOSHasMirrorReady)
 		return;
 
-	ucstring nameU; nameU.fromUtf8(name);
 	NLNET::CMessage msgout("CHARACTER_NAME");
 	msgout.serial(const_cast<TDataSetRow&>(dataSetRow));
-	msgout.serial(nameU);
+	msgout.serial(const_cast<std::string&>(name));
 	sendMessageViaMirror("IOS", msgout);
 }

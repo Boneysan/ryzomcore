@@ -259,7 +259,6 @@ public:
 					}
 				}
 				// No translated title or translated phrase found send ''
-				//		ucstring temp(EId.toString());
 				const std::string NoName("''");
 				uint32 index = SM->storeString(NoName);
 				bms.serial(index);
@@ -315,7 +314,6 @@ public:
 		}
 
 		// no info on the name, just send the EID as string.
-//		ucstring temp(EId.toString());
 		const std::string NoName("''");
 		uint32 index = SM->storeString(NoName);
 		bms.serial(index);
@@ -1127,9 +1125,6 @@ public:
 
 	void fillBitMemStream( const CCharacterInfos *charInfo,CStringManager::TLanguages language, const CStringManager::TReplacement &rep, NLMISC::CBitMemStream &bms)
 	{
-		// need to evaluate the name of the bot : should be in the charinfo
-		ucstring temp;
-
 		CCharacterInfos	*botInfo = IOS->getCharInfos(EId);
 		if (botInfo != 0)
 		{
@@ -1490,9 +1485,6 @@ public:
 	}
 	void fillBitMemStream( const CCharacterInfos *charInfo,CStringManager::TLanguages language, const CStringManager::TReplacement &rep, NLMISC::CBitMemStream &bms)
 	{
-		// need to evaluate the name of the bot : should be in the charinfo
-		ucstring temp;
-
 		if (charInfo != 0)
 		{
 			if (!charInfo->Name.empty())

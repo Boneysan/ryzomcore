@@ -56,7 +56,7 @@
 ////	else
 ////		nlwarning("<cbStoreStringResult> received more STORE_STRING_RESULT messages than sent STORE_STRING requests");
 ////
-////	ucstring			str;
+////	std::string			str;
 ////	uint32				stringId;
 ////
 ////	msgin.serial(str);
@@ -76,7 +76,7 @@
 //bool				CPDStringManager::_InitCb = false;
 //
 ///// Null String
-//ucstring			CPDStringManager::_NullStr;
+//std::string			CPDStringManager::_NullStr;
 //
 ///// Number of store string requests that have not been processed by IOS yet
 //uint				CPDStringManager::_NbProcessingStoreStringRequests = 0;
@@ -120,7 +120,7 @@
 ///*
 // * Get string entry (allocate a new entry if not yet in container)
 // */
-//CPDStringManager::TEntryId	CPDStringManager::getEntryIdNonConst(const ucstring& str)
+//CPDStringManager::TEntryId	CPDStringManager::getEntryIdNonConst(const std::string& str)
 //{
 //	THash		hash = getHash(str);
 //	TEntryId	entryId = InvalidEntryId;
@@ -192,7 +192,7 @@
 // * \param string is the string to add
 // * \return the persistant string id
 // */
-//void	CPDStringManager::addString(NLMISC::CEntityId eid, const ucstring& str, bool addToLog)
+//void	CPDStringManager::addString(NLMISC::CEntityId eid, const std::string& str, bool addToLog)
 //{
 //	TEntryId		entry = getEntryIdNonConst(str);
 //
@@ -305,7 +305,7 @@
 // * Set String (PDS side)
 // */
 ///*
-//bool	CPDStringManager::setString(const NLMISC::CEntityId& eid, TEntryId id, const ucstring& str)
+//bool	CPDStringManager::setString(const NLMISC::CEntityId& eid, TEntryId id, const std::string& str)
 //{
 //	bool	success = true;
 //
@@ -344,7 +344,7 @@
 ///*
 // * Set string Id
 // */
-//void	CPDStringManager::setStringId(const ucstring& str, TStringId id)
+//void	CPDStringManager::setStringId(const std::string& str, TStringId id)
 //{
 //	THash		hash = getHash(str);
 //	TEntryId	entryId = InvalidEntryId;
@@ -640,10 +640,10 @@
 ///*
 // * Store string in IOS
 // */
-//void	CPDStringManager::storeStringInIOS(const ucstring& str)
+//void	CPDStringManager::storeStringInIOS(const std::string& str)
 //{
 //	CMessage msgios("STORE_STRING");
-//	msgios.serial( const_cast<ucstring&>(str) );
+//	msgios.serial( const_cast<std::string&>(str) );
 //	CUnifiedNetwork::getInstance()->send("IOS", msgios);
 //
 //	_NbProcessingStoreStringRequests++;
