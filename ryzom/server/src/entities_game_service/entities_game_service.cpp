@@ -22,13 +22,7 @@
 #include "stdpch.h"
 #include <cstdlib>
 #include <sstream>
-#if __has_include(<httplib.h>)
-#include <httplib.h>
 #include <thread>
-#define RYZOM_EGS_HAS_HTTPLIB 1
-#else
-#define RYZOM_EGS_HAS_HTTPLIB 0
-#endif
 
 /////////////
 // INCLUDE //
@@ -137,6 +131,8 @@
 
 #include "server_share/logger_service_client.h"
 #include "server_share/stl_allocator_checker.h"
+
+#include <httplib.h>
 
 #ifdef NL_OS_WINDOWS
 #	ifndef NL_COMP_MINGW
@@ -786,7 +782,6 @@ void CPlayerService::egsUpdate()
 		// To tackle remaining (live EGS state/locking): after full init, replace stubs with real data from PlayerManager/CEntityBase etc. (e.g. for /character/:id pull hp/pos; use mutex for tick safety).
 		// Started only if enabled (default for dev); runs on 47800 as per compose.
 		if (EnableRestApi) {  // Phase 1.4: enable via var (default true for dev; compose sets "1")
-#if RYZOM_EGS_HAS_HTTPLIB
 			static std::thread restThread([]() {
 				httplib::Server svr;
 				svr.Get("/health", [](const httplib::Request &, httplib::Response &res) {
@@ -838,14 +833,6 @@ void CPlayerService::egsUpdate()
 				svr.listen("0.0.0.0", 47800);
 			});
 			restThread.detach();
-#else
-			static bool warnedMissingHttpLib = false;
-			if (!warnedMissingHttpLib)
-			{
-				nlwarning("EGS REST API requested but httplib.h is not available at build time; REST API disabled");
-				warnedMissingHttpLib = true;
-			}
-#endif
 		}
 		EGSPD::update();
 	}
