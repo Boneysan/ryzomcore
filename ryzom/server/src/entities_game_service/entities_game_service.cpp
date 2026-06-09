@@ -20,6 +20,8 @@
 
 
 #include "stdpch.h"
+#include <httplib.h>
+#include <thread>
 
 /////////////
 // INCLUDE //
@@ -168,6 +170,7 @@ uint32 CharacterLoadCounter = 0;
 // Smoke test support (Phase 0.6)
 // -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exit(0).
 CVariable<uint32> SmokeTestNumTicks("egs", "SmokeTestNumTicks", "Number of ticks to advance in --smoke-test / -T mode before clean exit", 10, 0, true);
+CVariable<bool> EnableRestApi("egs", "EnableRestApi", "Enable EGS REST API (Phase 1.4, cpp-httplib on separate thread)", true, 0, true);
 
 
 //--------------------
@@ -706,6 +709,48 @@ void CPlayerService::egsUpdate()
 	STL_ALLOC_TEST
 	{
 		H_AUTO(EGSPD_update)
+
+		// Phase 1.4: EGS REST API (cpp-httplib, separate thread to not block tick)
+		// Exposes endpoints per plan (read first, then GM, RPCs); minimal locking.
+		// To tackle remaining (live EGS state/locking): after full init, replace stubs with real data from PlayerManager/CEntityBase etc. (e.g. for /character/:id pull hp/pos; use mutex for tick safety).
+		// Started only if enabled (default for dev); runs on 47800 as per compose.
+		if (EnableRestApi) {  // Phase 1.4: enable via var (default true for dev; compose sets "1")
+			static std::thread restThread([]() {
+				httplib::Server svr;
+				svr.Get("/health", [](const httplib::Request &, httplib::Response &res) {
+					res.set_content("{\"status\":\"ok\"}", "application/json");
+				});
+				svr.Get("/egs/character/:id", [](const httplib::Request &req, httplib::Response &res) {
+					std::string id = req.matches[1];
+					// Demo "live" state (for full, hook into PlayerManager::getCharacter or similar after init; see note below)
+					res.set_content("{\"id\":\"" + id + "\", \"hp\":100, \"pos\":[100.5,50.0,0.0], \"note\":\"stub - full impl in 1.4 (hook real CCharacter state here)\"}", "application/json");
+				});
+				// GM interaction stubs (plan 1.4 Step 2)
+				svr.Post("/egs/character/:id/teleport", [](const httplib::Request &req, httplib::Response &res) {
+					res.set_content("{\"status\":\"teleported (stub)\"}", "application/json");
+				});
+				svr.Post("/egs/character/:id/award-skill", [](const httplib::Request &req, httplib::Response &res) {
+					res.set_content("{\"status\":\"skill awarded (stub)\"}", "application/json");
+				});
+				// Combat/craft RPC stubs (plan 1.4 Step 3)
+				svr.Post("/internal/combat/resolve", [](const httplib::Request &, httplib::Response &res) {
+					res.set_content("{\"damage\":10, \"status\":\"resolved (stub)\"}", "application/json");
+				});
+				svr.Post("/egs/entity/:id/set-stat", [](const httplib::Request &req, httplib::Response &res) {
+					std::string id = req.matches[1];
+					res.set_content("{\"id\":\"" + id + "\", \"status\":\"stat set (stub)\"}", "application/json");
+				});
+				svr.Post("/egs/character/:id/kill", [](const httplib::Request &req, httplib::Response &res) {
+					std::string id = req.matches[1];
+					res.set_content("{\"id\":\"" + id + "\", \"status\":\"killed (stub)\"}", "application/json");
+				});
+				// Note for full 1.4: To tie to live EGS state (e.g., real CCharacter HP/pos), hook into PlayerManager or CEntityBase after full init.
+				// Use minimal locking as per plan (REST thread separate from tick).
+				// For demo, /character returns sample "live" data. See -T smoke test mode for integration testing.
+				svr.listen("0.0.0.0", 47800);
+			});
+			restThread.detach();
+		}
 		EGSPD::update();
 	}
 	STL_ALLOC_TEST
