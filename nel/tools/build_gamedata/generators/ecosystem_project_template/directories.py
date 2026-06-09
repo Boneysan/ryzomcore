@@ -127,6 +127,7 @@ ShapeNotOptimizedExportDirectory = CommonPath + "/shape_not_optimized"
 ShapeWithCoarseMeshExportDirectory = CommonPath + "/shape_with_coarse_mesh"
 ShapeLightmapNotOptimizedExportDirectory = CommonPath + "/shape_lightmap_not_optimized"
 ShapeAnimExportDirectory = CommonPath + "/shape_anim"
+ShapeGlbExportDirectory = CommonPath + "/shape_glb"
 
 # Smallbank directories
 SmallbankExportDirectory = CommonPath + "/smallbank"

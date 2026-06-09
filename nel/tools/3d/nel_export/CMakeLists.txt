@@ -1,0 +1,9 @@
+FILE(GLOB SRC *.cpp)
+
+ADD_EXECUTABLE(nel_export ${SRC})
+
+TARGET_LINK_LIBRARIES(nel_export PRIVATE NeL::misc NeL::3d)
+NL_DEFAULT_PROPS(nel_export "NeL, Tools, 3D: nel_export")
+NL_ADD_RUNTIME_FLAGS(nel_export)
+
+INSTALL(TARGETS nel_export RUNTIME DESTINATION ${NL_BIN_PREFIX} COMPONENT tools3d)

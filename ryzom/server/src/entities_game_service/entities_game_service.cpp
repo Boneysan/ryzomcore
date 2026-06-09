@@ -722,8 +722,12 @@ void CPlayerService::egsUpdate()
 				});
 				svr.Get("/egs/character/:id", [](const httplib::Request &req, httplib::Response &res) {
 					std::string id = req.matches[1];
-					// Demo "live" state (for full, hook into PlayerManager::getCharacter or similar after init; see note below)
-					res.set_content("{\"id\":\"" + id + "\", \"hp\":100, \"pos\":[100.5,50.0,0.0], \"note\":\"stub - full impl in 1.4 (hook real CCharacter state here)\"}", "application/json");
+					// Demo "live" state (for full, hook into PlayerManager after init).
+					// Example hook (after full init, minimal locking):
+					//   if (CCharacter* c = PlayerManager.getChar(CEntityId(id))) {
+					//     // pull c->getPhysScores()._PhysicalScores[SCORES::hit_points].Current() etc.
+					//   }
+					res.set_content("{\"id\":\"" + id + "\", \"name\":\"DemoChar\", \"sheet\":12345, \"hp\":100, \"pos\":[100.5,50.0,0.0], \"mode\":\"normal\", \"note\":\"stub - full impl in 1.4 (hook real CCharacter via PlayerManager::getChar after init)\"}", "application/json");
 				});
 				// GM interaction stubs (plan 1.4 Step 2)
 				svr.Post("/egs/character/:id/teleport", [](const httplib::Request &req, httplib::Response &res) {
