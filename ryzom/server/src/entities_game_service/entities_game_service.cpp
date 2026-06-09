@@ -21,6 +21,7 @@
 
 #include "stdpch.h"
 #include <cstdlib>
+#include <sstream>
 #if __has_include(<httplib.h>)
 #include <httplib.h>
 #include <thread>
@@ -177,6 +178,70 @@ uint32 CharacterLoadCounter = 0;
 // -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exits immediately.
 CVariable<uint32> SmokeTestNumTicks("egs", "SmokeTestNumTicks", "Number of ticks to advance in --smoke-test / -T mode before clean exit", 10, 0, true);
 CVariable<bool> EnableRestApi("egs", "EnableRestApi", "Enable EGS REST API (Phase 1.4, cpp-httplib on separate thread)", true, 0, true);
+
+static std::string jsonEscape(const std::string &value)
+{
+	std::string escaped;
+	escaped.reserve(value.size());
+	for (char c : value)
+	{
+		switch (c)
+		{
+			case '\\': escaped += "\\\\"; break;
+			case '"': escaped += "\\\""; break;
+			case '\b': escaped += "\\b"; break;
+			case '\f': escaped += "\\f"; break;
+			case '\n': escaped += "\\n"; break;
+			case '\r': escaped += "\\r"; break;
+			case '\t': escaped += "\\t"; break;
+			default:
+				if (static_cast<unsigned char>(c) < 0x20)
+				{
+					escaped += "\\u00";
+					static const char hex[] = "0123456789abcdef";
+					escaped += hex[(static_cast<unsigned char>(c) >> 4) & 0x0f];
+					escaped += hex[static_cast<unsigned char>(c) & 0x0f];
+				}
+				else
+				{
+					escaped += c;
+				}
+				break;
+		}
+	}
+	return escaped;
+}
+
+static void appendScoreJson(std::ostringstream &json, const char *name, const CPhysicalScores &scores, SCORES::TScores score)
+{
+	const SCharacteristicsAndScores &value = scores._PhysicalScores[score];
+	json << "\"" << name << "\":{\"current\":" << value.Current() << ",\"max\":" << value.Max() << "}";
+}
+
+static std::string characterToRestJson(CCharacter *character)
+{
+	CPhysicalScores &scores = character->getPhysScores();
+	const CVector position = character->getPosition();
+
+	std::ostringstream json;
+	json << "{"
+		<< "\"id\":\"" << jsonEscape(character->getId().toString()) << "\","
+		<< "\"name\":\"" << jsonEscape(character->getName()) << "\","
+		<< "\"race\":" << static_cast<uint>(character->getRace()) << ","
+		<< "\"gender\":" << static_cast<uint>(character->getGender()) << ","
+		<< "\"mode\":" << static_cast<sint32>(character->getMode()) << ","
+		<< "\"position\":{\"x\":" << position.x << ",\"y\":" << position.y << ",\"z\":" << position.z << ",\"heading\":" << character->getHeading() << "},"
+		<< "\"scores\":{";
+	appendScoreJson(json, "hit_points", scores, SCORES::hit_points);
+	json << ",";
+	appendScoreJson(json, "sap", scores, SCORES::sap);
+	json << ",";
+	appendScoreJson(json, "stamina", scores, SCORES::stamina);
+	json << ",";
+	appendScoreJson(json, "focus", scores, SCORES::focus);
+	json << "}}";
+	return json.str();
+}
 
 
 //--------------------
@@ -729,12 +794,24 @@ void CPlayerService::egsUpdate()
 				});
 				svr.Get("/egs/character/:id", [](const httplib::Request &req, httplib::Response &res) {
 					std::string id = req.matches[1];
-					// Demo "live" state (for full, hook into PlayerManager after init).
-					// Example hook (after full init, minimal locking):
-					//   if (CCharacter* c = PlayerManager.getChar(CEntityId(id))) {
-					//     // pull c->getPhysScores()._PhysicalScores[SCORES::hit_points].Current() etc.
-					//   }
-					res.set_content("{\"id\":\"" + id + "\", \"name\":\"DemoChar\", \"sheet\":12345, \"hp\":100, \"pos\":[100.5,50.0,0.0], \"mode\":\"normal\", \"note\":\"stub - full impl in 1.4 (hook real CCharacter via PlayerManager::getChar after init)\"}", "application/json");
+					CEntityId characterId;
+					characterId.fromString(id.c_str());
+					if (characterId == CEntityId::Unknown)
+					{
+						res.status = 400;
+						res.set_content("{\"error\":\"invalid character id\"}", "application/json");
+						return;
+					}
+
+					CCharacter *character = PlayerManager.getChar(characterId);
+					if (character == NULL)
+					{
+						res.status = 404;
+						res.set_content("{\"error\":\"character not loaded\"}", "application/json");
+						return;
+					}
+
+					res.set_content(characterToRestJson(character), "application/json");
 				});
 				// GM interaction stubs (plan 1.4 Step 2)
 				svr.Post("/egs/character/:id/teleport", [](const httplib::Request &req, httplib::Response &res) {
