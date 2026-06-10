@@ -89,7 +89,11 @@ ADD_EXECUTABLE(ryzom_entities_game_service WIN32
 	${SRC_STABLES}
 	${SRC_TEAM_MANAGER})
 
-TARGET_INCLUDE_DIRECTORIES(ryzom_entities_game_service PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${RZ_SERVER_SRC_DIR} ${MYSQL_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(ryzom_entities_game_service PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${RZ_SERVER_SRC_DIR}
+	${MYSQL_INCLUDE_DIR}
+	${CMAKE_SOURCE_DIR}/nel/3rdparty/cpp-httplib)
 
 TARGET_LINK_LIBRARIES(ryzom_entities_game_service
 		                PRIVATE

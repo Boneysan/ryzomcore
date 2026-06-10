@@ -20,8 +20,10 @@
 
 
 #include "stdpch.h"
-#include <httplib.h>
+#include <cstdlib>
+#include <sstream>
 #include <thread>
+#include <atomic>
 
 /////////////
 // INCLUDE //
@@ -131,6 +133,8 @@
 #include "server_share/logger_service_client.h"
 #include "server_share/stl_allocator_checker.h"
 
+#include <httplib.h>
+
 #ifdef NL_OS_WINDOWS
 #	ifndef NL_COMP_MINGW
 #		define NOMINMAX
@@ -168,9 +172,76 @@ uint32 CharacterSaveCounter = 0;
 uint32 CharacterLoadCounter = 0;
 
 // Smoke test support (Phase 0.6)
-// -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exit(0).
+// -T mode now drives real egsUpdate() calls (after full init + mirror) for N ticks then exits immediately.
 CVariable<uint32> SmokeTestNumTicks("egs", "SmokeTestNumTicks", "Number of ticks to advance in --smoke-test / -T mode before clean exit", 10, 0, true);
 CVariable<bool> EnableRestApi("egs", "EnableRestApi", "Enable EGS REST API (Phase 1.4, cpp-httplib on separate thread)", true, 0, true);
+
+// Set once the tick loop runs (mirror ready); /health reports "initializing" until then
+static std::atomic<bool> RestEgsTickReady(false);
+
+static std::string jsonEscape(const std::string &value)
+{
+	std::string escaped;
+	escaped.reserve(value.size());
+	for (char c : value)
+	{
+		switch (c)
+		{
+			case '\\': escaped += "\\\\"; break;
+			case '"': escaped += "\\\""; break;
+			case '\b': escaped += "\\b"; break;
+			case '\f': escaped += "\\f"; break;
+			case '\n': escaped += "\\n"; break;
+			case '\r': escaped += "\\r"; break;
+			case '\t': escaped += "\\t"; break;
+			default:
+				if (static_cast<unsigned char>(c) < 0x20)
+				{
+					escaped += "\\u00";
+					static const char hex[] = "0123456789abcdef";
+					escaped += hex[(static_cast<unsigned char>(c) >> 4) & 0x0f];
+					escaped += hex[static_cast<unsigned char>(c) & 0x0f];
+				}
+				else
+				{
+					escaped += c;
+				}
+				break;
+		}
+	}
+	return escaped;
+}
+
+static void appendScoreJson(std::ostringstream &json, const char *name, const CPhysicalScores &scores, SCORES::TScores score)
+{
+	const SCharacteristicsAndScores &value = scores._PhysicalScores[score];
+	json << "\"" << name << "\":{\"current\":" << value.Current() << ",\"max\":" << value.Max() << "}";
+}
+
+static std::string characterToRestJson(CCharacter *character)
+{
+	CPhysicalScores &scores = character->getPhysScores();
+	const CVector position = character->getPosition();
+
+	std::ostringstream json;
+	json << "{"
+		<< "\"id\":\"" << jsonEscape(character->getId().toString()) << "\","
+		<< "\"name\":\"" << jsonEscape(character->getName()) << "\","
+		<< "\"race\":" << static_cast<uint>(character->getRace()) << ","
+		<< "\"gender\":" << static_cast<uint>(character->getGender()) << ","
+		<< "\"mode\":" << static_cast<sint32>(character->getMode()) << ","
+		<< "\"position\":{\"x\":" << position.x << ",\"y\":" << position.y << ",\"z\":" << position.z << ",\"heading\":" << character->getHeading() << "},"
+		<< "\"scores\":{";
+	appendScoreJson(json, "hit_points", scores, SCORES::hit_points);
+	json << ",";
+	appendScoreJson(json, "sap", scores, SCORES::sap);
+	json << ",";
+	appendScoreJson(json, "stamina", scores, SCORES::stamina);
+	json << ",";
+	appendScoreJson(json, "focus", scores, SCORES::focus);
+	json << "}}";
+	return json.str();
+}
 
 
 //--------------------
@@ -665,6 +736,84 @@ void updateConvertFile()
 
 
 //---------------------------------------------------
+// startRestApiThread :
+// Phase 1.4: EGS REST API (cpp-httplib, separate thread to not block tick).
+// Started from CPlayerService::init() so /health is reachable while EGS is
+// still waiting on backup/mirror; reports "initializing" until the first
+// real tick. Idempotent — safe to call more than once.
+//---------------------------------------------------
+static void startRestApiThread()
+{
+	if (!EnableRestApi)
+		return;
+
+	static std::atomic<bool> started(false);
+	if (started.exchange(true))
+		return;
+
+	std::thread restThread([]() {
+		httplib::Server svr;
+		svr.Get("/health", [](const httplib::Request &, httplib::Response &res) {
+			if (RestEgsTickReady)
+				res.set_content("{\"status\":\"ok\"}", "application/json");
+			else
+				res.set_content("{\"status\":\"initializing\"}", "application/json");
+		});
+		svr.Get("/egs/character/:id", [](const httplib::Request &req, httplib::Response &res) {
+			if (!RestEgsTickReady)
+			{
+				res.status = 503;
+				res.set_content("{\"error\":\"EGS still initializing\"}", "application/json");
+				return;
+			}
+			std::string id = req.matches[1];
+			CEntityId characterId;
+			characterId.fromString(id.c_str());
+			if (characterId == CEntityId::Unknown)
+			{
+				res.status = 400;
+				res.set_content("{\"error\":\"invalid character id\"}", "application/json");
+				return;
+			}
+
+			CCharacter *character = PlayerManager.getChar(characterId);
+			if (character == NULL)
+			{
+				res.status = 404;
+				res.set_content("{\"error\":\"character not loaded\"}", "application/json");
+				return;
+			}
+
+			res.set_content(characterToRestJson(character), "application/json");
+		});
+		// GM interaction stubs (plan 1.4 Step 2)
+		svr.Post("/egs/character/:id/teleport", [](const httplib::Request &req, httplib::Response &res) {
+			res.set_content("{\"status\":\"teleported (stub)\"}", "application/json");
+		});
+		svr.Post("/egs/character/:id/award-skill", [](const httplib::Request &req, httplib::Response &res) {
+			res.set_content("{\"status\":\"skill awarded (stub)\"}", "application/json");
+		});
+		// Combat/craft RPC stubs (plan 1.4 Step 3)
+		svr.Post("/internal/combat/resolve", [](const httplib::Request &, httplib::Response &res) {
+			res.set_content("{\"damage\":10, \"status\":\"resolved (stub)\"}", "application/json");
+		});
+		svr.Post("/egs/entity/:id/set-stat", [](const httplib::Request &req, httplib::Response &res) {
+			std::string id = req.matches[1];
+			res.set_content("{\"id\":\"" + id + "\", \"status\":\"stat set (stub)\"}", "application/json");
+		});
+		svr.Post("/egs/character/:id/kill", [](const httplib::Request &req, httplib::Response &res) {
+			std::string id = req.matches[1];
+			res.set_content("{\"id\":\"" + id + "\", \"status\":\"killed (stub)\"}", "application/json");
+		});
+		// Note for full 1.4: To tie to live EGS state (e.g., real CCharacter HP/pos), hook into PlayerManager or CEntityBase after full init.
+		// Use minimal locking as per plan (REST thread separate from tick).
+		svr.listen("0.0.0.0", 47800);
+	});
+	restThread.detach();
+}
+
+
+//---------------------------------------------------
 // egsUpdate :
 //
 //---------------------------------------------------
@@ -710,51 +859,10 @@ void CPlayerService::egsUpdate()
 	{
 		H_AUTO(EGSPD_update)
 
-		// Phase 1.4: EGS REST API (cpp-httplib, separate thread to not block tick)
-		// Exposes endpoints per plan (read first, then GM, RPCs); minimal locking.
-		// To tackle remaining (live EGS state/locking): after full init, replace stubs with real data from PlayerManager/CEntityBase etc. (e.g. for /character/:id pull hp/pos; use mutex for tick safety).
-		// Started only if enabled (default for dev); runs on 47800 as per compose.
-		if (EnableRestApi) {  // Phase 1.4: enable via var (default true for dev; compose sets "1")
-			static std::thread restThread([]() {
-				httplib::Server svr;
-				svr.Get("/health", [](const httplib::Request &, httplib::Response &res) {
-					res.set_content("{\"status\":\"ok\"}", "application/json");
-				});
-				svr.Get("/egs/character/:id", [](const httplib::Request &req, httplib::Response &res) {
-					std::string id = req.matches[1];
-					// Demo "live" state (for full, hook into PlayerManager after init).
-					// Example hook (after full init, minimal locking):
-					//   if (CCharacter* c = PlayerManager.getChar(CEntityId(id))) {
-					//     // pull c->getPhysScores()._PhysicalScores[SCORES::hit_points].Current() etc.
-					//   }
-					res.set_content("{\"id\":\"" + id + "\", \"name\":\"DemoChar\", \"sheet\":12345, \"hp\":100, \"pos\":[100.5,50.0,0.0], \"mode\":\"normal\", \"note\":\"stub - full impl in 1.4 (hook real CCharacter via PlayerManager::getChar after init)\"}", "application/json");
-				});
-				// GM interaction stubs (plan 1.4 Step 2)
-				svr.Post("/egs/character/:id/teleport", [](const httplib::Request &req, httplib::Response &res) {
-					res.set_content("{\"status\":\"teleported (stub)\"}", "application/json");
-				});
-				svr.Post("/egs/character/:id/award-skill", [](const httplib::Request &req, httplib::Response &res) {
-					res.set_content("{\"status\":\"skill awarded (stub)\"}", "application/json");
-				});
-				// Combat/craft RPC stubs (plan 1.4 Step 3)
-				svr.Post("/internal/combat/resolve", [](const httplib::Request &, httplib::Response &res) {
-					res.set_content("{\"damage\":10, \"status\":\"resolved (stub)\"}", "application/json");
-				});
-				svr.Post("/egs/entity/:id/set-stat", [](const httplib::Request &req, httplib::Response &res) {
-					std::string id = req.matches[1];
-					res.set_content("{\"id\":\"" + id + "\", \"status\":\"stat set (stub)\"}", "application/json");
-				});
-				svr.Post("/egs/character/:id/kill", [](const httplib::Request &req, httplib::Response &res) {
-					std::string id = req.matches[1];
-					res.set_content("{\"id\":\"" + id + "\", \"status\":\"killed (stub)\"}", "application/json");
-				});
-				// Note for full 1.4: To tie to live EGS state (e.g., real CCharacter HP/pos), hook into PlayerManager or CEntityBase after full init.
-				// Use minimal locking as per plan (REST thread separate from tick).
-				// For demo, /character returns sample "live" data. See -T smoke test mode for integration testing.
-				svr.listen("0.0.0.0", 47800);
-			});
-			restThread.detach();
-		}
+		// Phase 1.4: REST thread is started early in CPlayerService::init();
+		// flip /health from "initializing" to "ok" now that the tick loop runs.
+		RestEgsTickReady = true;
+		startRestApiThread(); // idempotent fallback if init path changes
 		EGSPD::update();
 	}
 	STL_ALLOC_TEST
@@ -1347,6 +1455,10 @@ void CPlayerService::initConfigFileVars()
 //---------------------------------------------------
 void CPlayerService::init()
 {
+	// Phase 1.4: start REST API before anything that can block on other shard
+	// services (backup/mirror), so /health answers "initializing" immediately
+	startRestApiThread();
+
 	// activate logs
 	LGS::ILoggerServiceClient::startLoggerComm();
 	// a little boolean set to true if we are just packing sheets and then exitting, allowing us to skip stuff that we don't really need to do
@@ -1405,7 +1517,7 @@ void CPlayerService::init()
 			egsUpdate();
 		}
 		nlinfo("EGS smoke test SUCCESS: %u ticks completed without crash", SmokeTestNumTicks.get());
-		exit(0);
+		std::_Exit(EXIT_SUCCESS);
 	}
 
 	// register the shared class
