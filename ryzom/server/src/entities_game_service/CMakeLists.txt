@@ -110,6 +110,18 @@ TARGET_LINK_LIBRARIES(ryzom_entities_game_service
 						NeL::ligo
 )
 
+# Phase 4 (Task 4.2): PostgreSQL sheet overlay via libpq — optional; without it
+# egs_sheets_pgsql.cpp compiles to a warning-only stub (overlay disabled).
+FIND_PACKAGE(PostgreSQL QUIET)
+IF(PostgreSQL_FOUND)
+	TARGET_COMPILE_DEFINITIONS(ryzom_entities_game_service PRIVATE EGS_HAVE_PGSQL)
+	TARGET_INCLUDE_DIRECTORIES(ryzom_entities_game_service PRIVATE ${PostgreSQL_INCLUDE_DIRS})
+	TARGET_LINK_LIBRARIES(ryzom_entities_game_service PRIVATE ${PostgreSQL_LIBRARIES})
+	MESSAGE(STATUS "EGS: PostgreSQL sheet overlay enabled (libpq ${PostgreSQL_VERSION_STRING})")
+ELSE()
+	MESSAGE(STATUS "EGS: libpq not found — PostgreSQL sheet overlay disabled")
+ENDIF()
+
 NL_DEFAULT_PROPS(ryzom_entities_game_service "Ryzom, Services: Entities Game Service (EGS)")
 NL_ADD_RUNTIME_FLAGS(ryzom_entities_game_service)
 

@@ -273,6 +273,9 @@ void CSheets::init()
 	fileTypes.push_back("saibrick");
 	loadSheetSetForHashMap( fileTypes,		"egs_sbricks.packed_sheets",				_StaticSheets._SBrickSheets);
 
+	// Phase 4 (Task 4.2): overlay live-balance brick fields from PostgreSQL, if configured
+	applyPgBrickOverlay();
+
 	fileTypes.clear();
 	fileTypes.push_back("sphrase");
 	fileTypes.push_back("saiphrase");

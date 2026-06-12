@@ -192,6 +192,14 @@ public:
 		return *_StaticSheets._Encyclopedia;
 	}
 
+	/// \name PostgreSQL sheet overlay (Phase 4, Task 4.2 — see egs_sheets_pgsql.cpp)
+	// @{
+	/// Overlay live-balance brick fields from PostgreSQL onto the loaded brick set.
+	/// Empty filter = all bricks; otherwise a single brick sheet name without extension.
+	/// No-op when SheetsPgConnString / EGS_SHEETS_DB are unset. Returns bricks updated.
+	static uint32	applyPgBrickOverlay(const std::string &brickIdFilter = std::string());
+	// @}
+
 	/// \name reloading
 	// @{
 	static void		reloadCreature(const std::string &wildcardFilter);
