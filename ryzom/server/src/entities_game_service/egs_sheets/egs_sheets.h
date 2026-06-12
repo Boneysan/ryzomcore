@@ -198,6 +198,8 @@ public:
 	/// Empty filter = all bricks; otherwise a single brick sheet name without extension.
 	/// No-op when SheetsPgConnString / EGS_SHEETS_DB are unset. Returns bricks updated.
 	static uint32	applyPgBrickOverlay(const std::string &brickIdFilter = std::string());
+	static uint32	applyPgItemOverlay(const std::string &itemIdFilter = std::string());
+	static uint32	applyPgCreatureOverlay(const std::string &creatureIdFilter = std::string());
 	// @}
 
 	/// \name reloading

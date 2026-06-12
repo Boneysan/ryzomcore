@@ -275,6 +275,8 @@ void CSheets::init()
 
 	// Phase 4 (Task 4.2): overlay live-balance brick fields from PostgreSQL, if configured
 	applyPgBrickOverlay();
+	applyPgItemOverlay();
+	applyPgCreatureOverlay();
 
 	fileTypes.clear();
 	fileTypes.push_back("sphrase");

@@ -443,29 +443,57 @@ void serviceSheetNatsInvalidations()
 		return;
 
 	bool reloadAllBricks = false;
+	bool reloadAllItems = false;
+	bool reloadAllCreatures = false;
 	set<string> brickIds;
+	set<string> itemIds;
+	set<string> creatureIds;
 	for (vector<CPendingSheetInvalidation>::const_iterator it = updates.begin(); it != updates.end(); ++it)
 	{
-		if (!it->Table.empty() && it->Table != "bricks")
+		if (it->Table == "bricks")
 		{
-			nlwarning("<egs_sheet_nats> sheet.updated for table '%s' is queued, but only bricks overlay is implemented in this slice", it->Table.c_str());
-			continue;
+			if (it->FullReload)
+				reloadAllBricks = true;
+			else if (!it->SheetId.empty())
+				brickIds.insert(it->SheetId);
 		}
-
-		if (it->FullReload)
-			reloadAllBricks = true;
-		else if (!it->SheetId.empty())
-			brickIds.insert(it->SheetId);
+		else if (it->Table == "items")
+		{
+			if (it->FullReload)
+				reloadAllItems = true;
+			else if (!it->SheetId.empty())
+				itemIds.insert(it->SheetId);
+		}
+		else if (it->Table == "creatures")
+		{
+			if (it->FullReload)
+				reloadAllCreatures = true;
+			else if (!it->SheetId.empty())
+				creatureIds.insert(it->SheetId);
+		}
+		else if (!it->Table.empty())
+		{
+			nlwarning("<egs_sheet_nats> sheet.updated for table '%s' is queued, but only bricks, items and creatures overlay is implemented in this slice", it->Table.c_str());
+		}
 	}
 
 	if (reloadAllBricks)
-	{
 		CSheets::applyPgBrickOverlay();
-		return;
-	}
+	else
+		for (set<string>::const_iterator it = brickIds.begin(); it != brickIds.end(); ++it)
+			CSheets::applyPgBrickOverlay(*it);
 
-	for (set<string>::const_iterator it = brickIds.begin(); it != brickIds.end(); ++it)
-		CSheets::applyPgBrickOverlay(*it);
+	if (reloadAllItems)
+		CSheets::applyPgItemOverlay();
+	else
+		for (set<string>::const_iterator it = itemIds.begin(); it != itemIds.end(); ++it)
+			CSheets::applyPgItemOverlay(*it);
+
+	if (reloadAllCreatures)
+		CSheets::applyPgCreatureOverlay();
+	else
+		for (set<string>::const_iterator it = creatureIds.begin(); it != creatureIds.end(); ++it)
+			CSheets::applyPgCreatureOverlay(*it);
 }
 
 void stopSheetNatsInvalidationThread()

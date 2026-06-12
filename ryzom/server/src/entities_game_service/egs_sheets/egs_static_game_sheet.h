@@ -528,6 +528,7 @@ public:
 	virtual uint8							getGender() const { return _Gender; }
 	virtual uint8							getSize() const { return _Size; }
 	virtual uint16							getLevel() const { return _Level; }
+	virtual void							setLevel(uint16 level) { _Level = level; }
 	virtual uint16							getAttackLevel() const { return _AttackLevel; }
 	virtual uint16							getDefenseLevel() const { return _DefenseLevel; }
 	virtual uint16							getXPLevel() const { return _XPLevel; }

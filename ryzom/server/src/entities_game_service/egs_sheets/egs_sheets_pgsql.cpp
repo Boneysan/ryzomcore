@@ -62,6 +62,22 @@ static string resolvePgConnString()
 	return env ? string(env) : string();
 }
 
+static PGconn *connectToPostgres()
+{
+	const string connString = resolvePgConnString();
+	if (connString.empty())
+		return NULL;
+
+	PGconn *conn = PQconnectdb(connString.c_str());
+	if (PQstatus(conn) != CONNECTION_OK)
+	{
+		nlwarning("<CSheets> PostgreSQL connection failed: %s", PQerrorMessage(conn));
+		PQfinish(conn);
+		return NULL;
+	}
+	return conn;
+}
+
 //---------------------------------------------------
 // applyPgBrickOverlay :
 //---------------------------------------------------
@@ -72,19 +88,11 @@ uint32 CSheets::applyPgBrickOverlay(const std::string &brickIdFilter)
 		nlwarning("<CSheets::applyPgBrickOverlay> SheetsPgConnString is set but the EGS was built without libpq — overlay skipped");
 	return 0;
 #else
-	const string connString = resolvePgConnString();
-	if (connString.empty())
+	PGconn *conn = connectToPostgres();
+	if (!conn)
 		return 0;
 
 	TTime startTime = CTime::getLocalTime();
-
-	PGconn *conn = PQconnectdb(connString.c_str());
-	if (PQstatus(conn) != CONNECTION_OK)
-	{
-		nlwarning("<CSheets::applyPgBrickOverlay> PostgreSQL connection failed: %s", PQerrorMessage(conn));
-		PQfinish(conn);
-		return 0;
-	}
 
 	static const char *baseQuery =
 		"SELECT id,"
@@ -179,11 +187,211 @@ uint32 CSheets::applyPgBrickOverlay(const std::string &brickIdFilter)
 #endif
 }
 
+//---------------------------------------------------
+// applyPgItemOverlay :
+//---------------------------------------------------
+uint32 CSheets::applyPgItemOverlay(const std::string &itemIdFilter)
+{
+#ifndef EGS_HAVE_PGSQL
+	if (!resolvePgConnString().empty())
+		nlwarning("<CSheets::applyPgItemOverlay> SheetsPgConnString is set but the EGS was built without libpq — overlay skipped");
+	return 0;
+#else
+	PGconn *conn = connectToPostgres();
+	if (!conn)
+		return 0;
+
+	TTime startTime = CTime::getLocalTime();
+
+	static const char *baseQuery = "SELECT id, weight, bulk, price FROM items";
+
+	PGresult *res;
+	if (itemIdFilter.empty())
+	{
+		res = PQexec(conn, baseQuery);
+	}
+	else
+	{
+		const string query = string(baseQuery) + " WHERE id = $1";
+		const char *params[1] = { itemIdFilter.c_str() };
+		res = PQexecParams(conn, query.c_str(), 1, NULL, params, NULL, NULL, 0);
+	}
+
+	if (PQresultStatus(res) != PGRES_TUPLES_OK)
+	{
+		nlwarning("<CSheets::applyPgItemOverlay> items query failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		PQfinish(conn);
+		return 0;
+	}
+
+	map<string, CStaticItem *> itemsByName;
+	for (CAllStaticItems::iterator it = _StaticSheets._StaticItems.begin(); it != _StaticSheets._StaticItems.end(); ++it)
+	{
+		string name = (*it).first.toString();
+		string::size_type dot = name.rfind('.');
+		itemsByName[name.substr(0, dot)] = &(*it).second;
+	}
+
+	uint32 applied = 0;
+	uint32 unmatched = 0;
+	const int rows = PQntuples(res);
+	for (int i = 0; i < rows; ++i)
+	{
+		map<string, CStaticItem *>::iterator itb = itemsByName.find(PQgetvalue(res, i, 0));
+		if (itb == itemsByName.end())
+		{
+			++unmatched;
+			continue;
+		}
+		CStaticItem &item = *(*itb).second;
+		bool touched = false;
+
+		if (!PQgetisnull(res, i, 1))
+		{
+			float v; fromString(PQgetvalue(res, i, 1), v);
+			item.Weight = (uint32)v;
+			touched = true;
+		}
+		if (!PQgetisnull(res, i, 2))
+		{
+			float v; fromString(PQgetvalue(res, i, 2), v);
+			item.Bulk = (uint32)v;
+			touched = true;
+		}
+		if (!PQgetisnull(res, i, 3))
+		{
+			float v; fromString(PQgetvalue(res, i, 3), v);
+			item.ItemPrice = (uint32)v;
+			touched = true;
+		}
+
+		if (touched)
+			++applied;
+	}
+
+	PQclear(res);
+	PQfinish(conn);
+
+	nlinfo("<CSheets::applyPgItemOverlay> overlaid %u of %d PostgreSQL item rows in %u ms (%u rows had no loaded sheet)",
+		applied, rows, (uint32)(CTime::getLocalTime() - startTime), unmatched);
+	return applied;
+#endif
+}
+
+//---------------------------------------------------
+// applyPgCreatureOverlay :
+//---------------------------------------------------
+uint32 CSheets::applyPgCreatureOverlay(const std::string &creatureIdFilter)
+{
+#ifndef EGS_HAVE_PGSQL
+	if (!resolvePgConnString().empty())
+		nlwarning("<CSheets::applyPgCreatureOverlay> SheetsPgConnString is set but the EGS was built without libpq — overlay skipped");
+	return 0;
+#else
+	PGconn *conn = connectToPostgres();
+	if (!conn)
+		return 0;
+
+	TTime startTime = CTime::getLocalTime();
+
+	static const char *baseQuery = "SELECT id, creature_level FROM creatures";
+
+	PGresult *res;
+	if (creatureIdFilter.empty())
+	{
+		res = PQexec(conn, baseQuery);
+	}
+	else
+	{
+		const string query = string(baseQuery) + " WHERE id = $1";
+		const char *params[1] = { creatureIdFilter.c_str() };
+		res = PQexecParams(conn, query.c_str(), 1, NULL, params, NULL, NULL, 0);
+	}
+
+	if (PQresultStatus(res) != PGRES_TUPLES_OK)
+	{
+		nlwarning("<CSheets::applyPgCreatureOverlay> creatures query failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		PQfinish(conn);
+		return 0;
+	}
+
+	map<string, CStaticCreatures *> creaturesByName;
+	for (CAllStaticCreatures::iterator it = _StaticSheets._StaticCreatures.begin(); it != _StaticSheets._StaticCreatures.end(); ++it)
+	{
+		string name = (*it).first.toString();
+		string::size_type dot = name.rfind('.');
+		creaturesByName[name.substr(0, dot)] = &(*it).second;
+	}
+
+	uint32 applied = 0;
+	uint32 unmatched = 0;
+	const int rows = PQntuples(res);
+	for (int i = 0; i < rows; ++i)
+	{
+		map<string, CStaticCreatures *>::iterator itb = creaturesByName.find(PQgetvalue(res, i, 0));
+		if (itb == creaturesByName.end())
+		{
+			++unmatched;
+			continue;
+		}
+		CStaticCreatures &creature = *(*itb).second;
+		bool touched = false;
+
+		// Note: We bypass the private member _Level by using a const cast if needed,
+		// but IStaticCreatures has getLevel(), not setLevel(). Since we are in CSheets, 
+		// if _Level is private, we'll see if it compiles.
+		// Wait, CStaticCreatures might not be a friend of CSheets!
+		// If it fails, we will need to update CStaticCreatures.
+
+		// For now we just print it to avoid compilation error until we check.
+		// Actually, let's just do it and fix the header.
+		// We'll update the header in the next tool call.
+		
+		if (!PQgetisnull(res, i, 1))
+		{
+			float v; fromString(PQgetvalue(res, i, 1), v);
+			creature.setLevel((uint16)v);
+			touched = true;
+		}
+
+		if (touched)
+			++applied;
+	}
+
+	PQclear(res);
+	PQfinish(conn);
+
+	nlinfo("<CSheets::applyPgCreatureOverlay> overlaid %u of %d PostgreSQL creature rows in %u ms (%u rows had no loaded sheet)",
+		applied, rows, (uint32)(CTime::getLocalTime() - startTime), unmatched);
+	return applied;
+#endif
+}
+
 NLMISC_COMMAND(pgReloadBricks, "re-overlay brick live-balance fields from PostgreSQL", "[<brickId>]")
 {
 	if (args.size() > 1)
 		return false;
 	uint32 count = CSheets::applyPgBrickOverlay(args.empty() ? string() : args[0]);
 	log.displayNL("%u brick(s) updated from PostgreSQL", count);
+	return true;
+}
+
+NLMISC_COMMAND(pgReloadItems, "re-overlay item live-balance fields from PostgreSQL", "[<itemId>]")
+{
+	if (args.size() > 1)
+		return false;
+	uint32 count = CSheets::applyPgItemOverlay(args.empty() ? string() : args[0]);
+	log.displayNL("%u item(s) updated from PostgreSQL", count);
+	return true;
+}
+
+NLMISC_COMMAND(pgReloadCreatures, "re-overlay creature live-balance fields from PostgreSQL", "[<creatureId>]")
+{
+	if (args.size() > 1)
+		return false;
+	uint32 count = CSheets::applyPgCreatureOverlay(args.empty() ? string() : args[0]);
+	log.displayNL("%u creature(s) updated from PostgreSQL", count);
 	return true;
 }
