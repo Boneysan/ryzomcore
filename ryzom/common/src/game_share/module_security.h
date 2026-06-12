@@ -49,6 +49,8 @@ struct TClientInfo : public NLNET::TSecurityData
 
 };
 
-NLMISC_REGISTER_OBJECT(NLNET::TSecurityData, TClientInfo, uint8, rmst_client_info);
+// Factory registration lives in module_security.cpp: registering here ran the
+// static registration in every including TU, which is fatal in Debug builds
+// (duplicate-key nlassert in CFactory::registerClass).
 
 #endif // MODULE_SECURITY_H

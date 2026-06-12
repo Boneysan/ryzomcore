@@ -4041,10 +4041,10 @@ NLMISC_CATEGORISED_DYNVARIABLE( ms, string, Status, "Mirrors online status" )
 }
 
 
-static string MainNbEntities = "?";
-
-// This command must be here to prevent to compile the same one in mirror.cpp (which would crash)
-NLMISC_CATEGORISED_VARIABLE( ms, string, MainNbEntities, "Not available on MS" );
+// No local MainNbEntities here: game_share/mirror.cpp registers a variable with
+// that name and its static init runs in this binary too. Registering a second
+// one is fatal in Debug (nlstopex in ICommand's duplicate-name check); the
+// mirror.cpp version is safe on the MS (MirrorInstance is null, reports -1).
 
 NLMISC_CATEGORISED_DYNVARIABLE( ms, float, EmittedKBPerSec, "Output rate for mirror deltas & messages" )
 {

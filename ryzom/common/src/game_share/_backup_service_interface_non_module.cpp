@@ -234,7 +234,10 @@ static void cbFileClass( NLNET::CMessage& msgin, const std::string &/* serviceNa
 	CBackupInterfaceSingleton* singleton= CBackupInterfaceSingleton::getInstance();
 	CBackupServiceInterface *itf;
 	NLMISC::CSmartPtr<IBackupFileClassReceiveCallback> cb= singleton->popFileClassCallback(msg.RequestId, itf);
-	BOMB_IF(cb==NULL,"Received a file class from backup service - but can't find a matching request!"+NLMISC::toString(" RequestId=%d",msg.RequestId),return);
+	// DROP_IF, not BOMB_IF: an unmatched response is a normal race (the client can
+	// disconnect and have its pending character-load callbacks cleared before the
+	// BS reply arrives). Release builds already treated this as log-and-return.
+	DROP_IF(cb==NULL,"Received a file class from backup service - but can't find a matching request!"+NLMISC::toString(" RequestId=%d",msg.RequestId),return);
 
 	// Restore the original filenames (without the remote path). Assumes there can't be more than one BS interface.
 	// This will fail if the remote path has changed between the request and now.
