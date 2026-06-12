@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblua5.2-dev \
     libgif-dev libfreetype6-dev \
     git ca-certificates netcat-openbsd \
+    libxdp1 libbpf1 libnl-3-200 libnl-route-3-200 libnuma1 \
     && rm -rf /var/lib/apt/lists/*
 
 # vcpkg (optional, for full fidelity; in practice use host vcpkg or system deps)
@@ -70,6 +71,13 @@ CMD ["echo", "nel-frontend stub stage"]
 FROM runtime AS login_service
 COPY build/ryzom/bin/Debug/login_service /app/bin/
 CMD ["login_service", "--noBg"]
+
+# shard_runtime: no COPY — the host build dir is bind-mounted at its host path
+# so cfg absolute paths stay valid. One container runs the whole game tier
+# (mirror is shared-memory; EGS/GPMS/FS must share its IPC namespace).
+# See docker/run_shard_container.sh.
+FROM base AS shard_runtime
+CMD ["/ryzom-docker/run_shard_container.sh"]
 
 # Add more targets as services are needed.
 
