@@ -47,8 +47,16 @@ struct CPendingSheetInvalidation
 	bool FullReload;
 };
 
+struct CPendingGmCommand
+{
+	string Subject;
+	string Command;
+	string Payload;
+};
+
 mutex PendingMutex;
 vector<CPendingSheetInvalidation> PendingInvalidations;
+vector<CPendingGmCommand> PendingGmCommands;
 
 mutex ThreadMutex;
 thread NatsThread;
@@ -271,17 +279,37 @@ static bool handleMsg(CTcpSock &sock, const vector<string> &words)
 	if (!readBytes(sock, 2, crlf))
 		return false;
 
-	string table = extractJsonString(payload, "table");
-	string sheetId = extractJsonString(payload, "sheet_id");
-	if (sheetId.empty())
-		sheetId = subjectSheetId(subject);
+	if (subject.compare(0, 14, "sheet.updated.") == 0)
+	{
+		string table = extractJsonString(payload, "table");
+		string sheetId = extractJsonString(payload, "sheet_id");
+		if (sheetId.empty())
+			sheetId = subjectSheetId(subject);
 
-	const bool fullReload = sheetId.empty() || sheetId == "*" || sheetId == "all";
-	nlinfo("<egs_sheet_nats> queued %s invalidation for table '%s' sheet '%s'",
-		fullReload ? "full" : "single",
-		table.c_str(),
-		sheetId.c_str());
-	queueInvalidation(table, sheetId, fullReload);
+		const bool fullReload = sheetId.empty() || sheetId == "*" || sheetId == "all";
+		nlinfo("<egs_sheet_nats> queued %s invalidation for table '%s' sheet '%s'",
+			fullReload ? "full" : "single",
+			table.c_str(),
+			sheetId.c_str());
+		queueInvalidation(table, sheetId, fullReload);
+		return true;
+	}
+	else if (subject.compare(0, 3, "gm.") == 0)
+	{
+		string command = extractJsonString(payload, "command");
+		if (command.empty()) return true;
+
+		CPendingGmCommand cmd;
+		cmd.Subject = subject;
+		cmd.Command = command;
+		cmd.Payload = payload;
+
+		lock_guard<mutex> guard(PendingMutex);
+		PendingGmCommands.push_back(cmd);
+		nlinfo("<egs_sheet_nats> queued GM command: %s", command.c_str());
+		return true;
+	}
+
 	return true;
 }
 
@@ -327,8 +355,10 @@ static bool connectAndSubscribe(const string &endpoint)
 		return false;
 	if (!sendAll(sock, "SUB sheet.updated.* 1\r\n"))
 		return false;
+	if (!sendAll(sock, "SUB gm.* 2\r\n"))
+		return false;
 
-	nlinfo("<egs_sheet_nats> subscribed to sheet.updated.* on %s", endpoint.c_str());
+	nlinfo("<egs_sheet_nats> subscribed to sheet.updated.* and gm.* on %s", endpoint.c_str());
 	queueInvalidation("bricks", string(), true);
 
 	while (!StopRequested)
@@ -395,10 +425,20 @@ void startSheetNatsInvalidationThread()
 void serviceSheetNatsInvalidations()
 {
 	vector<CPendingSheetInvalidation> updates;
+	vector<CPendingGmCommand> gmCmds;
 	{
 		lock_guard<mutex> guard(PendingMutex);
 		updates.swap(PendingInvalidations);
+		gmCmds.swap(PendingGmCommands);
 	}
+
+	for (vector<CPendingGmCommand>::const_iterator it = gmCmds.begin(); it != gmCmds.end(); ++it)
+	{
+		nlinfo("<egs_sheet_nats> executing GM command '%s' on subject '%s' (payload: %s)",
+			it->Command.c_str(), it->Subject.c_str(), it->Payload.c_str());
+		// TODO: PlayerManager/CEntityBase hooks (Phase 4.5/5.1)
+	}
+
 	if (updates.empty())
 		return;
 
