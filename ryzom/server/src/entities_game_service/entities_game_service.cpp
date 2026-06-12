@@ -62,6 +62,7 @@
 #include "entities_game_service.h"
 #include "admin.h"
 #include "egs_dynamic_sheet_manager.h"
+#include "egs_sheets/egs_sheet_nats.h"
 
 #include "player_manager/player_manager.h"
 #include "player_manager/player.h"
@@ -827,6 +828,8 @@ void CPlayerService::egsUpdate()
 
 
 	H_AUTO(egsUpdate)
+	serviceSheetNatsInvalidations();
+
 	if ( ! Mirror.mirrorIsReady() )
 		return;
 
@@ -1663,6 +1666,7 @@ nlassert(nodeLeaf->getType() == ICDBStructNode::TEXT);
 
 	// Init Sheets manager
 	CSheets::init();
+	if (!packingSheets) startSheetNatsInvalidationThread();
 	//CCharacter::initMountInventoryBulkMax(); // must be called after CSheets::init()
 	// Init item manager
 //	GameItemManager.init();
@@ -2020,6 +2024,7 @@ NLMISC_COMMAND(loadCharacterNames,"load all character save games and extract nam
 //---------------------------------------------------
 bool CPlayerService::update()
 {
+	serviceSheetNatsInvalidations();
 	CSingletonRegistry::getInstance()->serviceUpdate();
 	return true;
 } // update //
@@ -2033,6 +2038,8 @@ void CPlayerService::release()
 {
 	bool packingSheets= haveArg('Q');
 	bool smokeTest = haveArg('T');
+
+	stopSheetNatsInvalidationThread();
 
 	// release the world instance callback
 	CWorldInstances::instance().registerAiInstanceReadyCallback(NULL);
