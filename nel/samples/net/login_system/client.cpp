@@ -79,7 +79,7 @@ int main (int argc, char **argv)
 
 	string LSHost(ConfigFile.getVar("LSHost").asString());
 
-	ucstring Login = ConfigFile.getVar("Login").asString();
+	string Login = ConfigFile.getVar("Login").asString();
 	if(Login.empty())
 	{
 		char buf[256];
@@ -87,7 +87,7 @@ int main (int argc, char **argv)
 		Login = fgets(buf, 256, stdin);
 	}
 
-	ucstring Password = ConfigFile.getVar("Password").asString();
+	string Password = ConfigFile.getVar("Password").asString();
 	if(Password.empty())
 	{
 		char buf[256];
