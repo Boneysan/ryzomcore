@@ -63,6 +63,7 @@
 #include "admin.h"
 #include "egs_dynamic_sheet_manager.h"
 #include "egs_sheets/egs_sheet_nats.h"
+#include "egs_script/egs_lua.h"
 
 #include "player_manager/player_manager.h"
 #include "player_manager/player.h"
@@ -1667,6 +1668,7 @@ nlassert(nodeLeaf->getType() == ICDBStructNode::TEXT);
 	// Init Sheets manager
 	CSheets::init();
 	if (!packingSheets) startSheetNatsInvalidationThread();
+	if (!packingSheets) EGSLUA::init();
 	//CCharacter::initMountInventoryBulkMax(); // must be called after CSheets::init()
 	// Init item manager
 //	GameItemManager.init();
@@ -2040,6 +2042,7 @@ void CPlayerService::release()
 	bool smokeTest = haveArg('T');
 
 	stopSheetNatsInvalidationThread();
+	EGSLUA::release();
 
 	// release the world instance callback
 	CWorldInstances::instance().registerAiInstanceReadyCallback(NULL);

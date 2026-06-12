@@ -4,6 +4,7 @@ FILE(GLOB SRC_BUILDING_MANAGER			building_manager/*.h building_manager/*.cpp)
 FILE(GLOB SRC_CHARACTER_STRUCTURE		character_structure/*.h character_structure/*.cpp)
 FILE(GLOB SRC_CREATURE_MANAGER			creature_manager/*.h creature_manager/*.cpp)
 FILE(GLOB SRC_EGS_SHEETS				egs_sheets/*.h egs_sheets/*.cpp)
+FILE(GLOB SRC_EGS_SCRIPT				egs_script/*.h egs_script/*.cpp)
 FILE(GLOB SRC_ENTITY_MANAGER			entity_manager/*.h entity_manager/*.cpp)
 FILE(GLOB SRC_ENTITY_STRUCTURE			entity_structure/*.h entity_structure/*.cpp)
 FILE(GLOB SRC_GAME_ITEM_MANAGER			game_item_manager/*.h game_item_manager/*.cpp)
@@ -50,6 +51,7 @@ SOURCE_GROUP("Building Manager" FILES ${SRC_BUILDING_MANAGER})
 SOURCE_GROUP("Character Structure" FILES ${SRC_CHARACTER_STRUCTURE})
 SOURCE_GROUP("Creature Manager" FILES ${SRC_CREATURE_MANAGER})
 SOURCE_GROUP("EGS Sheets" FILES ${SRC_EGS_SHEETS})
+SOURCE_GROUP("EGS Script" FILES ${SRC_EGS_SCRIPT})
 SOURCE_GROUP("Entity Manager" FILES ${SRC_ENTITY_MANAGER})
 SOURCE_GROUP("Entity Structure" FILES ${SRC_ENTITY_STRUCTURE})
 SOURCE_GROUP("Game Item Manager" FILES ${SRC_GAME_ITEM_MANAGER})
@@ -73,6 +75,7 @@ ADD_EXECUTABLE(ryzom_entities_game_service WIN32
 	${SRC_CHARACTER_STRUCTURE}
 	${SRC_CREATURE_MANAGER}
 	${SRC_EGS_SHEETS}
+	${SRC_EGS_SCRIPT}
 	${SRC_ENTITY_MANAGER}
 	${SRC_ENTITY_STRUCTURE}
 	${SRC_GAME_ITEM_MANAGER}
@@ -120,6 +123,18 @@ IF(PostgreSQL_FOUND)
 	MESSAGE(STATUS "EGS: PostgreSQL sheet overlay enabled (libpq ${PostgreSQL_VERSION_STRING})")
 ELSE()
 	MESSAGE(STATUS "EGS: libpq not found — PostgreSQL sheet overlay disabled")
+ENDIF()
+
+# Phase 4 (Task 4.4): embedded Lua runtime for hot-reloadable game logic —
+# optional; without it egs_lua.cpp compiles to a warning-only stub.
+FIND_PACKAGE(Lua QUIET)
+IF(LUA_FOUND)
+	TARGET_COMPILE_DEFINITIONS(ryzom_entities_game_service PRIVATE EGS_HAVE_LUA)
+	TARGET_INCLUDE_DIRECTORIES(ryzom_entities_game_service PRIVATE ${LUA_INCLUDE_DIR})
+	TARGET_LINK_LIBRARIES(ryzom_entities_game_service PRIVATE ${LUA_LIBRARIES})
+	MESSAGE(STATUS "EGS: Lua scripting enabled (Lua ${LUA_VERSION_STRING})")
+ELSE()
+	MESSAGE(STATUS "EGS: Lua not found — scripting runtime disabled")
 ENDIF()
 
 NL_DEFAULT_PROPS(ryzom_entities_game_service "Ryzom, Services: Entities Game Service (EGS)")

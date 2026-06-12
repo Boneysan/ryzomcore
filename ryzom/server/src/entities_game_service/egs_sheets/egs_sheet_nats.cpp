@@ -18,6 +18,7 @@
 
 #include "egs_sheets/egs_sheet_nats.h"
 #include "egs_sheets/egs_sheets.h"
+#include "egs_script/egs_lua.h"
 
 #include "nel/misc/variable.h"
 #include "nel/net/tcp_sock.h"
@@ -355,10 +356,12 @@ static bool connectAndSubscribe(const string &endpoint)
 		return false;
 	if (!sendAll(sock, "SUB sheet.updated.* 1\r\n"))
 		return false;
-	if (!sendAll(sock, "SUB gm.* 2\r\n"))
+	// gm.> not gm.* — NATS '*' matches a single token only and would miss
+	// three-token subjects like gm.script.run and gm.event.trigger
+	if (!sendAll(sock, "SUB gm.> 2\r\n"))
 		return false;
 
-	nlinfo("<egs_sheet_nats> subscribed to sheet.updated.* and gm.* on %s", endpoint.c_str());
+	nlinfo("<egs_sheet_nats> subscribed to sheet.updated.* and gm.> on %s", endpoint.c_str());
 	queueInvalidation("bricks", string(), true);
 
 	while (!StopRequested)
@@ -436,7 +439,37 @@ void serviceSheetNatsInvalidations()
 	{
 		nlinfo("<egs_sheet_nats> executing GM command '%s' on subject '%s' (payload: %s)",
 			it->Command.c_str(), it->Subject.c_str(), it->Payload.c_str());
-		// TODO: PlayerManager/CEntityBase hooks (Phase 4.5/5.1)
+
+		string errorMsg;
+		if (it->Command == "script_run")
+		{
+			const string code = extractJsonString(it->Payload, "lua");
+			if (code.empty())
+				nlwarning("<egs_sheet_nats> gm.script.run without 'lua' field");
+			else if (!EGSLUA::runString(code, errorMsg))
+				nlwarning("<egs_sheet_nats> gm.script.run failed: %s", errorMsg.c_str());
+		}
+		else if (it->Command == "script_reload")
+		{
+			const string name = extractJsonString(it->Payload, "name");
+			if (name.empty())
+				nlwarning("<egs_sheet_nats> gm.script.reload without 'name' field");
+			else if (!EGSLUA::reloadScript(name, errorMsg))
+				nlwarning("<egs_sheet_nats> gm.script.reload failed: %s", errorMsg.c_str());
+		}
+		else
+		{
+			// game-logic commands (spawn/weather/event_trigger/...) are
+			// handled by the hot-reloadable Lua layer (gm_commands.lua)
+			vector<string> hookArgs;
+			hookArgs.push_back(it->Command);
+			hookArgs.push_back(it->Payload);
+			EGSLUA::THookResult result = EGSLUA::callHook("on_gm_command", hookArgs, errorMsg);
+			if (result == EGSLUA::HookMissing)
+				nlwarning("<egs_sheet_nats> GM command '%s' dropped: no on_gm_command Lua hook loaded", it->Command.c_str());
+			else if (result == EGSLUA::HookError)
+				nlwarning("<egs_sheet_nats> on_gm_command('%s') failed: %s", it->Command.c_str(), errorMsg.c_str());
+		}
 	}
 
 	if (updates.empty())
