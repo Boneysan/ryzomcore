@@ -19,6 +19,7 @@ IF(WITH_RYZOM_TOOLS)
   IF(WITH_NET)
     ADD_SUBDIRECTORY(stats_scan)
     ADD_SUBDIRECTORY(pdr_util)
+    ADD_SUBDIRECTORY(save_to_json)
     ADD_SUBDIRECTORY(patch_gen)
 
     # IF(WIN32)

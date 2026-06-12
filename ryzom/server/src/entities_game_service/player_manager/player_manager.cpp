@@ -44,6 +44,7 @@
 #include "guild_manager/guild_manager.h"
 #include "building_manager/building_manager.h"
 #include "egs_pd.h"
+#include "egs_sheets/egs_sheets.h"
 #include "progression/progression_pve.h"
 #include "progression/progression_pvp.h"
 #include "pvp_manager/pvp_manager.h"
@@ -866,6 +867,11 @@ void CPlayerManager::savePlayerCharRecurs( uint32 userId, sint32 idx, std::set<C
 			CCharacter::sendDynamicSystemMessage( c->getId(), "CHARACTER_SAVED",params );
 		}
 	}
+
+	// Task 4.2c Step 2 (dual-write): binary save above stays authoritative;
+	// mirror the character metadata row into PostgreSQL
+	pgUpsertCharacterMetadata(userId, idx, c->getName(),
+		EGSPD::CPeople::toString(c->getRace()), c->getGender());
 
 	// the character have been saved, update the ring database
 	if (IShardUnifierEvent::getInstance())

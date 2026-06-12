@@ -307,6 +307,12 @@ private:
 	static bool _Destroyed;			//default =false - set true by destructor
 };
 
+/// Task 4.2c Step 2 (dual-write): refresh the character metadata row in the
+/// PostgreSQL characters table after a successful save. gender is the raw
+/// CCharacter value (0 = male, 1 = female). No-op when the PostgreSQL
+/// connection is not configured. Implemented in egs_sheets_pgsql.cpp.
+void pgUpsertCharacterMetadata(uint32 userId, sint32 slot, const std::string &name, const std::string &race, uint8 gender);
+
 #endif // SHEETS_H
 
 /* End of sheets.h */

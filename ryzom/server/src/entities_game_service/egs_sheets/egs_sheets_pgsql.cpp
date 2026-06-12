@@ -62,6 +62,7 @@ static string resolvePgConnString()
 	return env ? string(env) : string();
 }
 
+#ifdef EGS_HAVE_PGSQL
 static PGconn *connectToPostgres()
 {
 	const string connString = resolvePgConnString();
@@ -76,6 +77,46 @@ static PGconn *connectToPostgres()
 		return NULL;
 	}
 	return conn;
+}
+#endif // EGS_HAVE_PGSQL
+
+//---------------------------------------------------
+// pgUpsertCharacterMetadata : Task 4.2c Step 2 (dual-write)
+//---------------------------------------------------
+// Called from CPlayerManager::savePlayerCharRecurs after every successful
+// character save: the binary save file (backup service) stays authoritative,
+// this just refreshes the metadata row in the characters table. Disabled
+// (no-op) when SheetsPgConnString / EGS_SHEETS_DB is empty.
+void pgUpsertCharacterMetadata(uint32 userId, sint32 slot, const std::string &name, const std::string &race, uint8 gender)
+{
+#ifndef EGS_HAVE_PGSQL
+	(void)userId; (void)slot; (void)name; (void)race; (void)gender;
+#else
+	PGconn *conn = connectToPostgres();
+	if (!conn)
+		return;
+
+	const string accountId = toString("%u", userId);
+	const string slotStr = toString("%d", slot);
+	const string raceLower = toLower(race);
+	const char *genderStr = (gender == 0) ? "male" : (gender == 1) ? "female" : "neutral";
+
+	static const char *sql =
+		"INSERT INTO characters (account_id, slot, name, race, gender, source_file, imported_at)"
+		" VALUES ($1, $2, $3, $4, $5, 'egs:live', NOW())"
+		" ON CONFLICT (account_id, slot) DO UPDATE SET"
+		" name = EXCLUDED.name, race = EXCLUDED.race, gender = EXCLUDED.gender,"
+		" source_file = EXCLUDED.source_file, imported_at = EXCLUDED.imported_at";
+
+	const char *params[5] = { accountId.c_str(), slotStr.c_str(), name.c_str(), raceLower.c_str(), genderStr };
+	PGresult *res = PQexecParams(conn, sql, 5, NULL, params, NULL, NULL, 0);
+	if (PQresultStatus(res) != PGRES_COMMAND_OK)
+		nlwarning("<pgUpsertCharacterMetadata> upsert failed for account %s slot %s: %s",
+			accountId.c_str(), slotStr.c_str(), PQerrorMessage(conn));
+
+	PQclear(res);
+	PQfinish(conn);
+#endif
 }
 
 //---------------------------------------------------
@@ -384,6 +425,25 @@ NLMISC_COMMAND(pgReloadItems, "re-overlay item live-balance fields from PostgreS
 		return false;
 	uint32 count = CSheets::applyPgItemOverlay(args.empty() ? string() : args[0]);
 	log.displayNL("%u item(s) updated from PostgreSQL", count);
+	return true;
+}
+
+// dev command: drive the Task 4.2c dual-write path without a connected
+// client (no character saves happen on a headless dev shard)
+NLMISC_COMMAND(pgTestCharUpsert, "upsert a character metadata row in PostgreSQL (dual-write test)", "<userId> <slot> <name> <race> <gender 0|1>")
+{
+	if (args.size() != 5)
+		return false;
+
+	uint32 userId = 0;
+	sint32 slot = 0;
+	uint32 gender = 0;
+	NLMISC::fromString(args[0], userId);
+	NLMISC::fromString(args[1], slot);
+	NLMISC::fromString(args[4], gender);
+
+	pgUpsertCharacterMetadata(userId, slot, args[2], args[3], (uint8)gender);
+	log.displayNL("character upsert attempted for account %u slot %d (check PostgreSQL / warnings)", userId, slot);
 	return true;
 }
 
