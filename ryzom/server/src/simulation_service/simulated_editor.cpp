@@ -143,10 +143,10 @@ void CSimulatedEditor::connectToDSS()
 
 	// create a simulated dynamic map client
 	string simEditorName = toString( "simEditor%u", _Id );
-	_DMC = new CDynamicMapClient( simEditorName, socketGw, NULL );	// getLua().getStatePointer() );
+	_DMC = new CDynamicMapClient( simEditorName, socketGw, getLua().getStatePointer() );
 
 	// create the simulated client edition and animation modules
-	_DMC->init( _Id, NULL ); 
+	_DMC->init( _Id, getLua().getStatePointer() ); 
 
 	_CurrentContext = NULL;
 }

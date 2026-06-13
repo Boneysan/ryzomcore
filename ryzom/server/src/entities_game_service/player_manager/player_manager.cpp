@@ -521,7 +521,7 @@ CEntityId CPlayerManager::createCharacterId( uint32 userId, uint32 index )
 	if( it != _PlayerFrontEndId.end() )
 	{
 		// create character CEntityId
-		uint64 id = (userId<<4)|index;
+		uint64 id = (uint64(userId)<<4)|index;
 
 		CEntityId charId(RYZOMID::player,id);
 		charId.setDynamicId( NLNET::TServiceId8(it->second).get());
@@ -2673,7 +2673,6 @@ NLMISC_COMMAND(setPvPTag,"set player character PvP TAG to true or false","<eid> 
 //		log.displayNL("error : current bulk = %d, real bulk = %d",bulk1,bulk2);
 //	return true;
 //}
-
 
 
 

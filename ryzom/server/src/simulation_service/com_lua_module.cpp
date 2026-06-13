@@ -142,6 +142,7 @@ void CComLuaModule::initLuaLib()
 	luaL_openlib(_LuaState, R2_LUA_PATH, methods, 0);
 	lua_settop(_LuaState, initialStackSize);	
 	// load r2 features & components	
+	doFile( "r2_server_compat.lua" );
 	doFile( "r2_core.lua" );
 }
 
@@ -195,6 +196,7 @@ sint CComLuaModule::luaDoFile2(lua_State* state)
 //obsolete
 void CComLuaModule::loadFeatures()
 {
+	doFile("r2_server_compat.lua");
 	doFile("r2_core.lua");
 }
 

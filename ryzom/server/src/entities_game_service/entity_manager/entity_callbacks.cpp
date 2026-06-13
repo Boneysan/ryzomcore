@@ -699,7 +699,8 @@ void finalizeClientReady( uint32 userId, uint32 index )
 	CGameEventManager::getInstance().addCharacterToChannelEvent( c );
 
 	// for GM player, trigger a 'infos' command to remember their persistent state
-	if (!PlayerManager.getPlayer(uint32(c->getId().getShortId())>>4)->getUserPriv().empty())
+	CPlayer *playerForPriv = PlayerManager.getPlayer(PlayerManager.getPlayerId(c->getId()));
+	if (playerForPriv != NULL && !playerForPriv->getUserPriv().empty())
 	{
 		string res = toString("infos %s", c->getId().toString().c_str()).c_str();
 		CLightMemDisplayer *CmdDisplayer = new CLightMemDisplayer("CmdDisplayer");
@@ -3179,4 +3180,3 @@ void cbPlayerUnreachable( NLNET::CMessage& msgin, const std::string &serviceName
 
 	// Do nothing for now, damage removal is done in aggro lost.
 }
-
