@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+struct lua_State;
+
 // Phase 4.4: embedded Lua runtime for hot-reloadable game logic.
 //
 // Scripts load from the LuaScriptDirectory config variable (cwd-relative or
@@ -60,6 +62,9 @@ namespace EGSLUA
 
 	// call global fn(args...) with string arguments
 	THookResult callHook(const std::string &fn, const std::vector<std::string> &args, std::string &errorMsg);
+
+	// Expose lua_State for additional bindings
+	lua_State* getState();
 
 } // namespace EGSLUA
 

@@ -326,6 +326,11 @@ THookResult callHook(const string &fn, const vector<string> &args, string &error
 	return pcallTop(LuaState, (int)args.size(), errorMsg) ? HookOk : HookError;
 }
 
+lua_State* getState()
+{
+	return LuaState;
+}
+
 } // namespace EGSLUA
 
 #else // !EGS_HAVE_LUA
