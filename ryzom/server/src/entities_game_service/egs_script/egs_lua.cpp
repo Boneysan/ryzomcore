@@ -154,6 +154,17 @@ sint luaEgsTeleport(lua_State *state)
 	return 1;
 }
 
+// egs.revive(char_id) -> bool  — restores character to full HP at current position
+sint luaEgsRevive(lua_State *state)
+{
+	const char *charId = luaL_checkstring(state, 1);
+	char buf[256];
+	snprintf(buf, sizeof(buf), "revive %s", charId);
+	bool ok = NLMISC::CCommandRegistry::getInstance().execute(buf, *NLMISC::InfoLog, true, false);
+	lua_pushboolean(state, ok);
+	return 1;
+}
+
 // egs.natsPublish(subject, payload) — fire-and-forget NATS publish from Lua
 sint luaEgsNatsPublish(lua_State *state)
 {
@@ -316,6 +327,9 @@ void registerBindings(lua_State *state)
 
 	lua_pushcfunction(state, luaEgsTeleport);
 	lua_setfield(state, -2, "teleport");
+
+	lua_pushcfunction(state, luaEgsRevive);
+	lua_setfield(state, -2, "revive");
 
 	lua_pushcfunction(state, luaEgsNatsPublish);
 	lua_setfield(state, -2, "natsPublish");

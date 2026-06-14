@@ -80,11 +80,55 @@ function on_creature_death(sheet_id)
 end
 
 -- Called directly by the EGS C++ layer when a player character dies.
--- Delegates to party_mechanics for co-op respawn logic.
+-- Delegates to party_mechanics for co-op anchor-respawn logic.
 function on_player_death(char_id)
 	local pm = package.loaded["party_mechanics"]
 	if pm then
-		pm.on_player_death(char_id, nil)
+		pm.on_player_death(char_id)
+	end
+end
+
+function handlers.teleport(payload)
+	local char_id = egs.jsonGet(payload, "char_id")
+	local x = tonumber(egs.jsonGet(payload, "x") or "")
+	local y = tonumber(egs.jsonGet(payload, "y") or "")
+	local z = tonumber(egs.jsonGet(payload, "z") or "0")
+	if char_id and x and y then
+		egs.teleport(char_id, x, y, z or 0)
+	else
+		egs.warning("teleport: missing char_id, x, or y")
+	end
+end
+
+function handlers.join_party(payload)
+	local char_id = egs.jsonGet(payload, "char_id")
+	local party_id = egs.jsonGet(payload, "party_id")
+	local pm = package.loaded["party_mechanics"]
+	if pm and char_id and party_id then
+		pm.register_player(char_id, party_id)
+	else
+		egs.warning("join_party: missing char_id or party_id")
+	end
+end
+
+function handlers.leave_party(payload)
+	local char_id = egs.jsonGet(payload, "char_id")
+	local pm = package.loaded["party_mechanics"]
+	if pm and char_id then
+		pm.leave_party(char_id)
+	end
+end
+
+function handlers.set_anchor(payload)
+	local party_id = egs.jsonGet(payload, "party_id")
+	local x = tonumber(egs.jsonGet(payload, "x") or "")
+	local y = tonumber(egs.jsonGet(payload, "y") or "")
+	local z = tonumber(egs.jsonGet(payload, "z") or "0")
+	local pm = package.loaded["party_mechanics"]
+	if pm and party_id and x and y then
+		pm.set_anchor(party_id, x, y, z or 0)
+	else
+		egs.warning("set_anchor: missing party_id, x, or y")
 	end
 end
 
