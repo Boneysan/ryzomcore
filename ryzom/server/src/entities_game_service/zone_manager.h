@@ -24,6 +24,7 @@
 #include "nel/ligo/primitive.h"
 
 #include "game_share/base_types.h"
+#include "game_share/backup_service_interface.h"
 #include "game_share/continent.h"
 #include "server_share/respawn_point_type.h"
 #include "server_share/place_type.h"

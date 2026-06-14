@@ -15,7 +15,7 @@
 # Mirrors run_shard_dev.sh (same dir) — keep the two in sync. Differences:
 # naming is external (-B override), frontend binds 0.0.0.0 (cross-container),
 # logs_dev/.shard_ready is the compose healthcheck marker, TERM tears down in
-# reverse order.
+# reverse order. S1 opt-in: set S1_PARTY_FRONTENDS='party1=47916,party2=47917'.
 set -u
 NS_ADDR="${NS_ADDR:-nel-naming:50000}"
 
@@ -53,6 +53,53 @@ wait_ready() { # name logfile pid timeout_s
 	return 1
 }
 
+nats_endpoint() {
+	local url="${EGS_DSS_NATS_URL:-${EGS_SHEET_NATS_URL:-${NATS_URL:-nats://nats:4222}}}"
+	if [ "$url" = "disabled" ]; then
+		return 1
+	fi
+	url="${url#nats://}"
+	url="${url#*@}"
+	url="${url%%/*}"
+	NATS_HOST="${url%%:*}"
+	if [[ "$url" == *:* ]]; then
+		NATS_PORT="${url##*:}"
+	else
+		NATS_PORT=4222
+	fi
+	[ -n "$NATS_HOST" ]
+}
+
+json_escape() {
+	local value=$1
+	value=${value//\\/\\\\}
+	value=${value//\"/\\\"}
+	value=${value//$'\n'/\\n}
+	value=${value//$'\r'/\\r}
+	value=${value//$'\t'/\\t}
+	printf '%s' "$value"
+}
+
+publish_gm_party_frontend() { # party_id addr
+	local party_id=$1 addr=$2 party_json addr_json body len
+	if ! nats_endpoint; then
+		echo "[warn] NATS disabled; not publishing route for $party_id"
+		return 0
+	fi
+	party_json=$(json_escape "$party_id")
+	addr_json=$(json_escape "$addr")
+	body="{\"command\":\"set_party_frontend\",\"payload\":{\"party_id\":\"$party_json\",\"addr\":\"$addr_json\"}}"
+	len=${#body}
+	if ! exec 3<>/dev/tcp/"$NATS_HOST"/"$NATS_PORT"; then
+		echo "[warn] unable to publish route for $party_id: NATS $NATS_HOST:$NATS_PORT unavailable"
+		return 0
+	fi
+	printf 'CONNECT {"verbose":false,"pedantic":false,"lang":"ryzom-shard-runner","version":"0.1"}\r\nPUB gm.set_party_frontend %d\r\n%s\r\nPING\r\n' "$len" "$body" >&3
+	exec 3<&-
+	exec 3>&-
+	echo "[route] $party_id -> $addr"
+}
+
 start_nel() { # binary cfgname [timeout_s]
 	local bin=$1 cfg=$2 timeout=${3:-90}
 	if [ -f "cfg_dev/$cfg.cfg" ]; then
@@ -70,6 +117,55 @@ start_nel() { # binary cfgname [timeout_s]
 	wait_ready "$cfg" "logs_dev/$cfg.out" "$pid" "$timeout"
 }
 
+start_party_frontends() {
+	local spec="${S1_PARTY_FRONTENDS:-${PARTY_FRONTENDS:-}}"
+	[ -n "$spec" ] || return 0
+
+	local bind_host="${S1_BIND_HOST:-0.0.0.0}"
+	local route_host="${S1_ROUTE_HOST:-nel-shard}"
+	local runtime_dir="s1_frontends"
+	mkdir -p "$runtime_dir"
+
+	local IFS=',' entries entry party_id target port bind_addr route_addr safe cfgdir cfg logfile pid
+	read -ra entries <<< "$spec"
+	for entry in "${entries[@]}"; do
+		entry="${entry//[[:space:]]/}"
+		[ -n "$entry" ] || continue
+		if [[ "$entry" != *=* ]]; then
+			echo "[warn] ignoring malformed S1_PARTY_FRONTENDS entry '$entry' (expected party=port or party=host:port)"
+			continue
+		fi
+
+		party_id="${entry%%=*}"
+		target="${entry#*=}"
+		if [[ "$target" == *:* ]]; then
+			port="${target##*:}"
+			route_addr="$target"
+		else
+			port="$target"
+			route_addr="$route_host:$port"
+		fi
+		bind_addr="$bind_host:$port"
+
+		safe=${party_id//[^A-Za-z0-9_.-]/_}
+		cfgdir="$runtime_dir/$safe"
+		mkdir -p "$cfgdir"
+		cp "cfg_dev/frontend_service.cfg" "$cfgdir/frontend_service.cfg"
+		cp "common.cfg" "$cfgdir/common.cfg"
+		cfg="$cfgdir/frontend_service.cfg"
+		sed -i '/^SId[[:space:]]*=/d' "$cfg"
+		sed -i "s|^ListenAddress.*|ListenAddress = \"$bind_addr\";|" "$cfg"
+
+		logfile="logs_dev/frontend_service_$safe.out"
+		: > "$logfile"
+		"./ryzom_frontend_service" -C"$cfgdir" --noBg "-B$NS_ADDR" > "$logfile" 2>&1 &
+		pid=$!
+		PIDS+=("$pid")
+		wait_ready "frontend_service:$party_id" "$logfile" "$pid" 120 || exit 1
+		publish_gm_party_frontend "$party_id" "$route_addr"
+	done
+}
+
 start_nel ryzom_tick_service    tick_service          60 || exit 1
 start_nel ryzom_mirror_service  mirror_service        60 || exit 1
 start_nel ryzom_gpm_service     gpm_service           60 || exit 1
@@ -78,15 +174,23 @@ start_nel ryzom_gpm_service     gpm_service           60 || exit 1
 # pre-set EGS_SHEETS_DB). First run George-compiles ~9K forms (slow); the
 # packed-sheet cache in this mounted dir is shared with native runs.
 : > logs_dev/entities_game_service.out
-./run_egs_dev.sh "-B$NS_ADDR" > logs_dev/entities_game_service.out 2>&1 &
+if [ -n "${S1_PARTY_FRONTENDS:-${PARTY_FRONTENDS:-}}" ]; then
+	EGS_SHEET_NATS_URL="${EGS_SHEET_NATS_URL:-${NATS_URL:-nats://nats:4222}}" ./run_egs_dev.sh "-B$NS_ADDR" > logs_dev/entities_game_service.out 2>&1 &
+else
+	./run_egs_dev.sh "-B$NS_ADDR" > logs_dev/entities_game_service.out 2>&1 &
+fi
 EGS_PID=$!
 PIDS+=("$EGS_PID")
 wait_ready entities_game_service logs_dev/entities_game_service.out "$EGS_PID" 600 || exit 1
 
 start_nel ryzom_frontend_service frontend_service     120 || exit 1
+start_party_frontends
 
 touch logs_dev/.shard_ready
 echo "[shard] up — frontend UDP 47851 (compose network), naming at $NS_ADDR"
+if [ -n "${S1_PARTY_FRONTENDS:-${PARTY_FRONTENDS:-}}" ]; then
+	echo "[shard] S1 party frontends: ${S1_PARTY_FRONTENDS:-${PARTY_FRONTENDS:-}}"
+fi
 
 # PID1: stay alive while children run; exit non-zero if any service dies.
 while true; do

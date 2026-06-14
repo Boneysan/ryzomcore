@@ -1069,7 +1069,8 @@ void CStatDB::saveValueLeaves(const CStatDBValueLeavesPD & valueLeavesPD)
 		NLMISC::COFile file;
 		std::string savePath = NLMISC::CPath::lookup(sFilePath, false, true);
 		if (savePath.empty()) savePath = sFilePath;
-		NLMISC::CPath::makeDirForFile(savePath);
+		std::string saveDir = NLMISC::CFile::getPath(savePath);
+		if (!saveDir.empty()) NLMISC::CFile::createDirectoryTree(saveDir);
 		if (file.open(savePath)) {
 			if (XMLSave) {
 				std::string s;
@@ -1103,7 +1104,8 @@ void CStatDB::saveTableLeaf(const CStatDBTableLeafPD & tableLeafPD)
 		NLMISC::COFile file;
 		std::string savePath = NLMISC::CPath::lookup(sFilePath, false, true);
 		if (savePath.empty()) savePath = sFilePath;
-		NLMISC::CPath::makeDirForFile(savePath);
+		std::string saveDir = NLMISC::CFile::getPath(savePath);
+		if (!saveDir.empty()) NLMISC::CFile::createDirectoryTree(saveDir);
 		if (file.open(savePath)) {
 			if (XMLSave) {
 				std::string s;
@@ -1447,4 +1449,3 @@ NLMISC_COMMAND (sdbInitEpisode2, "(debug) init fake database for Episode2 tests"
 }
 
 #endif // !FINAL_VERSION
-

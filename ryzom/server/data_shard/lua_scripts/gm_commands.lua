@@ -132,6 +132,61 @@ function handlers.set_anchor(payload)
 	end
 end
 
+function handlers.set_party_frontend(payload)
+	local party_id = egs.jsonGet(payload, "party_id")
+	local addr = egs.jsonGet(payload, "addr") or ""
+	local pm = package.loaded["party_mechanics"]
+	if pm and party_id then
+		local ok, err = pm.set_party_frontend(party_id, addr)
+		if not ok then
+			egs.warning("set_party_frontend: " .. tostring(err))
+		end
+	else
+		egs.warning("set_party_frontend: missing party_id")
+	end
+end
+
+function handlers.set_instance_frontend(payload)
+	local instance_id = egs.jsonGet(payload, "instance_id")
+	local addr = egs.jsonGet(payload, "addr") or ""
+	local pm = package.loaded["party_mechanics"]
+	if pm and instance_id then
+		local ok, err = pm.set_instance_frontend(instance_id, addr)
+		if not ok then
+			egs.warning("set_instance_frontend: " .. tostring(err))
+		end
+	else
+		egs.warning("set_instance_frontend: missing instance_id")
+	end
+end
+
+function handlers.assign_party_instance(payload)
+	local party_id = egs.jsonGet(payload, "party_id")
+	local instance_id = egs.jsonGet(payload, "instance_id")
+	local pm = package.loaded["party_mechanics"]
+	if pm and party_id and instance_id then
+		local ok, err = pm.assign_party_instance(party_id, instance_id)
+		if not ok then
+			egs.warning("assign_party_instance: " .. tostring(err))
+		end
+	else
+		egs.warning("assign_party_instance: missing party_id or instance_id")
+	end
+end
+
+function handlers.clear_party_instance(payload)
+	local party_id = egs.jsonGet(payload, "party_id")
+	local pm = package.loaded["party_mechanics"]
+	if pm and party_id then
+		local ok, err = pm.clear_party_instance(party_id)
+		if not ok then
+			egs.warning("clear_party_instance: " .. tostring(err))
+		end
+	else
+		egs.warning("clear_party_instance: missing party_id")
+	end
+end
+
 function handlers.award_skill(payload)
 	local char_id = egs.jsonGet(payload, "character_id")
 	local skill = egs.jsonGet(payload, "skill")

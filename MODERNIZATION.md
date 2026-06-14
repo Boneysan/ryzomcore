@@ -33,6 +33,38 @@ Until the 6 MVP gates in PROGRESS.md are *all* green at the same time, the priva
 
 Start with Phase 0 only. Use the integration smoke test (Task 0.6) as the validator for all refactors.
 
+## Party frontend routing notes
+
+The co-op shard split now has an EGS/Lua route lifecycle for per-party
+frontends:
+
+- GM commands in `gm_commands.lua` handle `set_party_frontend`,
+  `set_instance_frontend`, `assign_party_instance`, and
+  `clear_party_instance`.
+- `party_mechanics.lua` tracks party membership, instance frontend addresses,
+  party-to-instance assignments, and the active party frontend route.
+- `egs.registerPartyFrontend(party_id, addr)` publishes `gm.party.route` to NATS
+  for the Go proxy. An empty `addr` clears the route.
+- EGS calls `party_mechanics.on_character_instance_changed(char_id,
+  instance_id)` when AIS assigns a character to an instance, so party routes can
+  follow instance migration.
+
+For container runs, `docker/run_shard_container.sh` can spawn extra frontend
+services and publish their party routes on startup:
+
+```bash
+S1_PARTY_FRONTENDS='party1=47916,party2=47917' docker compose up nel-shard
+```
+
+`S1_PARTY_FRONTENDS` entries are `party_id=port` or `party_id=host:port`.
+Optional overrides:
+
+- `S1_BIND_HOST` controls the frontend listen bind, default `0.0.0.0`.
+- `S1_ROUTE_HOST` controls the host advertised to the proxy when only a port is
+  supplied, default `nel-shard`.
+- NATS discovery uses `EGS_DSS_NATS_URL`, then `EGS_SHEET_NATS_URL`, then
+  `NATS_URL`; set any of them to `disabled` to skip publishing in local runs.
+
 ## How to build (0.1) + run smoke (0.6) right now (after the scaffolding we performed)
 
 1. Ensure prerequisites (see Operations/Dev_Runbook.md in the plan dir): recent cmake, vcpkg, clang or gcc>=9, etc. Git LFS for data if needed for sheets.
@@ -70,4 +102,3 @@ Start with Phase 0 only. Use the integration smoke test (Task 0.6) as the valida
 After local success, commit the fixes + update PROGRESS checkboxes.
 
 We also added egs_smoke_test/ module (extends the harness) + -T support in EGS + updates to compose, modernization CI workflow, etc.
-

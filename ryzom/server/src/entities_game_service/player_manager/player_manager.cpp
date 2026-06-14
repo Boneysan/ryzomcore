@@ -58,6 +58,7 @@
 #include "modules/r2_mission_item.h"
 #include "modules/animation_session_manager.h"
 #include "entities_game_service.h"
+#include "egs_script/egs_lua.h"
 
 
 using namespace NLMISC;
@@ -396,7 +397,17 @@ void cbSetCharacterAIInstance( NLNET::CMessage& msgin, const std::string &servic
 			// we don't look at continent if we are in a ring shard
 			ch->setRingShardInstanceNumber(sessionId.asInt());
 			ch->setStartupInstance(sessionId.asInt());
-		}		
+		}
+
+#ifdef EGS_HAVE_LUA
+		{
+			std::vector<std::string> hookArgs;
+			hookArgs.push_back(eid.toString());
+			hookArgs.push_back(toString(sessionId.asInt()));
+			std::string hookErr;
+			EGSLUA::callHook("on_character_instance_changed", hookArgs, hookErr);
+		}
+#endif
 	}
 }
 
@@ -2673,7 +2684,6 @@ NLMISC_COMMAND(setPvPTag,"set player character PvP TAG to true or false","<eid> 
 //		log.displayNL("error : current bulk = %d, real bulk = %d",bulk1,bulk2);
 //	return true;
 //}
-
 
 
 

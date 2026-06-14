@@ -2132,7 +2132,8 @@ void CZoneManager::saveDeposits()
 		NLMISC::COFile file;
 		std::string savePath = NLMISC::CPath::lookup(DepositStateFileName, false, true);
 		if (savePath.empty()) savePath = DepositStateFileName;
-		NLMISC::CPath::makeDirForFile(savePath);
+		std::string saveDir = NLMISC::CFile::getPath(savePath);
+		if (!saveDir.empty()) NLMISC::CFile::createDirectoryTree(saveDir);
 		if (file.open(savePath)) {
 			file.serialBuffer((uint8*)stream.buffer(), stream.length());
 			file.close();

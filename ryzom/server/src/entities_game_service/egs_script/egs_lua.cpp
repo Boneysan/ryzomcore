@@ -25,6 +25,7 @@
 #include "game_share/tick_event_handler.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include "nel/net/tcp_sock.h"
 
 #ifdef EGS_HAVE_PGSQL
@@ -35,7 +36,7 @@ using namespace std;
 using namespace NLMISC;
 
 CVariable<string> LuaScriptDirectory("egs", "LuaScriptDirectory", "Directory scanned for *.lua game scripts at EGS startup (empty = no startup scripts; runtime still available for gm.script.run)", "lua_scripts", 0, true);
-CVariable<string> EgsDssNatsUrl("egs", "DssNatsUrl", "NATS URL for DSS", "nats://localhost:4222", 0, true);
+CVariable<string> EgsDssNatsUrl("egs", "DssNatsUrl", "NATS URL for DSS (env EGS_DSS_NATS_URL, EGS_SHEET_NATS_URL, then NATS_URL override this value)", "nats://localhost:4222", 0, true);
 CVariable<string> EgsDssPgConn("egs", "DssPgConn", "Postgres connection string for DSS", "", 0, true);
 
 #ifdef EGS_HAVE_LUA
@@ -93,6 +94,101 @@ string extractJsonString(const string &payload, const string &key)
 		value += ch;
 	}
 	return string();
+}
+
+string trim(const string &value)
+{
+	string::size_type begin = 0;
+	while (begin < value.size() && (value[begin] == ' ' || value[begin] == '\t' || value[begin] == '\r' || value[begin] == '\n'))
+		++begin;
+
+	string::size_type end = value.size();
+	while (end > begin && (value[end - 1] == ' ' || value[end - 1] == '\t' || value[end - 1] == '\r' || value[end - 1] == '\n'))
+		--end;
+
+	return value.substr(begin, end - begin);
+}
+
+string natsEndpointFromUrl(const string &url)
+{
+	string endpoint = trim(url);
+	if (endpoint.empty() || endpoint == "disabled")
+		return string();
+
+	static const string scheme = "nats://";
+	if (endpoint.compare(0, scheme.size(), scheme) == 0)
+		endpoint = endpoint.substr(scheme.size());
+
+	string::size_type at = endpoint.rfind('@');
+	if (at != string::npos)
+		endpoint = endpoint.substr(at + 1);
+
+	string::size_type slash = endpoint.find('/');
+	if (slash != string::npos)
+		endpoint = endpoint.substr(0, slash);
+
+	if (endpoint.find(':') == string::npos)
+		endpoint += ":4222";
+
+	return endpoint;
+}
+
+string resolveLuaNatsEndpoint()
+{
+	const char *env = getenv("EGS_DSS_NATS_URL");
+	if (env && *env)
+		return natsEndpointFromUrl(env);
+	env = getenv("EGS_SHEET_NATS_URL");
+	if (env && *env)
+		return natsEndpointFromUrl(env);
+	env = getenv("NATS_URL");
+	if (env && *env)
+		return natsEndpointFromUrl(env);
+	return natsEndpointFromUrl(EgsDssNatsUrl.get());
+}
+
+string jsonEscapeString(const char *value)
+{
+	string escaped;
+	for (const char *p = value; p && *p; ++p)
+	{
+		switch (*p)
+		{
+		case '\\': escaped += "\\\\"; break;
+		case '"': escaped += "\\\""; break;
+		case '\n': escaped += "\\n"; break;
+		case '\r': escaped += "\\r"; break;
+		case '\t': escaped += "\\t"; break;
+		default: escaped += *p; break;
+		}
+	}
+	return escaped;
+}
+
+void publishNats(const string &subject, const string &payload, const char *context)
+{
+	const string endpoint = resolveLuaNatsEndpoint();
+	if (endpoint.empty())
+	{
+		nlwarning("%s skipped: NATS URL is disabled", context);
+		return;
+	}
+
+	try {
+		NLNET::CTcpSock sock;
+		sock.connect(NLNET::CInetHost(endpoint));
+		std::string msg = "CONNECT {\"verbose\":false,\"pedantic\":false,\"lang\":\"egs-lua\",\"version\":\"0.1\"}\r\n";
+		msg += std::string("PUB ") + subject + " " + toString((uint32)payload.size()) + "\r\n" + payload + "\r\n";
+		msg += "PING\r\n";
+		uint32 len = (uint32)msg.size();
+		sock.send((const uint8*)msg.c_str(), len, false);
+
+		uint8 buf[128];
+		uint32 readLen = sizeof(buf);
+		sock.receive(buf, readLen, true);
+	} catch(std::exception &e) {
+		nlwarning("%s to %s on %s failed: %s", context, subject.c_str(), endpoint.c_str(), e.what());
+	}
 }
 
 // --- egs.* bindings ---------------------------------------------------------
@@ -171,24 +267,7 @@ sint luaEgsNatsPublish(lua_State *state)
 	const char *subject = luaL_checkstring(state, 1);
 	const char *payload = luaL_checkstring(state, 2);
 
-	std::string host = "localhost:4222";
-	std::string url = EgsDssNatsUrl.get();
-	if (url.find("nats://") == 0) url = url.substr(7);
-	if (!url.empty()) host = url;
-
-	try {
-		NLNET::CTcpSock sock;
-		sock.connect(NLNET::CInetHost(host));
-		std::string msg = std::string("PUB ") + subject + " " + toString(strlen(payload)) + "\r\n" + payload + "\r\n";
-		msg += "PING\r\n";
-		uint32 len = (uint32)msg.size();
-		sock.send((const uint8*)msg.c_str(), len, false);
-		uint8 buf[64];
-		uint32 readLen = sizeof(buf);
-		sock.receive(buf, readLen, true);
-	} catch(std::exception &e) {
-		nlwarning("<egs_lua> natsPublish to %s failed: %s", subject, e.what());
-	}
+	publishNats(subject, payload, "<egs_lua> natsPublish");
 	return 0;
 }
 
@@ -198,55 +277,15 @@ sint luaEgsRegisterPartyFrontend(lua_State *state)
 	const char *partyId = luaL_checkstring(state, 1);
 	const char *addr = luaL_checkstring(state, 2);
 
-	std::string host = "localhost:4222";
-	std::string url = EgsDssNatsUrl.get();
-	if (url.find("nats://") == 0) url = url.substr(7);
-	if (!url.empty()) host = url;
-
-	try {
-		NLNET::CTcpSock sock;
-		sock.connect(NLNET::CInetHost(host));
-		
-		char json[256];
-		snprintf(json, sizeof(json), "{\"party_id\":\"%s\",\"addr\":\"%s\"}", partyId, addr);
-		std::string msg = std::string("PUB gm.party.route ") + toString(strlen(json)) + "\r\n" + json + "\r\n";
-		msg += "PING\r\n";
-		uint32 len = (uint32)msg.size();
-		sock.send((const uint8*)msg.c_str(), len, false);
-		
-		uint8 buf[128];
-		uint32 readLen = sizeof(buf);
-		sock.receive(buf, readLen, true);
-	} catch(std::exception &e) {
-		nlwarning("EGS NATS PUB party route failed: %s", e.what());
-	}
+	std::string json = std::string("{\"party_id\":\"") + jsonEscapeString(partyId) + "\",\"addr\":\"" + jsonEscapeString(addr) + "\"}";
+	publishNats("gm.party.route", json, "EGS NATS PUB party route");
 	return 0;
 }
 
 static int luaDssJournalPublish(lua_State *state) {
 	const char *json = luaL_checkstring(state, 1);
 	nlinfo("DSS: Publishing quest.journal.all via NATS: %s", json);
-	
-	std::string host = "localhost:4222";
-	std::string url = EgsDssNatsUrl.get();
-	if (url.find("nats://") == 0) url = url.substr(7);
-	if (!url.empty()) host = url;
-
-	try {
-		NLNET::CTcpSock sock;
-		sock.connect(NLNET::CInetHost(host));
-		std::string msg = std::string("PUB quest.journal.all ") + toString(strlen(json)) + "\r\n" + json + "\r\n";
-		msg += "PING\r\n";
-		uint32 len = (uint32)msg.size();
-		sock.send((const uint8*)msg.c_str(), len, false);
-		
-		uint8 buf[128];
-		uint32 readLen = sizeof(buf);
-		// block until we read something (like PONG) to ensure it was flushed
-		sock.receive(buf, readLen, true);
-	} catch(std::exception &e) {
-		nlwarning("DSS NATS PUB failed: %s", e.what());
-	}
+	publishNats("quest.journal.all", json, "DSS NATS PUB");
 	return 0;
 }
 
