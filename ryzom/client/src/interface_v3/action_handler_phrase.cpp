@@ -1669,7 +1669,7 @@ static DECLARE_INTERFACE_USER_FCT(getSPhraseName)
 			return false;
 		sint	sphraseId= (sint)args[0].getInteger();
 		CSPhraseManager		*pPM= CSPhraseManager::getInstance();
-		result.setString(pPM->getPhrase(sphraseId).Name.toUtf8());
+		result.setString(pPM->getPhrase(sphraseId).Name);
 		return true;
 	}
 	else

@@ -616,7 +616,7 @@ void CContinentManager::readFrom(xmlNodePtr node)
 		prop = xmlGetProp(node, (xmlChar*)"title");
 		if (prop)
 		{
-			lm.Title.fromUtf8((const char*)prop);
+			lm.Title = (const char*)prop;
 		}
 		else
 		{

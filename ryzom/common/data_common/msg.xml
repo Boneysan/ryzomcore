@@ -89,10 +89,10 @@
     <leaf name="FLYING_TEXT" description="add a flying text to an entity (u32 entity, u8 type)" />
   </branch>
   <branch name="STRING">
-    <leaf name="TELL" sendto="IOS" format="s uc" description="the client sends a tell to the character $e : $s" />
+    <leaf name="TELL" sendto="IOS" format="s s" description="the client sends a tell to the character $e : $s" />
     <leaf name="FAR_TELL" description="the client receive a far tell from a player on another shard" />
-    <leaf name="CHAT" sendto="IOS" format="uc" description="the client sends the chat message : $s" />
-    <leaf name="CHAT_TEAM" sendto="IOS" format="uc" description="the client sends the chat message to his team: $s" />
+    <leaf name="CHAT" sendto="IOS" format="s" description="the client sends the chat message : $s" />
+    <leaf name="CHAT_TEAM" sendto="IOS" format="s" description="the client sends the chat message to his team: $s" />
     <leaf name="ADD_DYN_STR" />
     <leaf name="FILTER" sendto="IOS" format="u8" description="the client adds/removes the chat filter $u8" />
     <leaf name="CHAT_MODE" sendto="IOS" format="u8 u64" description="the client selects the chat mode $u8 $64. second param is 0 or the dynamic chat Id (an eid)" />
@@ -100,7 +100,7 @@
     <leaf name="TELL2" description="a npc send a predef message to the client : $s" />
     <leaf name="DYN_STRING" description="system send a dyn string to the client system chat: $u32" />
     <leaf name="DYN_STRING_GROUP" description="system send a dyn string to the client gived group chat: $u32 $u16" />
-    <leaf name="AFK_TXT" sendto="IOS" format="uc" description="the client sets an afk custom text" />
+    <leaf name="AFK_TXT" sendto="IOS" format="s" description="the client sets an afk custom text" />
   </branch>
   <branch name="STUN">
     <leaf name="STUN" />
@@ -138,7 +138,7 @@
     <leaf name="SHARE_CLOSE" format="" description="the server wants the share interface to be closed" />
     <!-- Contact List -->
     <leaf name="CONTACT_INIT" format="" description="the server initialize the 2 contacts lists (net_manager.cpp to see the message format)" />
-    <leaf name="CONTACT_ADD" sendto="EGS" format="uc u8" description="the client wants to add a contact ($uc name $u8 list)" />
+    <leaf name="CONTACT_ADD" sendto="EGS" format="s u8" description="the client wants to add a contact ($s name $u8 list)" />
     <leaf name="CONTACT_DEL" sendto="EGS" format="u32 u8" description="the client wants to delete a contact ($u32 contactId $u8 list)" />
     <leaf name="CONTACT_MOVE" sendto="EGS" format="u32 u8" description="the client wants to move a contact from one list to the other ($u32 contactId $u8 listSrc)" />
     <leaf name="CONTACT_CREATE" format="" description="the server create a contact" />
@@ -239,7 +239,7 @@
   <!-- Msg from Commands -->
   <branch name="COMMAND">
     <leaf name="EMOTE" sendto="EGS" format="u32 u16" description="client send the emote (behaviour, phrase id) to play." />
-    <leaf name="CUSTOM_EMOTE" sendto="EGS" format="u32 uc" description="client send the custom emote (behaviour, custom text) to play." />
+    <leaf name="CUSTOM_EMOTE" sendto="EGS" format="u32 s" description="client send the custom emote (behaviour, custom text) to play." />
     <leaf name="WHERE" sendto="EGS" format="" description="client send the where command" />
     <leaf name="ADMIN" sendto="EGS" format="b s s" description="client asks EGS to execute the command $s with arg $s" />
     <leaf name="ADMIN_OFFLINE" sendto="EGS" format="s s s" description="client asks EGS to execute on character $s (online or offline) the command $s with arg $s" />
@@ -323,7 +323,7 @@
   </branch>
   <!-- Guilds related message -->
   <branch name="GUILD">
-    <leaf name="CREATE" sendto="EGS" format="uc u64 uc" description="client wants to create a guild (name of new guild, guild icon descriptor, description of the guild)" />
+    <leaf name="CREATE" sendto="EGS" format="s u64 s" description="client wants to create a guild (name of new guild, guild icon descriptor, description of the guild)" />
     <leaf name="ABORT_CREATION" description="server forces the end of a guild create session" />
     <leaf name="OPEN_GUILD_WINDOW" sendto="" format="" description="the client just entered a guild, EGS ask the client to open the guild window" />
     <leaf name="INVITATION" sendto="EGS" format="" />
@@ -464,7 +464,7 @@
   </branch>
   <!--
   <branch name="EVENT">
-    <leaf name="SET_ITEM_CUSTOM_TEXT" sendto="EGS" format="u32 u32 uc" description="set the cursom of the item in inventory $inventory in slot $slot to $text" />
+    <leaf name="SET_ITEM_CUSTOM_TEXT" sendto="EGS" format="u32 u32 s" description="set the cursom of the item in inventory $inventory in slot $slot to $text" />
     <leaf name="DUMMY" description="stupid server....." />
   </branch>
   -->

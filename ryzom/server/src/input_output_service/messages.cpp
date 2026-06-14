@@ -117,7 +117,7 @@ void cbImpulsionChat( CMessage& msgin, const string &serviceName, TServiceId ser
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring ucstrWire;
+	std::string ucstrWire;
 	try
 	{
 		msgin.serial(ucstrWire);
@@ -128,7 +128,7 @@ void cbImpulsionChat( CMessage& msgin, const string &serviceName, TServiceId ser
 		return;
 	}
 
-	std::string ucstr = ucstrWire.toUtf8();
+	std::string ucstr = ucstrWire;
 	// Do a general filtering on client input
 	ucstr = IOS->getChatManager().filterClientInput(ucstr);
 
@@ -159,7 +159,7 @@ void cbImpulsionChatTeam( CMessage& msgin, const string &serviceName, TServiceId
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring ucstrWire;
+	std::string ucstrWire;
 	try
 	{
 		msgin.serial(ucstrWire);
@@ -170,7 +170,7 @@ void cbImpulsionChatTeam( CMessage& msgin, const string &serviceName, TServiceId
 		return;
 	}
 
-	std::string ucstr = ucstrWire.toUtf8();
+	std::string ucstr = ucstrWire;
 	// Do a general filtering on client input
 	ucstr = IOS->getChatManager().filterClientInput(ucstr);
 
@@ -204,7 +204,7 @@ void cbImpulsionTell( CMessage& msgin, const string &serviceName, TServiceId ser
 	msgin.serial(sender);
 
 	string receiver;
-	ucstring strWire;
+	std::string strWire;
 	try
 	{
 		msgin.serial(receiver);
@@ -216,7 +216,7 @@ void cbImpulsionTell( CMessage& msgin, const string &serviceName, TServiceId ser
 		return;
 	}
 
-	std::string str = strWire.toUtf8();
+	std::string str = strWire;
 	// Do a general filtering on client input
 	str = IOS->getChatManager().filterClientInput(str);
 
@@ -422,7 +422,7 @@ void cbImpulsionAfkTxt( CMessage& msgin, const string &serviceName, TServiceId s
 	CEntityId sender;
 	msgin.serial(sender);
 
-	ucstring afkTxtWire;
+	std::string afkTxtWire;
 	try
 	{
 		msgin.serial( afkTxtWire );
@@ -433,7 +433,7 @@ void cbImpulsionAfkTxt( CMessage& msgin, const string &serviceName, TServiceId s
 		return;
 	}
 
-	std::string afkTxtStr = afkTxtWire.toUtf8();
+	std::string afkTxtStr = afkTxtWire;
 	// Do a general filtering on client input
 	afkTxtStr = IOS->getChatManager().filterClientInputColorCode(afkTxtStr);
 

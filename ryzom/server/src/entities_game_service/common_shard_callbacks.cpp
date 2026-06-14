@@ -33,28 +33,6 @@ void cbStoreStringResult( NLNET::CMessage& msgin, const std::string &serviceName
 {
 }
 
-// received stall order form backup service due to server problem on writing player saves
-void cbStallShard( NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId )
-{
-	string filename;
-	msgin.serial( filename );
-
-	nlwarning("Backup service send Stall order when trying write %s file", filename.c_str() );
-	PlayerManager.broadcastMessage( 2, 0, 5, "Technical problem occurred on the server,");
-	PlayerManager.broadcastMessage( 2, 0, 5, "All non administrator accounts are disconnected immediately.");
-	PlayerManager.broadcastMessage( 2, 0, 5, "Customer Support is already working on it.");
-	PlayerManager.broadcastMessage( 2, 0, 5, "Sorry for any inconveniences.");
-	PlayerManager.broadcastMessage( 2, 0, 5, "...");
-	PlayerManager.setStallMode( true );
-}
-
-// received resume order from backup service
-void cbResumeShard( NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId )
-{
-	PlayerManager.setStallMode( false );
-	PlayerManager.broadcastMessage( 1, 0, 0, "Server resumed");
-}
-
 
 
 void	cbStallMode( NLNET::CMessage& msgin, const std::string &serviceName, NLNET::TServiceId serviceId )
@@ -98,8 +76,7 @@ void CCommonShardCallbacks::init()
 	TUnifiedCallbackItem array[]=
 	{
 		{ "STORE_STRING_RESULT",					cbStoreStringResult },
-		{ "STALL_SHARD",							cbStallShard		},
-		{ "RESUME_SHARD",							cbResumeShard		},
+
 	}; 
 	// setup the callback array
 	CUnifiedNetwork::getInstance()->addCallbackArray( array, sizeof(array)/sizeof(array[0]) );

@@ -1157,7 +1157,7 @@ void cbClientAddToContactList( NLNET::CMessage& msgin, const std::string &servic
 	H_AUTO(cbClientAddToContactList);
 
 	CEntityId	charId;
-	ucstring	playerName;
+	std::string	playerName;
 	uint8		list;
 
 	msgin.serial(charId);
@@ -1170,11 +1170,11 @@ void cbClientAddToContactList( NLNET::CMessage& msgin, const std::string &servic
 		c->setAfkState(false);
 		if (list == 0)
 		{
-			c->addPlayerToFriendList(playerName.toUtf8());
+			c->addPlayerToFriendList(playerName);
 		}
 		else
 		{
-			c->addPlayerToIgnoreList(playerName.toUtf8());
+			c->addPlayerToIgnoreList(playerName);
 		}
 	}
 	else
@@ -2063,7 +2063,7 @@ void cbClientSendCustomEmote( NLNET::CMessage& msgin, const std::string &service
 
 	CEntityId id;
 	MBEHAV::EBehaviour behaviour = MBEHAV::IDLE;
-	ucstring ucEmoteText;
+	std::string ucEmoteText;
 	try
 	{
 		msgin.serial( id );
@@ -2084,7 +2084,7 @@ void cbClientSendCustomEmote( NLNET::CMessage& msgin, const std::string &service
 		return;
 	}
 
-	std::string emoteCustomText = ucEmoteText.toUtf8();
+	std::string emoteCustomText = ucEmoteText;
 	CCharacter * c = PlayerManager.getChar( id );
 	if( c && c->getEnterFlag() )
 	{
@@ -2538,9 +2538,7 @@ void cbClientWho( NLNET::CMessage& msgin, const std::string &serviceName, NLNET:
 	const std::vector<CEntityId> * gms = NULL;
 
 	// Make sure opt is not like "A(c)" for e acute
-	ucstring ucopt;
-	ucopt.fromUtf8(opt);
-	opt = ucopt.toString();
+	// Now everything is UTF-8 natively, no need for ucstring roundtrip
 
 	uint nbAnswers = 0;
 

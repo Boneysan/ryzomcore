@@ -1065,23 +1065,29 @@ void CStatDB::saveValueLeaves(const CStatDBValueLeavesPD & valueLeavesPD)
 	pdr.clear();
 	valueLeavesPD.store(pdr);
 
-	CBackupMsgSaveFile msg( sFilePath, CBackupMsgSaveFile::SaveFile, Bsi );
-	if (XMLSave)
-	{
-		string s;
-		pdr.toString(s);
-		msg.DataMsg.serialBuffer((uint8*)&s[0], (uint)s.size());
+	try {
+		NLMISC::COFile file;
+		std::string savePath = NLMISC::CPath::lookup(sFilePath, false, true);
+		if (savePath.empty()) savePath = sFilePath;
+		NLMISC::CPath::makeDirForFile(savePath);
+		if (file.open(savePath)) {
+			if (XMLSave) {
+				std::string s;
+				pdr.toString(s);
+				file.serialBuffer((uint8*)&s[0], (uint)s.size());
+			} else {
+				uint size = pdr.totalDataSize();
+				std::vector<char> buffer(size);
+				pdr.toBuffer(&buffer[0], size);
+				file.serialBuffer((uint8*)&buffer[0], size);
+			}
+			file.close();
+		} else {
+			nlwarning("<CStatDB::saveValueLeaves> cannot open %s for writing", savePath.c_str());
+		}
+	} catch (const Exception & e) {
+		nlwarning("<CStatDB::saveValueLeaves> Exception while saving %s : %s", sFilePath.c_str(), e.what());
 	}
-	else
-	{
-		uint size = pdr.totalDataSize();
-		vector<char> buffer(size);
-		pdr.toBuffer(&buffer[0], size);
-		msg.DataMsg.serialBuffer((uint8*)&buffer[0], size);
-	}
-
-//	nlinfo("saveValueLeaves send %u bytes to BS", msgout.length());
-	Bsi.sendFile( msg );
 }
 
 // ****************************************************************************
@@ -1093,23 +1099,29 @@ void CStatDB::saveTableLeaf(const CStatDBTableLeafPD & tableLeafPD)
 	pdr.clear();
 	tableLeafPD.store(pdr);
 
-	CBackupMsgSaveFile msg( sFilePath, CBackupMsgSaveFile::SaveFile, Bsi );
-	if (XMLSave)
-	{
-		string s;
-		pdr.toString(s);
-		msg.DataMsg.serialBuffer((uint8*)&s[0], (uint)s.size());
+	try {
+		NLMISC::COFile file;
+		std::string savePath = NLMISC::CPath::lookup(sFilePath, false, true);
+		if (savePath.empty()) savePath = sFilePath;
+		NLMISC::CPath::makeDirForFile(savePath);
+		if (file.open(savePath)) {
+			if (XMLSave) {
+				std::string s;
+				pdr.toString(s);
+				file.serialBuffer((uint8*)&s[0], (uint)s.size());
+			} else {
+				uint size = pdr.totalDataSize();
+				std::vector<char> buffer(size);
+				pdr.toBuffer(&buffer[0], size);
+				file.serialBuffer((uint8*)&buffer[0], size);
+			}
+			file.close();
+		} else {
+			nlwarning("<CStatDB::saveTableLeaf> cannot open %s for writing", savePath.c_str());
+		}
+	} catch (const Exception & e) {
+		nlwarning("<CStatDB::saveTableLeaf> Exception while saving %s : %s", sFilePath.c_str(), e.what());
 	}
-	else
-	{
-		uint size = pdr.totalDataSize();
-		vector<char> buffer(size);
-		pdr.toBuffer(&buffer[0], size);
-		msg.DataMsg.serialBuffer((uint8*)&buffer[0], size);
-	}
-	
-//	nlinfo("saveTableLeaf(%s) send %u bytes to BS", tableLeafPD.Path.c_str(), msgout.length());
-	Bsi.sendFile( msg );
 }
 
 // ****************************************************************************

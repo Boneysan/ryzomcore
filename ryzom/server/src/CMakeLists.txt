@@ -15,7 +15,7 @@ ADD_SUBDIRECTORY(pd_lib)
 
 # Ryzom Services
 ADD_SUBDIRECTORY(ai_service)
-ADD_SUBDIRECTORY(backup_service)
+
 ADD_SUBDIRECTORY(dynamic_scenario_service)
 ADD_SUBDIRECTORY(entities_game_service)
 ADD_SUBDIRECTORY(frontend_service)

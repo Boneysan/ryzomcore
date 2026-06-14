@@ -879,13 +879,13 @@ void CPlayer::loadAllCharacters()
 	{
 		H_AUTO(LoadAllCharactersOldSaveFormat);
 
-		string fileName = BsiGlobal.getLocalPath() + string("player_characters/account_") + toString(getUserId()) + string(".bin");
+		string fileName = NLNET::IService::getInstance()->SaveFilesDirectory.get() + string("player_characters/account_") + toString(getUserId()) + string(".bin");
 		CIFile f;
 		bool open = f.open(fileName);
 		bool xml = false;
 		if( open == false  )
 		{
-			fileName = BsiGlobal.getLocalPath() + string("player_characters/account_") + toString(getUserId()) + string(".xml");
+			fileName = NLNET::IService::getInstance()->SaveFilesDirectory.get() + string("player_characters/account_") + toString(getUserId()) + string(".xml");
 			open = f.open(fileName);
 			xml = true;
 		}
@@ -903,7 +903,7 @@ void CPlayer::loadAllCharacters()
 						// load player
 						loadOldFormat( input );
 						f.close();
-						NLMISC::CFile::moveFile( ( BsiGlobal.getLocalPath() + string("player_characters/backup_account_") + toString(getUserId()) + string(".bin") ).c_str(), fileName.c_str() );
+						NLMISC::CFile::moveFile( ( NLNET::IService::getInstance()->SaveFilesDirectory.get() + string("player_characters/backup_account_") + toString(getUserId()) + string(".bin") ).c_str(), fileName.c_str() );
 						for ( sint16 i = 0; i < (sint16)_Characters.size(); i++ )
 						{
 							if( _Characters[i] != 0 )
@@ -931,7 +931,7 @@ void CPlayer::loadAllCharacters()
 					loadOldFormat( f );
 					// Close the File.
 					f.close();
-					NLMISC::CFile::moveFile( ( BsiGlobal.getLocalPath() + string("player_characters/backup_account_") + toString(getUserId()) + string(".bin") ).c_str(), fileName.c_str() );
+					NLMISC::CFile::moveFile( ( NLNET::IService::getInstance()->SaveFilesDirectory.get() + string("player_characters/backup_account_") + toString(getUserId()) + string(".bin") ).c_str(), fileName.c_str() );
 					for ( sint16 i = 0; i < (sint16)_Characters.size(); i++ )
 					{
 						if( _Characters[i] != 0 )

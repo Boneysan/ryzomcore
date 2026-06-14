@@ -274,13 +274,8 @@ CGenericXmlMsgHeaderManager::CNode::CNode(xmlNodePtr xmlNode, uint32 value) : Va
 					break;
 				case 'u':
 					{
-						// consider uc as ucstring
-						if (*scan == 'c')
-							Format.push_back(CMessageField(UCString, 0));
-						else
-						{
-							// here consider u as uint
-							uint	numBits = 0;
+						// here consider u as uint
+						uint	numBits = 0;
 							while (isdigit(*scan))
 								numBits = numBits*10 + *(scan++) -'0';
 							if (numBits == 8)
@@ -293,7 +288,6 @@ CGenericXmlMsgHeaderManager::CNode::CNode(xmlNodePtr xmlNode, uint32 value) : Va
 								Format.push_back(CMessageField(Uint64, numBits));
 							else
 								Format.push_back(CMessageField(BitSizedUint, numBits));
-						}
 					}
 					break;
 				case 'f':

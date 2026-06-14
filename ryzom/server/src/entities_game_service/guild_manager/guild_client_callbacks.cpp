@@ -70,7 +70,7 @@ void cbClientGuildCreate( NLNET::CMessage& msgin, const std::string & serviceNam
 	H_AUTO(cbClientGuildCreate);
 	
 	CEntityId eId;
-	ucstring name,description;
+	std::string name,description;
 	uint64 icon;
 	msgin.serial( eId );
 	msgin.serial( name );
@@ -80,7 +80,7 @@ void cbClientGuildCreate( NLNET::CMessage& msgin, const std::string & serviceNam
 	// get the character and build a proxy from it
 	GET_CHAR(eId);
 	CGuildCharProxy proxy(user);
-	CGuildManager::getInstance()->createGuild(proxy, name.toUtf8(), icon, description.toUtf8());
+	CGuildManager::getInstance()->createGuild(proxy, name, icon, description);
 }
 
 //----------------------------------------------------------------------------

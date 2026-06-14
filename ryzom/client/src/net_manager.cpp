@@ -404,7 +404,7 @@ void impulseUserChars(NLMISC::CBitMemStream &impulse)
 		// if there's a new char for which a key set was wanted, create it now
 		for (uint k = 0; k < CharacterSummaries.size(); ++k)
 		{
-			if (toLower(CharacterSummaries[k].Name.toUtf8()) == toLower(NewKeysCharNameValidated))
+			if (toLower(CharacterSummaries[k].Name) == toLower(NewKeysCharNameValidated))
 			{
 				// first, stripes server name
 				copyKeySet(lookupSrcKeyFile(GameKeySet), "save/keys_" + buildPlayerNameForSaveFile(NewKeysCharNameValidated) + ".xml");

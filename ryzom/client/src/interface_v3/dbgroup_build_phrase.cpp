@@ -310,7 +310,7 @@ void			CDBGroupBuildPhrase::startComposition(const CSPhraseCom &phrase)
 	else
 	{
 		// copy name
-		name= phrase.Name.toUtf8();
+		name= phrase.Name;
 
 		// get the root Brick. Must exist.
 		CSBrickSheet	*rootBrick= pBM->getBrick(phrase.Bricks[0]);
@@ -1791,7 +1791,7 @@ void			CDBGroupBuildPhrase::buildCurrentPhrase(CSPhraseCom &newPhrase)
 	// Set the Name
 	if(_UserSentenceName)
 	{
-		newPhrase.Name= ucstring::makeFromUtf8(_UserSentenceName->getInputString());
+		newPhrase.Name= _UserSentenceName->getInputString();
 	}
 }
 

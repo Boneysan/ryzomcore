@@ -1547,8 +1547,8 @@ void CEntityBase::serial(NLMISC::IStream &f)
 	{
 		f.xmlPush("NameAndSurname");
 		f.serial( _Name );
-		ucstring surname;
-		f.serial( surname );
+		std::vector<uint16> surname;
+		f.serialCont( surname );
 		f.xmlPop();
 	}
 	else

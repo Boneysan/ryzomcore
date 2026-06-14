@@ -168,15 +168,15 @@ void CStringManager::loadCache()
 		while (!file.eof())
 		{
 			uint32 id;
-			ucstring str;
+			std::string str;
 
 			file.serial(id);
 			file.serial(str);
 
-//			nldebug("Loaded from cache [%u][%s]", id, str.toString().c_str());
+//			nldebug("Loaded from cache [%u][%s]", id, str.c_str());
 			// create a new entry
 			std::pair<TMappedUStringContainer::iterator, bool> ret;
-			ret = _StringIdx.insert(std::make_pair(str.toUtf8(), id)); // cache file uses legacy UCS-2 serial; index is UTF-8 keyed
+			ret = _StringIdx.insert(std::make_pair(str, id)); // index is UTF-8 keyed
 //			nlassert(ret.second);
 			if (!ret.second)
 			{

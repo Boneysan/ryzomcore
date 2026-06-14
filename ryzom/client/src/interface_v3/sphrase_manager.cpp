@@ -798,7 +798,7 @@ void				CSPhraseManager::buildPhraseFromSheet(CSPhraseCom &phrase, sint32 sheetI
 	if(phraseSheet)
 	{
 		// get localized Name
-		phrase.Name.fromUtf8(STRING_MANAGER::CStringManagerClient::getSPhraseLocalizedName(CSheetId(sheetId)));
+		phrase.Name = STRING_MANAGER::CStringManagerClient::getSPhraseLocalizedName(CSheetId(sheetId));
 		// Build bricks
 		phrase.Bricks.clear();
 		for(uint i=0;i<phraseSheet->Bricks.size();i++)
@@ -1071,7 +1071,7 @@ void CSPhraseManager::buildPhraseDesc(string &text, const CSPhraseCom &phrase, u
 
 		// **** Phrase info basics
 		// replace name
-		strFindReplace(text, "%name", phrase.Name.toUtf8());
+		strFindReplace(text, "%name", phrase.Name);
 		// replace Sabrina Cost and credit.
 		uint32	cost, credit;
 		pBM->getSabrinaCom().getPhraseCost(phrase.Bricks, cost, credit);
@@ -4520,7 +4520,7 @@ uint32 CSPhraseManager::getTotalActionMalus(const CSPhraseCom &phrase) const
 	{
 		CSBrickSheet *rootBrick = pBM->getBrick(phrase.Bricks[0]);
 		if (!rootBrick)
-			nlerror("Invalid root sbrick in sphrase_com '%s'", phrase.Name.toUtf8().c_str());
+			nlerror("Invalid root sbrick in sphrase_com '%s'", phrase.Name.c_str());
 		else if (actMalus && !rootBrick->isSpecialPower())
 			totalActionMalus = actMalus->getValue32();
 	}
@@ -4678,7 +4678,7 @@ int CSPhraseComAdpater::luaGetName(CLuaState &ls)
 #ifdef RYZOM_LUA_UCSTRING
 	CLuaIHM::push(ls, this->Phrase.Name);
 #else
-	ls.push(this->Phrase.Name.toUtf8());
+	ls.push(this->Phrase.Name);
 #endif
 	return 1;
 }

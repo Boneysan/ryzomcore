@@ -1885,7 +1885,7 @@ void CDBCtrlSheet::setupSPhraseId ()
 			}
 			else
 			{
-				setupDisplayAsPhrase(phrase.Bricks, phrase.Name.toUtf8()); // FIXME: UTF-8 (serial)
+				setupDisplayAsPhrase(phrase.Bricks, phrase.Name); // FIXME: UTF-8 (serial)
 			}
 		}
 
@@ -4842,7 +4842,7 @@ string CDBCtrlSheet::getItemActualName() const
 		if (pIS->Family == ITEMFAMILY::SCROLL_R2)
 		{
 			const R2::TMissionItem *mi = R2::getEditor().getPlotItemInfos(getSheetId());
-			if (mi) return mi->Name.toUtf8();
+			if (mi) return mi->Name;
 		}
 		// if item is not a mp, append faber_quality & faber_stat_type
 		// Don't append quality and stat type for Named Items!!!

@@ -2127,10 +2127,21 @@ void CZoneManager::saveDeposits()
 		nlwarning("<CZoneManager::saveDeposits> cannot save file %s : %s", DepositStateFileName.c_str(), e.what());
 	}
 
-	nldebug("<CZoneManager::saveDeposits>: sending %d states to BIS (total of %d deposits available).", toSave.size(), _Deposits.size());
-	CBackupMsgSaveFile msg( DepositStateFileName, CBackupMsgSaveFile::SaveFile, Bsi );
-	msg.DataMsg.serialBuffer((uint8*)stream.buffer(), stream.length());
-	Bsi.sendFile( msg );
+	nldebug("<CZoneManager::saveDeposits>: saving %d states (total of %d deposits available).", toSave.size(), _Deposits.size());
+	try {
+		NLMISC::COFile file;
+		std::string savePath = NLMISC::CPath::lookup(DepositStateFileName, false, true);
+		if (savePath.empty()) savePath = DepositStateFileName;
+		NLMISC::CPath::makeDirForFile(savePath);
+		if (file.open(savePath)) {
+			file.serialBuffer((uint8*)stream.buffer(), stream.length());
+			file.close();
+		} else {
+			nlwarning("<CZoneManager::saveDeposits> cannot open %s for writing", savePath.c_str());
+		}
+	} catch (const Exception & e) {
+		nlwarning("<CZoneManager::saveDeposits> Exception while saving %s : %s", DepositStateFileName.c_str(), e.what());
+	}
 
 }// CZoneManager saveDeposits
 

@@ -449,11 +449,6 @@ void routeImpulsionIdFromClient( NLMISC::CBitMemStream& bms, const NLMISC::CEnti
 						bms.serial(s);
 						msgout.serial(s);
 						break;
-					case CGenericXmlMsgHeaderManager::UCString:
-						// 0.5: now serial as std::string (UTF-8)
-						bms.serial(str);
-						msgout.serial(str);
-						break;
 					}
 				}
 

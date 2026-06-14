@@ -1245,7 +1245,7 @@ TInterfaceState globalMenu()
 	LoginSM.pushEvent(CLoginStateMachine::ev_global_menu_exited);
 
 	//  Init the current Player Name (for interface.cfg and sentence.name save). Make a good File Name.
-	string playerName = CharacterSummaries[PlayerSelectedSlot].Name.toUtf8();
+	string playerName = CharacterSummaries[PlayerSelectedSlot].Name;
 	PlayerSelectedFileName = buildPlayerNameForSaveFile(playerName);
 
 	// Init the current Player Home shard Id and name
@@ -1316,7 +1316,7 @@ public:
 			if (rCS.Name.empty())
 				pVT->setTextLocalized("uiEmptySlot", true);
 			else
-				pVT->setTextLocalized(rCS.Name.toUtf8(), false);
+				pVT->setTextLocalized(rCS.Name, false);
 		}
 		// 5 slots
 		for (; i < 5; ++i)
@@ -1408,7 +1408,7 @@ public:
 
 		if (sProp == "name")
 		{
-			sValue = CharacterSummaries[PlayerSelectedSlot].Name.toUtf8();
+			sValue = CharacterSummaries[PlayerSelectedSlot].Name;
 			setTarget (pCaller, sTarget, sValue);
 		}
 /*			else if (sProp == "surname")
@@ -1690,7 +1690,7 @@ public:
 		string sCharSumPath = getParam(Params, "charsum");
 		SCharacter3DSetup::setupCharacterSummaryFromDB(CS, sCharSumPath);
 		CS.Mainland = MainlandSelected;
-		CS.Name = ucstring::makeFromUtf8(sFirstName); // FIXME: UTF-8 (serial)
+		CS.Name = sFirstName; // FIXME: UTF-8 (serial)
 		//CS.Surname = sSurName;
 
 		// Create the message to send to the server from the character summary
@@ -1796,7 +1796,7 @@ public:
 		out.serial (nSelectedSlot);
 
 		// Yoyo: delete the Local files. To avoid problem if recreate a character with same name.
-		string playerName = CharacterSummaries[nSelectedSlot].Name.toUtf8();
+		string playerName = CharacterSummaries[nSelectedSlot].Name;
 		string playerDeletedFileName = buildPlayerNameForSaveFile(playerName);
 		// Delete the 2 Local files
 		pIM->deletePlayerConfig(playerDeletedFileName);
@@ -1993,7 +1993,7 @@ public:
 						{
 							NewKeysCharNameWanted += Mainlands[k].Name.substr(first, last - first + 1);
 						}*/
-						NewKeysCharNameWanted += ('(' + Mainlands[k].Name.toUtf8() + ')');
+						NewKeysCharNameWanted += ('(' + Mainlands[k].Name + ')');
 						break;
 					}
 				}
@@ -2016,7 +2016,7 @@ public:
 
 				for (uint i = 0; i < CharacterSummaries.size(); ++i)
 				{
-					string ls = CharacterSummaries[i].Name.toString();
+					string ls = CharacterSummaries[i].Name;
 					if (ls == sName)
 						CharNameValid = false;
 				}
@@ -2171,7 +2171,7 @@ public:
 				CViewText *pVT = dynamic_cast<CViewText*>(pNewLine->getView("name"));
 				if (pVT != NULL)
 				{
-					std::string str = Mainlands[i].Name.toUtf8() + " " + Mainlands[i].Description.toUtf8();
+					std::string str = Mainlands[i].Name + " " + Mainlands[i].Description;
 					pVT->setTextLocalized(str, false);
 				}
 
@@ -2405,9 +2405,9 @@ public:
 					// search matching utf-8 string name from character summaries
 					for (uint k = 0; k < CharacterSummaries.size(); ++k)
 					{
-						if (it->first == buildPlayerNameForSaveFile(CharacterSummaries[k].Name.toUtf8()))
+						if (it->first == buildPlayerNameForSaveFile(CharacterSummaries[k].Name))
 						{
-							name = CharacterSummaries[k].Name.toUtf8();
+							name = CharacterSummaries[k].Name;
 						}
 					}
 				}
@@ -2747,7 +2747,7 @@ class CAHScenarioControl : public IActionHandler
 					CViewText *shardName = dynamic_cast<CViewText *>(toggleGr->getView("button_text"));
 					if (shardName)
 					{
-						shardName->setTextLocalized(Mainlands[i].Name.toUtf8(), false);
+						shardName->setTextLocalized(Mainlands[i].Name, false);
 					}
 				}
 			}
@@ -3050,7 +3050,7 @@ class CAHLoadScenario : public IActionHandler
 		std::vector<bool>  shards(Mainlands.size(), false);
 		for(uint i=0; i<Mainlands.size(); i++)
 		{
-			string firstKey = Mainlands[i].Description.toString();
+			string firstKey = Mainlands[i].Description;
 
 			result = scenarioWnd->findFromShortId(toString(Mainlands[i].Id));
 			if(result)
@@ -3641,7 +3641,7 @@ class CAHExportCharacter : public IActionHandler
 			return;
 
 		// extract name
-		const std::string name = buildPlayerNameForSaveFile(CS.Name.toUtf8());
+		const std::string name = buildPlayerNameForSaveFile(CS.Name);
 
 		COFile fd;
 		bool success = false;

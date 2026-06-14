@@ -60,8 +60,8 @@ void CEntityBasePersistantData::serialXml(NLMISC::IStream &f)
 	{
 		f.xmlPush("NameAndSurname");
 		f.serial( _Name );
-		ucstring tmp;
-		f.serial( tmp);
+		std::vector<uint16> tmp;
+		f.serialCont( tmp);
 	}
 	else
 	{

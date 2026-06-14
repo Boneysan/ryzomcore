@@ -534,7 +534,7 @@ public:
 	uint32						getValue32bits() const		{ return _Value2[0]; }
 	uint64						getValue64bits() const		{ return _Value3[0]; }
 	CObjectIndex				getObjectIndex() const		{ return *(CObjectIndex*)(&(_Value3[0])); }
-	const ucstring&				getString() const			{ return _String; }
+	const std::string&				getString() const			{ return _String; }
 
 	bool						asBool() const				{ return _Value0[0] != 0; }
 	char						asChar() const				{ return (char)_Value0[0]; }
@@ -646,7 +646,7 @@ private:
 	NLMISC::CEntityId		_NewParentId;
 	NLMISC::CEntityId		_PreviousParentId;
 
-	ucstring				_String;
+	std::string				_String;
 	std::vector<uint8>		_LogBuffer;
 	std::vector<uint8>		_ExtLogBuffer;
 

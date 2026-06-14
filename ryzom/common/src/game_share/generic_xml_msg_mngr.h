@@ -68,7 +68,6 @@ public:
 		Double,
 		EntityId,
 		String,
-		UCString,
 	};
 
 	/// A message field
@@ -175,7 +174,6 @@ DEFINE_SERIAL_TYPE_CHECK(uint64, Uint64)
 DEFINE_SERIAL_TYPE_CHECK(float, Float)
 DEFINE_SERIAL_TYPE_CHECK(double, Double)
 DEFINE_SERIAL_TYPE_CHECK(std::string, String)
-DEFINE_SERIAL_TYPE_CHECK(ucstring, UCString)
 DEFINE_SERIAL_TYPE_CHECK(NLMISC::CEntityId, EntityId)
 
 

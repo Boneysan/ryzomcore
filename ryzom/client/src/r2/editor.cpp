@@ -1357,9 +1357,9 @@ int CEditor::luaSetPlotItemInfos(CLuaState &ls)
 	CLuaIHM::getUCStringOnStack(ls, 4, mi.Description);
 	CLuaIHM::getUCStringOnStack(ls, 5, mi.Comment);
 #else
-	mi.Name = ucstring::makeFromUtf8(ls.toString(3));
-	mi.Description = ucstring::makeFromUtf8(ls.toString(4));
-	mi.Comment = ucstring::makeFromUtf8(ls.toString(5));
+	mi.Name = ls.toString(3);
+	mi.Description = ls.toString(4);
+	mi.Comment = ls.toString(5);
 #endif
 	getEditor().setPlotItemInfos(mi);
 	return 0;

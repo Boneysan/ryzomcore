@@ -3192,7 +3192,7 @@ void setupSabrinaPhraseHelp(CSheetHelpSetup &setup, const CSPhraseCom &phrase, u
 	}
 
 	// **** setup the phrase Text info
-	setupHelpTitle(setup.HelpWindow, phrase.Name.toUtf8());
+	setupHelpTitle(setup.HelpWindow, phrase.Name);
 
 	// get the phraseText
 	string	phraseText;

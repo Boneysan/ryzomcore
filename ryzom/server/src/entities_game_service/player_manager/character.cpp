@@ -5878,13 +5878,12 @@ void CCharacter::setAnimalTitle(uint8 petIndex, string title)
 	}
 
 	CPetAnimal &animal = _PlayerPets[petIndex];
-	string name = animal.getCustomName().toUtf8();
+	string name = animal.getCustomName();
 	if (name.find('$') != string::npos)
 	{
 		name = name.substr(0, name.find('$'));
 	}
-	ucstring customName;
-	customName.fromUtf8(name + "$" + title);
+	std::string customName = name + "$" + title;
 	animal.setCustomName(customName);
 
 	sendPetCustomNameToClient(petIndex);
@@ -14437,14 +14436,14 @@ void CCharacter::sendContactListInit()
 	}
 
 	// build ignore list
-	vector<ucstring> ignoreList;
+	vector<std::string> ignoreList;
 	ignoreList.resize(_IgnoreList.size());
 	for (uint i = 0 ; i < _IgnoreList.size() ; ++i)
 	{
 		// associate a unique id
 		_IgnoreList[i].ContactId= _ContactIdPool++;
 		// fill array
-		ignoreList[i] = CEntityIdTranslator::getInstance()->getByEntity(_IgnoreList[i].EntityId);
+		ignoreList[i] = CEntityIdTranslator::getInstance()->getEntityNameStr(_IgnoreList[i].EntityId);
 	}
 
 	// send to client

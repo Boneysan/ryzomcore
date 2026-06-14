@@ -31,7 +31,7 @@
 #include "game_share/string_manager_sender.h"
 #include "mission_manager/ai_alias_translator.h"
 #include "deposit.h"
-#include "game_share/backup_service_interface.h"
+
 
 class CCharacter;
 extern NLMISC::CRandom RandomGenerator;

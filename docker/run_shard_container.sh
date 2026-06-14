@@ -70,7 +70,6 @@ start_nel() { # binary cfgname [timeout_s]
 	wait_ready "$cfg" "logs_dev/$cfg.out" "$pid" "$timeout"
 }
 
-start_nel ryzom_backup_service  backup_service        60 || exit 1
 start_nel ryzom_tick_service    tick_service          60 || exit 1
 start_nel ryzom_mirror_service  mirror_service        60 || exit 1
 start_nel ryzom_gpm_service     gpm_service           60 || exit 1

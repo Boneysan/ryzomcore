@@ -7,8 +7,8 @@ def transpile(source_code):
     
     # Simple lexical replacements
     for line in source_code.split('\n'):
-        # Method calls: obj.method(arg) -> obj:method(arg)
-        line = re.sub(r'([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\(', r'\1:\2(', line)
+        # Method calls: C++ Lua bindings use . not : so we leave obj.method(arg) alone
+        # No replacement needed here for Ryzom C++ bindings.
         
         # Sigil: @context -> context.
         line = line.replace('@', 'context.')

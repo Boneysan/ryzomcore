@@ -27,7 +27,7 @@
 
 #include "nel/net/service.h"
 
-#include "game_share/backup_service_interface.h"
+
 #include "world_instances.h"
 #include "cdb_group.h"
 

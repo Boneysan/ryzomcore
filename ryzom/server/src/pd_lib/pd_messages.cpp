@@ -256,7 +256,7 @@ void	CDbMessage::getHRContent(const CDBDescriptionParser& description, std::stri
 
 	case AddString:
 		{
-			result = NLMISC::toString("%-12s: %s='%s'", "AddString", asEntityId().toString().c_str(), getString().toString().c_str());
+			result = NLMISC::toString("%-12s: %s='%s'", "AddString", asEntityId().toString().c_str(), getString().c_str());
 		}
 		break;
 
@@ -299,7 +299,7 @@ void	CDbMessage::getHRContent(const CDBDescriptionParser& description, std::stri
 
 	case LogChat:
 		{
-			result = NLMISC::toString("%-12s: %s says '%s' to", "LogChat", asEntityId().toString().c_str(), _String.toString().c_str());
+			result = NLMISC::toString("%-12s: %s says '%s' to", "LogChat", asEntityId().toString().c_str(), _String.c_str());
 			if (_LogBuffer.empty())
 			{
 				result += " no one";
@@ -445,7 +445,7 @@ bool	CDbMessage::contains(const CDBDescriptionParser& description, const std::st
 	{
 	case AddString:
 	case LogChat:
-		return getString().toString().find(str) != std::string::npos;
+		return getString().find(str) != std::string::npos;
 		break;
 
 	case Log:

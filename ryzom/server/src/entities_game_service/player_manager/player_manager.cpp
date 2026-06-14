@@ -496,7 +496,7 @@ void CPetSpawnConfirmationImp::callback(const string &serviceName, NLNET::TServi
 //-----------------------------------------------
 void CPlayerManager::init()
 {
-	CFile::createDirectory(BsiGlobal.getLocalPath() + string("characters"));
+	CFile::createDirectory(NLNET::IService::getInstance()->SaveFilesDirectory.get() + string("characters"));
 
 	// init broadcast message
 	_RepeatBroadcastMessage = 0;
@@ -599,13 +599,13 @@ TServiceId CPlayerManager::getPlayerFrontEndId( uint32 userId )
 std::string CPlayerManager::getCharacterPath(uint32 userId, bool returnRemotePath)
 {
 	// spread in 1000 folder
-	return (returnRemotePath ? BsiGlobal.getRemotePath() : BsiGlobal.getLocalPath())+toString("characters/%03u/", userId%1000);
+	return (returnRemotePath ? BsiGlobal.getRemotePath() : NLNET::IService::getInstance()->SaveFilesDirectory.get())+toString("characters/%03u/", userId%1000);
 }
 
 std::string CPlayerManager::getOfflineCommandPath(uint32 userId, bool returnRemotePath)
 {
 	// spread in 1000 folder
-	return (returnRemotePath ? BsiGlobal.getRemotePath() : BsiGlobal.getLocalPath())+toString("characters_offline_commands/%03u/", userId%1000);
+	return (returnRemotePath ? BsiGlobal.getRemotePath() : NLNET::IService::getInstance()->SaveFilesDirectory.get())+toString("characters_offline_commands/%03u/", userId%1000);
 }
 
 
@@ -812,7 +812,7 @@ void CPlayerManager::savePlayerCharRecurs( uint32 userId, sint32 idx, std::set<C
 		if (SerialSave || !PDRSave)
 		{
 			COFile f;
-			string serialPathFileName = BsiGlobal.getLocalPath() + serialFileName;
+			string serialPathFileName = NLNET::IService::getInstance()->SaveFilesDirectory.get() + serialFileName;
 			if ( !f.open(serialPathFileName) )
 			{
 				nlwarning("(EGS)<CPlayerManager::savePlayer>  :  Can't open in write mode the file %s", serialPathFileName.c_str());
@@ -843,7 +843,7 @@ void CPlayerManager::savePlayerCharRecurs( uint32 userId, sint32 idx, std::set<C
 			// perform a 'pdr' save
 			static CPersistentDataRecordRyzomStore	pdr;
 			pdr.clear();
-			string pdrPathFileName = BsiGlobal.getLocalPath() + pdrFileName;
+			string pdrPathFileName = NLNET::IService::getInstance()->SaveFilesDirectory.get() + pdrFileName;
 			
 			try
 			{
