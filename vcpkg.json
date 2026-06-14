@@ -29,6 +29,7 @@
     },
     "lua",
     "luabind",
+    "recast",
     "msquic",
     "openal-soft",
     "opengl",

@@ -38,6 +38,8 @@
 #include "game_share/fame.h"
 #include "visual_properties_interface.h"
 
+#include "ai_lua.h"
+
 #include "ais_user_models.h"
 
 #ifdef NL_OS_WINDOWS
@@ -185,6 +187,9 @@ void CAIService::init (void)
 
 	// init static fame manager
 	CStaticFames::getInstance();
+	
+	// Init Lua runtime for AI behaviors
+	CAiLua::getInstance().init();
 
 	setVersion (RYZOM_PRODUCT_VERSION);
 

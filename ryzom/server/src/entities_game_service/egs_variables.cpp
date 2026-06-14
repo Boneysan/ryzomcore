@@ -44,13 +44,14 @@ CVariable<uint32>	DelayBeforeItemTP("egs","DelayBeforeItemTP","delay between ite
 CVariable<float>			MaxDistanceForXpGain("egs","MaxDistanceForXpGain", "max distance from combat to gain Xp at creature death (in meters)", 50.0f, 0, true );
 CVariable<float>			XPTeamMemberDivisorValue("egs","XPTeamMemberDivisorValue", "for team XP progression, add this value to the xp divisor for each team member above one", 0.9f, 0, true );
 CVariable<float>			MaxXPGainPerPlayer("egs","MaxXPGainPerPlayer", "Max XP gain by any one player on any creature (each team member can gain up to this value)", 30.0f, 0, true );
+CVariable<float>			GlobalXPMultiplier("egs","GlobalXPMultiplier", "Global multiplier for all XP gains (Phase 5.9)", 5.0f, 0, true );
 
 CVariable<uint32>			NbTickForRegenCreature("egs","NbTickForRegenCreature", "nb tick needed for regenerate scores of all creature (total creature / number regenerated per tick)", 64, 0, true );
 
 // variable create Character Start skills value
 CVariable<std::string>		CreateCharacterStartSkillsValue("egs","CreateCharacterStartSkillsValue", "create Character Start skills value", std::string(""), 0, true );
 // variable for death penalty duration
-CVariable<double>			DeathXPFactor("egs","DeathXPFactor", "XP to gain after a death is  DeathXPFactor * max skill /(1 + death index )", 10, 0, true );
+CVariable<double>			DeathXPFactor("egs","DeathXPFactor", "XP to gain after a death is  DeathXPFactor * max skill /(1 + death index )", 0, 0, true );
 // variable for death penalty resorption
 CVariable<double>			DeathXPResorptionTime("egs","DeathXPResorptionTime", "XP resorbs totally after DeathXPResorptionTime / NbDeath", 3, 0, true );
 // variable for min best skill value to get death penalty

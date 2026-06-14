@@ -6086,6 +6086,7 @@ double CCharacter::addXpToSkillInternal( double XpGain, const std::string& ContS
 	}
 
 	XpGain += xpBonus + ringXpBonus;
+	XpGain *= GlobalXPMultiplier;
 
 	// update death penalty
 	_DeathPenalties->addXP( *this, skillEnum, XpGain);

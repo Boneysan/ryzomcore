@@ -98,6 +98,48 @@ static int luaDssSaveProgress(lua_State *state) {
 	return 0;
 }
 
+static int luaDssSaveChronicleChoice(lua_State *state) {
+	const char *storyline = luaL_checkstring(state, 1);
+	const char *questId = luaL_checkstring(state, 2);
+	const char *objective = luaL_checkstring(state, 3);
+	const char *choiceId = luaL_checkstring(state, 4);
+	const char *accountId = luaL_checkstring(state, 5);
+
+	nlinfo("DSS: Saving chronicle choice: %s/%s/%s -> %s (account %s)", storyline, questId, objective, choiceId, accountId);
+#ifdef EGS_HAVE_PGSQL
+	if (!DssPgConn.get().empty()) {
+		PGconn *conn = PQconnectdb(DssPgConn.get().c_str());
+		if (PQstatus(conn) == CONNECTION_OK) {
+			const char *paramValues[5] = { storyline, questId, objective, choiceId, accountId };
+			PGresult *res = PQexecParams(conn, "INSERT INTO chronicle_choices (storyline, quest, objective, choice_id, account_id) VALUES ($1, $2, $3, $4, $5::bigint)", 5, NULL, paramValues, NULL, NULL, 0);
+			PQclear(res);
+		}
+		PQfinish(conn);
+	}
+#endif
+	return 0;
+}
+
+static int luaDssSaveFactionStanding(lua_State *state) {
+	const char *accountId = luaL_checkstring(state, 1);
+	const char *faction = luaL_checkstring(state, 2);
+	const char *deltaStr = luaL_checkstring(state, 3);
+
+	nlinfo("DSS: Modifying faction standing for %s/%s by %s", accountId, faction, deltaStr);
+#ifdef EGS_HAVE_PGSQL
+	if (!DssPgConn.get().empty()) {
+		PGconn *conn = PQconnectdb(DssPgConn.get().c_str());
+		if (PQstatus(conn) == CONNECTION_OK) {
+			const char *paramValues[3] = { accountId, faction, deltaStr };
+			PGresult *res = PQexecParams(conn, "INSERT INTO faction_standings (account_id, faction, standing) VALUES ($1::bigint, $2, $3::integer) ON CONFLICT (account_id, faction) DO UPDATE SET standing = faction_standings.standing + $3::integer", 3, NULL, paramValues, NULL, NULL, 0);
+			PQclear(res);
+		}
+		PQfinish(conn);
+	}
+#endif
+	return 0;
+}
+
 static void registerDssBindings() {
 	if (!EGSLUA::isInitialized()) return;
 	lua_State *state = EGSLUA::getState();
@@ -109,7 +151,13 @@ static void registerDssBindings() {
 	lua_pushcfunction(state, luaDssSaveProgress);
 	lua_setglobal(state, "dss_saveProgress");
 
-	nlinfo("DSS: Registered dss_journalPublish and dss_saveProgress into Lua");
+	lua_pushcfunction(state, luaDssSaveChronicleChoice);
+	lua_setglobal(state, "dss_saveChronicleChoice");
+
+	lua_pushcfunction(state, luaDssSaveFactionStanding);
+	lua_setglobal(state, "dss_saveFactionStanding");
+
+	nlinfo("DSS: Registered dss_journalPublish, dss_saveProgress, dss_saveChronicleChoice, dss_saveFactionStanding into Lua");
 }
 #endif
 

@@ -33,6 +33,37 @@ function handlers.despawn(payload)
 	egs.info("GM despawn: " .. payload)
 end
 
+function handlers.quest_choice(payload)
+	local option_id = egs.jsonGet(payload, "option_id")
+	local char_id = egs.jsonGet(payload, "char_id")
+	local dss = package.loaded["dss_scenario_host"]
+	if dss then
+		local ok, err = dss.make_choice(option_id, char_id)
+		if not ok then
+			egs.warning("Quest choice failed: " .. tostring(err))
+		end
+	else
+		egs.warning("dss_scenario_host not loaded")
+	end
+end
+
+function handlers.award_skill(payload)
+	local char_id = egs.jsonGet(payload, "character_id")
+	local skill = egs.jsonGet(payload, "skill")
+	local xp = egs.jsonGet(payload, "xp_amount")
+	if char_id and skill and xp then
+		local cmd = string.format("addXPToSkill %s %s %s", char_id, xp, skill)
+		local ok = egs.executeCommand(cmd)
+		if ok then
+			egs.info(string.format("GM awarded %s XP in %s to %s", xp, skill, char_id))
+		else
+			egs.warning("GM award_skill failed to execute command: " .. cmd)
+		end
+	else
+		egs.warning("GM award_skill missing parameters")
+	end
+end
+
 function on_gm_command(command, payload)
 	local handler = handlers[command]
 	if handler then

@@ -13,6 +13,13 @@ LIST(REMOVE_ITEM SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/ios_interface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ios_interface.h)
 
+# Add Lua includes
+FIND_PACKAGE(Lua)
+IF(LUA_FOUND)
+    TARGET_INCLUDE_DIRECTORIES(ryzom_ai_service PRIVATE ${LUA_INCLUDE_DIR})
+    TARGET_LINK_LIBRARIES(ryzom_ai_service PRIVATE ${LUA_LIBRARIES})
+ENDIF()
+
 ADD_EXECUTABLE(ryzom_ai_service WIN32 ${SRC})
 
 IF (APPLE)
@@ -31,6 +38,7 @@ TARGET_LINK_LIBRARIES(ryzom_ai_service
         NeL::net
         NeL::georges
         NeL::ligo
+        luabind::luabind
 )
 
 NL_DEFAULT_PROPS(ryzom_ai_service "Ryzom, Services: AI Service (AIS)")

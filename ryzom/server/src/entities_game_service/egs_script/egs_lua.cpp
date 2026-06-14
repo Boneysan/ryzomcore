@@ -123,9 +123,18 @@ sint luaEgsJsonGet(lua_State *state)
 	return 1;
 }
 
+// egs.executeCommand(cmd) -> bool
+sint luaEgsExecuteCommand(lua_State *state)
+{
+	const char *cmd = luaL_checkstring(state, 1);
+	bool ok = NLMISC::CCommandRegistry::getInstance()->execute(cmd, *NLMISC::InfoLog, true, false);
+	lua_pushboolean(state, ok);
+	return 1;
+}
+
 void registerBindings(lua_State *state)
 {
-	lua_createtable(state, 0, 4);
+	lua_createtable(state, 0, 5);
 
 	lua_pushcfunction(state, luaEgsInfo);
 	lua_setfield(state, -2, "info");
@@ -135,6 +144,8 @@ void registerBindings(lua_State *state)
 	lua_setfield(state, -2, "gameCycle");
 	lua_pushcfunction(state, luaEgsJsonGet);
 	lua_setfield(state, -2, "jsonGet");
+	lua_pushcfunction(state, luaEgsExecuteCommand);
+	lua_setfield(state, -2, "executeCommand");
 
 	lua_setglobal(state, "egs");
 }
