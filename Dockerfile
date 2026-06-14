@@ -15,9 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 COPY . .
 
-# Run the build
+# Run the build.
+# - A failed compile MUST fail the image (no `|| echo` — that shipped empty images).
+# - The ryzom-modernize preset's binaryDir is build/ryzom (see ryzom/CMakePresets.json),
+#   so build that tree, not build/.
+# - Build Release: the Debug config trips NeL nlassert/BOMB_IF landmines at runtime.
 RUN cmake --preset ryzom-modernize -DWITH_MSQUIC=ON && \
-    cmake --build build/ --parallel $(nproc) || echo "Build might fail if msquic not present, but continuing for script completeness"
+    cmake --build build/ryzom --config Release --parallel "$(nproc)"
 
 # Runtime stage
 FROM ubuntu:24.04 AS runtime
@@ -30,8 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /app/bin /app/lib /app/etc
 WORKDIR /app/bin
 
-COPY --from=builder /src/build/ryzom/lib/Debug/* /app/lib/
-COPY --from=builder /src/build/ryzom/bin/Debug/ /app/bin/
+COPY --from=builder /src/build/ryzom/lib/Release/* /app/lib/
+COPY --from=builder /src/build/ryzom/bin/Release/ /app/bin/
 COPY --from=builder /src/docker/run_shard_container.sh /app/bin/
 
 ENV PATH="/app/bin:${PATH}"

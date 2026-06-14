@@ -10,7 +10,14 @@ M.current_story = nil
 local function encode_journal_json(state)
     local function escape(s)
         if not s then return "" end
-        return string.gsub(s, '"', '\\"')
+        -- Backslash MUST be escaped first, then quotes and control chars,
+        -- otherwise text containing '\' or a newline yields invalid JSON.
+        s = string.gsub(s, '\\', '\\\\')
+        s = string.gsub(s, '"', '\\"')
+        s = string.gsub(s, '\n', '\\n')
+        s = string.gsub(s, '\r', '\\r')
+        s = string.gsub(s, '\t', '\\t')
+        return s
     end
 
     local is_awaiting = state.awaiting_choice and "true" or "false"
@@ -56,7 +63,7 @@ end
 local function handle_effect(effect)
     egs.info("DSS: Firing effect -> " .. tostring(effect.action))
     
-    if effect.action == "faction_rep" and dss_saveFactionStanding then
+    if effect.action == "faction" and dss_saveFactionStanding then
         -- We need the account_id. For now, we will assume a single-player context 
         -- or retrieve it from the environment if available.
         local account_id = effect.account_id or "0"
