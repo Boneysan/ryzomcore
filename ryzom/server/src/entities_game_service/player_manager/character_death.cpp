@@ -63,6 +63,9 @@
 // Creature manager
 #include "creature_manager/creature_manager.h"
 
+// Lua runtime
+#include "egs_script/egs_lua.h"
+
 // Team
 #include "team_manager/team_manager.h"
 
@@ -135,6 +138,14 @@ void CCharacter::kill(TDataSetRow killerRowId)
 
 	_IsDead = true;
 	_Mode = MBEHAV::DEATH;
+
+#ifdef EGS_HAVE_LUA
+	{
+		std::vector<std::string> _hookArgs = { _Id.toString() };
+		std::string _hookErr;
+		EGSLUA::callHook("on_player_death", _hookArgs, _hookErr);
+	}
+#endif
 
 	removeAllSpells();
 	_ForbidPowerDates.clearConsumable();

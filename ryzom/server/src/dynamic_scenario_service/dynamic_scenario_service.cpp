@@ -42,124 +42,13 @@
 #include "game_share/chat_group.h"
 #include "game_share/singleton_registry.h"
 #include "nel/misc/variable.h"
-#include "nel/net/tcp_sock.h"
 
-#ifdef EGS_HAVE_LUA
-#include "egs_script/egs_lua.h"
-extern "C" {
-#include <lua.h>
-#include <lauxlib.h>
-}
-#endif
-
-#ifdef EGS_HAVE_PGSQL
-#include <libpq-fe.h>
-#endif
 
 using namespace NLNET;
 using namespace NLMISC;
 using namespace R2;
 
-CVariable<std::string> DssNatsUrl("dss", "NatsUrl", "NATS URL", "nats://localhost:4222", 0, true);
-CVariable<std::string> DssPgConn("dss", "PgConn", "Postgres connection string", "", 0, true);
 
-#ifdef EGS_HAVE_LUA
-static int luaDssJournalPublish(lua_State *state) {
-	const char *json = luaL_checkstring(state, 1);
-	nlinfo("DSS: Publishing quest.journal.all via NATS: %s", json);
-	// Basic TCP publish to NATS
-	try {
-		CTcpSock sock;
-		sock.connect(CInetHost("localhost:4222"));
-		std::string msg = std::string("PUB quest.journal.all ") + toString(strlen(json)) + "\r\n" + json + "\r\n";
-		uint32 len = (uint32)msg.size();
-		sock.send((const uint8*)msg.c_str(), len, false);
-	} catch(std::exception &e) {
-		nlwarning("DSS NATS PUB failed: %s", e.what());
-	}
-	return 0;
-}
-
-static int luaDssSaveProgress(lua_State *state) {
-	const char *questId = luaL_checkstring(state, 1);
-	const char *progressJson = luaL_checkstring(state, 2);
-	nlinfo("DSS: Saving progress to PostgreSQL for quest %s: %s", questId, progressJson);
-#ifdef EGS_HAVE_PGSQL
-	if (!DssPgConn.get().empty()) {
-		PGconn *conn = PQconnectdb(DssPgConn.get().c_str());
-		if (PQstatus(conn) == CONNECTION_OK) {
-			const char *paramValues[2] = { questId, progressJson };
-			PGresult *res = PQexecParams(conn, "INSERT INTO quest_progress (quest_id, data) VALUES ($1, $2) ON CONFLICT (quest_id) DO UPDATE SET data = $2", 2, NULL, paramValues, NULL, NULL, 0);
-			PQclear(res);
-		}
-		PQfinish(conn);
-	}
-#endif
-	return 0;
-}
-
-static int luaDssSaveChronicleChoice(lua_State *state) {
-	const char *storyline = luaL_checkstring(state, 1);
-	const char *questId = luaL_checkstring(state, 2);
-	const char *objective = luaL_checkstring(state, 3);
-	const char *choiceId = luaL_checkstring(state, 4);
-	const char *accountId = luaL_checkstring(state, 5);
-
-	nlinfo("DSS: Saving chronicle choice: %s/%s/%s -> %s (account %s)", storyline, questId, objective, choiceId, accountId);
-#ifdef EGS_HAVE_PGSQL
-	if (!DssPgConn.get().empty()) {
-		PGconn *conn = PQconnectdb(DssPgConn.get().c_str());
-		if (PQstatus(conn) == CONNECTION_OK) {
-			const char *paramValues[5] = { storyline, questId, objective, choiceId, accountId };
-			PGresult *res = PQexecParams(conn, "INSERT INTO chronicle_choices (storyline, quest, objective, choice_id, account_id) VALUES ($1, $2, $3, $4, $5::bigint)", 5, NULL, paramValues, NULL, NULL, 0);
-			PQclear(res);
-		}
-		PQfinish(conn);
-	}
-#endif
-	return 0;
-}
-
-static int luaDssSaveFactionStanding(lua_State *state) {
-	const char *accountId = luaL_checkstring(state, 1);
-	const char *faction = luaL_checkstring(state, 2);
-	const char *deltaStr = luaL_checkstring(state, 3);
-
-	nlinfo("DSS: Modifying faction standing for %s/%s by %s", accountId, faction, deltaStr);
-#ifdef EGS_HAVE_PGSQL
-	if (!DssPgConn.get().empty()) {
-		PGconn *conn = PQconnectdb(DssPgConn.get().c_str());
-		if (PQstatus(conn) == CONNECTION_OK) {
-			const char *paramValues[3] = { accountId, faction, deltaStr };
-			PGresult *res = PQexecParams(conn, "INSERT INTO faction_standings (account_id, faction, standing) VALUES ($1::bigint, $2, $3::integer) ON CONFLICT (account_id, faction) DO UPDATE SET standing = faction_standings.standing + $3::integer", 3, NULL, paramValues, NULL, NULL, 0);
-			PQclear(res);
-		}
-		PQfinish(conn);
-	}
-#endif
-	return 0;
-}
-
-static void registerDssBindings() {
-	if (!EGSLUA::isInitialized()) return;
-	lua_State *state = EGSLUA::getState();
-	if (!state) return;
-
-	lua_pushcfunction(state, luaDssJournalPublish);
-	lua_setglobal(state, "dss_journalPublish");
-
-	lua_pushcfunction(state, luaDssSaveProgress);
-	lua_setglobal(state, "dss_saveProgress");
-
-	lua_pushcfunction(state, luaDssSaveChronicleChoice);
-	lua_setglobal(state, "dss_saveChronicleChoice");
-
-	lua_pushcfunction(state, luaDssSaveFactionStanding);
-	lua_setglobal(state, "dss_saveFactionStanding");
-
-	nlinfo("DSS: Registered dss_journalPublish, dss_saveProgress, dss_saveChronicleChoice, dss_saveFactionStanding into Lua");
-}
-#endif
 
 
 // force admin module to link in
@@ -502,15 +391,6 @@ void CDynamicScenarioService::init()
 		CSheetId::init(0);
 		CRingAccess::getInstance().init();
 
-#ifdef EGS_HAVE_LUA
-		nlinfo("DSS: Initializing Lua Engine for scenarios");
-		EGSLUA::init();
-		registerDssBindings();
-		std::string err;
-		if (!EGSLUA::runString("nlinfo('DSS Lua scenario engine started')", err)) {
-			nlwarning("DSS Lua error: %s", err.c_str());
-		}
-#endif
 	}
 	else
 	{
@@ -522,11 +402,6 @@ void CDynamicScenarioService::init()
 bool CDynamicScenarioService::update()
 {
 	CSingletonRegistry::getInstance()->serviceUpdate();
-#ifdef EGS_HAVE_LUA
-	std::string err;
-	// Tick the scenario host
-	EGSLUA::callHook("dss_update", std::vector<std::string>(), err);
-#endif
 	return true;
 }
 
@@ -543,11 +418,6 @@ void CDynamicScenarioService::release()
 	mm.deleteModule(clientGw);
 
 	CSingletonRegistry::getInstance()->release();
-
-#ifdef EGS_HAVE_LUA
-	EGSLUA::release();
-#endif
-
 }
 
 //-----------------------------------------------

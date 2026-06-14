@@ -159,15 +159,16 @@ end
 -- state is the snapshot the Godot quest journal renders.
 function M:state()
   local obj = current_objective(self)
+  local q = self.active_quest and self.quests[self.active_quest] or nil
   return {
     storyline = self.id,
     active_quest = self.active_quest,
+    quest_name = q and q.name or nil,
     objective = obj and obj.id or nil,
     objective_text = obj and obj.text or nil,
     awaiting_choice = self.pending_choice ~= nil,
     choice_prompt = self.pending_choice and self.pending_choice.choice.prompt or nil,
     choice_options = self.pending_choice and self.pending_choice.choice.options or nil,
-    -- authored NPC dialogue (optional; set when the choice was generated/edited)
     choice_npc = self.pending_choice and self.pending_choice.choice.npc or nil,
     choice_npc_line = self.pending_choice and self.pending_choice.choice.npc_line or nil,
   }

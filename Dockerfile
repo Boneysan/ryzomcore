@@ -20,7 +20,9 @@ COPY . .
 # - The ryzom-modernize preset's binaryDir is build/ryzom (see ryzom/CMakePresets.json),
 #   so build that tree, not build/.
 # - Build Release: the Debug config trips NeL nlassert/BOMB_IF landmines at runtime.
-RUN cmake --preset ryzom-modernize -DWITH_MSQUIC=ON && \
+# - MSQUIC disabled: the private shard communicates via go-proxy (WebSocket→UDP);
+#   MSQUIC runtime lib is not packaged, and the feature is not needed here.
+RUN cmake --preset ryzom-modernize -DWITH_MSQUIC=OFF && \
     cmake --build build/ryzom --config Release --parallel "$(nproc)"
 
 # Runtime stage

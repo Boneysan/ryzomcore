@@ -47,6 +47,47 @@ function handlers.quest_choice(payload)
 	end
 end
 
+function handlers.start_scenario(payload)
+	local name = egs.jsonGet(payload, "name")
+	local dss = package.loaded["dss_scenario_host"]
+	if dss and name then
+		local ok, scenario = pcall(require, name)
+		if ok and type(scenario) == "table" then
+			dss.start_scenario(scenario)
+		else
+			egs.warning("Could not load scenario: " .. tostring(name))
+		end
+	elseif not dss then
+		egs.warning("dss_scenario_host not loaded")
+	end
+end
+
+function handlers.fire_event(payload)
+	local kind = egs.jsonGet(payload, "kind")
+	local target = egs.jsonGet(payload, "target")
+	local dss = package.loaded["dss_scenario_host"]
+	if dss and kind then
+		dss.fire_event({ on = kind, target = target })
+	end
+end
+
+-- Called directly by the EGS C++ layer when a creature dies.
+function on_creature_death(sheet_id)
+	local dss = package.loaded["dss_scenario_host"]
+	if dss then
+		dss.fire_event({ on = "kill", creature = sheet_id })
+	end
+end
+
+-- Called directly by the EGS C++ layer when a player character dies.
+-- Delegates to party_mechanics for co-op respawn logic.
+function on_player_death(char_id)
+	local pm = package.loaded["party_mechanics"]
+	if pm then
+		pm.on_player_death(char_id, nil)
+	end
+end
+
 function handlers.award_skill(payload)
 	local char_id = egs.jsonGet(payload, "character_id")
 	local skill = egs.jsonGet(payload, "skill")

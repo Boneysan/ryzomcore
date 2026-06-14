@@ -32,13 +32,16 @@ local function encode_journal_json(state)
     end
 
     return string.format(
-        '{"type":"quest_update","storyline":"%s","active_quest":"%s","objective":"%s","objective_text":"%s","awaiting_choice":%s,"choice_prompt":"%s","choice_options":%s}',
+        '{"type":"quest_update","storyline":"%s","active_quest":"%s","quest_name":"%s","objective":"%s","objective_text":"%s","awaiting_choice":%s,"choice_prompt":"%s","choice_npc":"%s","choice_npc_line":"%s","choice_options":%s}',
         escape(state.storyline),
         escape(state.active_quest),
+        escape(state.quest_name),
         escape(state.objective),
         escape(state.objective_text),
         is_awaiting,
         escape(state.choice_prompt),
+        escape(state.choice_npc),
+        escape(state.choice_npc_line),
         options_json
     )
 end

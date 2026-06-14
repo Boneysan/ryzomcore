@@ -19,7 +19,7 @@ function M.on_player_death(char_id, party_id)
         local anchor = M.party_anchors[party_id]
         egs.info(string.format("Respawning player %s at party anchor %s", char_id, party_id))
         -- In a full implementation, call native C++ respawn bindings here:
-        -- egs.teleport(char_id, anchor.x, anchor.y, anchor.z)
+        egs.teleport(char_id, anchor.x, anchor.y, anchor.z)
         return true -- indicating custom respawn handled
     end
     
@@ -27,11 +27,11 @@ function M.on_player_death(char_id, party_id)
     return false -- fallback to standard respawn
 end
 
--- Trigger stash sync (Lua -> Go)
+-- Trigger stash sync — publishes party.stash.sync so campaign-api can persist
 function M.sync_stash(party_id)
     egs.info("Syncing stash for party " .. tostring(party_id))
-    -- In a full implementation, dispatch a NATS message or HTTP request
-    -- to campaign-api POST /party/{party_id}/stash
+    local payload = string.format('{"party_id":"%s"}', tostring(party_id))
+    egs.natsPublish("party.stash.sync", payload)
 end
 
 egs.info("party_mechanics.lua loaded successfully")

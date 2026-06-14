@@ -1005,6 +1005,13 @@ void CPlayerService::egsUpdate()
 				if (creature)
 				{
 					creature->deathReportSent();
+#ifdef EGS_HAVE_LUA
+					{
+						std::vector<std::string> _hookArgs = { creature->getType().toString() };
+						std::string _hookErr;
+						EGSLUA::callHook("on_creature_death", _hookArgs, _hookErr);
+					}
+#endif
 					if (BotDeathReport.Zombies[i])
 					{
 						nlinfo("ZOMBIE : send again death report for zombie creature %s to AIS", creature->getId().toString().c_str());
@@ -1822,7 +1829,7 @@ NLMISC_COMMAND(loadAndReSaveCharacters,"load and resave the complete set of play
 	set<uint32> playerIds;
 
 	vector< string > files;
-	CPath::getPathContent( BsiGlobal.getLocalPath() + "characters", true, false, true, files );
+	CPath::getPathContent( NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters", true, false, true, files );
 
 	for( uint32 i = 0; i < files.size(); ++i )
 	{
@@ -1887,7 +1894,7 @@ NLMISC_COMMAND(loadCharacterNames,"load all character save games and extract nam
 	wildcards.push_back("account_*_?_pdr.bin");
 	wildcards.push_back("account_*_?_pdr.xml");
 	CFileDescriptionContainer fdc;
-	fdc.addFiles(Bsi.getLocalPath() + "characters", wildcards, true);
+	fdc.addFiles(NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters", wildcards, true);
 
 	// build a map of character ids to file names (using newest file in case of multiple options)
 	typedef std::map<uint32,CFileDescription> TFilesMap;
@@ -1938,7 +1945,7 @@ NLMISC_COMMAND(loadCharacterNames,"load all character save games and extract nam
 //	nlinfo ("Loading and re-saving all .bin, .offline_commands and .ticks files");
 //
 //	vector< string > files;
-//	string	saveDir= Bsi.getLocalPath();
+//	string	saveDir= NLNET::IService::getInstance()->SaveFilesDirectory.get();
 //	CPath::getPathContent( saveDir, true, false, true, files );
 //
 //	// for all bin files
@@ -1988,7 +1995,7 @@ NLMISC_COMMAND(loadCharacterNames,"load all character save games and extract nam
 //	for(uint t=0;t<2;t++)
 //	{
 //		vector< string > files;
-//		string	saveDir= Bsi.getLocalPath();
+//		string	saveDir= NLNET::IService::getInstance()->SaveFilesDirectory.get();
 //		if(t==0)
 //			saveDir+= "characters";
 //		else
@@ -3425,7 +3432,7 @@ struct TIsNotACharFile
 
 NLMISC_COMMAND(moveCharAndOfflineCmdToHashTable, "Move all character and offline commands file into the new hash table","")
 {
-	string savePath = BsiGlobal.getLocalPath() + "characters";
+	string savePath = NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters";
 
 	vector<string> allChars;
 	CPath::getPathContent(savePath, false, false, true, allChars);
@@ -3453,7 +3460,7 @@ NLMISC_COMMAND(moveCharAndOfflineCmdToHashTable, "Move all character and offline
 		}
 	}
 
-	savePath = Bsi.getLocalPath() + "characters_offline_commands";
+	savePath = NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters_offline_commands";
 	vector<string> allCommands;
 	CPath::getPathContent(savePath, false, false, true, allCommands);
 
@@ -3486,7 +3493,7 @@ NLMISC_COMMAND(moveCharAndOfflineCmdToHashTable, "Move all character and offline
 
 NLMISC_COMMAND(loadAllPlayerAndReady,"Load all the player saves (all account, all slots) and call 'clientReady'","")
 {
-	string savePath = BsiGlobal.getLocalPath() + "characters";
+	string savePath = NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters";
 
 	vector<string> allChars;
 	CPath::getPathContent(savePath, false, false, true, allChars);
@@ -3577,7 +3584,7 @@ struct TIsNotAOldCharFile
 
 NLMISC_COMMAND(convertAllOldCharacterSaves,"Load all the old (.bin) not already converted characters saves, call 'clientReady' and save in pdr","")
 {
-	string savePath = BsiGlobal.getLocalPath() + "characters";
+	string savePath = NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters";
 
 	vector<string> allChars;
 	CPath::getPathContent(savePath, true, false, true, allChars);
@@ -5722,28 +5729,6 @@ NLMISC_COMMAND (dumpRespawnPoints, "dump all the respawn points of a user", "")
 }
 
 
-NLMISC_COMMAND (deleteFile, "ask to backup service to 'delete' a file (really delete or make backup)", "<file with path relative to SaveFilesDirectory> <keepBackup=1> <globalDir=0>")
-{
-	if (args.size() < 1)
-		return false;
-
-	bool keepBackupOfFile = true;
-	if (args.size() > 1)
-		keepBackupOfFile = (args[1]!="0");
-
-	bool globalDir = false;
-	if (args.size() > 2)
-		globalDir = (args[2]!="0");
-
-	if (globalDir)
-		BsiGlobal.deleteFile( args[0], keepBackupOfFile );
-	else
-		Bsi.deleteFile( args[0], keepBackupOfFile );
-
-	return true;
-}
-
-
 
 //-----------------------------------------------
 // skillProgressionFactor : change or just display the Factor for the Skill Progression.
@@ -5810,7 +5795,7 @@ NLMISC_COMMAND(defaultCastingTime, "change or just display the default casting t
 NLMISC_COMMAND( loadResaveAndCheckCharacters, "Check EGS can load all saves, and that items are not broken once they are saved", "" )
 {
 	vector< string > files;
-	CPath::getPathContent( BsiGlobal.getLocalPath() + "characters", true, false, true, files );
+	CPath::getPathContent( NLNET::IService::getInstance()->SaveFilesDirectory.get() + "characters", true, false, true, files );
 	loadAndResaveCheckCharacters( files, log, true );
 	return true;
 }
