@@ -17,6 +17,7 @@
 
 
 #include "stdpch.h"
+#include "navmesh_path.h"
 #include "continent.h"
 #include "continent_inline.h"
 #include "ai_mgr.h"
@@ -3221,7 +3222,7 @@ NLMISC_COMMAND(getPersistentVarAsFloat, "get a persistent ai var", "")
 }
 
 NLMISC_COMMAND(deletePersistentVar, "deletes an AI script persistent var", "")
-{	
+{
 	if (args.size() == 1)
 	{
 		std::string varName = args[0].c_str();
@@ -3231,8 +3232,42 @@ NLMISC_COMMAND(deletePersistentVar, "deletes an AI script persistent var", "")
 		log.displayNL("Var '%s' deleted", varName.c_str());
 		return true;
 	}
-	
+
 	return false;
+}
+
+// Task 6.2 (Phase 6 NPC AI): headless smoke test for the navmesh
+// pathfinding vertical slice. Calls pathfinding-api over NATS request/
+// reply the same way aiNative::findPath (ai_lua.cpp) does, and prints the
+// resulting waypoints (or the failure reason) to the admin console.
+NLMISC_COMMAND(aiTestNavmeshPath, "request a path from pathfinding-api over NATS and print the waypoints",
+	"<zone> <startX> <startY> <startZ> <endX> <endY> <endZ>")
+{
+	if (args.size() != 7)
+		return false;
+
+	const std::string zone = args[0];
+	NLMISC::CVector start, end;
+	NLMISC::fromString(args[1], start.x);
+	NLMISC::fromString(args[2], start.y);
+	NLMISC::fromString(args[3], start.z);
+	NLMISC::fromString(args[4], end.x);
+	NLMISC::fromString(args[5], end.y);
+	NLMISC::fromString(args[6], end.z);
+
+	std::vector<NLMISC::CVector> path;
+	std::string errorMsg;
+	if (!NavmeshPath::findPath(zone, start, end, path, errorMsg))
+	{
+		log.displayNL("aiTestNavmeshPath FAILED: %s", errorMsg.c_str());
+		return true;
+	}
+
+	log.displayNL("aiTestNavmeshPath: %u waypoints", (uint32)path.size());
+	for (size_t i = 0; i < path.size(); ++i)
+		log.displayNL("  [%u] (%.2f, %.2f, %.2f)", (uint32)i, path[i].x, path[i].y, path[i].z);
+
+	return true;
 }
 
 
