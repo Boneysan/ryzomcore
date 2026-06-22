@@ -79,6 +79,19 @@ CMD ["login_service", "--noBg"]
 FROM base AS shard_runtime
 CMD ["/ryzom-docker/run_shard_container.sh"]
 
+# dual_write_diff: Task 4.2c tail automation sidecar for
+# go-services/tools/save_diff/compare_saves.py. Based on `base` (not
+# `runtime`/shard_runtime's CMD) so it shares the same Ubuntu 24.04 userland
+# as the host build that produced save_to_json -- the bridge binary is read
+# via the same ${RYZOM_ROOT} bind mount nel-shard already uses, no COPY
+# needed. Adds python3 + the apt-packaged psycopg2 (avoids a pip/build-dep
+# round trip for a single dependency).
+FROM base AS dual_write_diff
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-psycopg2 \
+    && rm -rf /var/lib/apt/lists/*
+CMD ["echo", "dual_write_diff: command is set in docker-compose.dev.yml"]
+
 # Add more targets as services are needed.
 
 # To use with pre-built host artifacts (recommended for now):

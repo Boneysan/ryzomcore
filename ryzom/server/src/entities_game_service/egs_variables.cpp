@@ -510,6 +510,14 @@ NLMISC::CVariable<bool> XMLSave("loadSave","XMLSave", "boolean : if true players
 NLMISC::CVariable<bool> PDRSave("loadSave","PDRSave", "boolean : if true players are saved in PDR format", true, 0, true );
 NLMISC::CVariable<bool> PDRLoad("loadSave","PDRLoad", "boolean : if true players are loaded from PDR format", false, 0, true );
 NLMISC::CVariable<bool> SerialSave("loadSave","SerialSave", "boolean : if true players are saved in serial format", false, 0, true );
+// Task 4.2c Step 3 cutover flag. NOT YET SAFE TO ENABLE -- see PROGRESS.md Task 4.2c.
+// The PostgreSQL dual-write (pgUpsertCharacterMetadata) only mirrors name/race/gender;
+// it does not carry inventory, stats, skills or position. Flipping this true skips the
+// binary PDR save entirely, which means that state is LOST, not migrated. Do not enable
+// outside of testing the cutover mechanics until (a) 30 real calendar days of zero
+// dual-write mismatches are confirmed via dual_write_diff_log, and (b) a full
+// character-state PostgreSQL migration has been built (out of scope for Task 4.2c).
+NLMISC::CVariable<bool> EgsCharacterPgsqlOnlyWrites("loadSave", "EgsCharacterPgsqlOnlyWrites", "Task 4.2c Step 3 cutover: skip the binary PDR save and write character data to PostgreSQL only. DO NOT ENABLE until the dual-write diff streak (dual_write_diff_log) has confirmed 30 real calendar days of zero mismatches AND a full character-state PostgreSQL migration exists -- today's PostgreSQL dual-write only mirrors name/race/gender, NOT inventory/stats/position. Enabling this in production today is DATA LOSS. Default false.", false, 0, true );
 
 CVariable<float> ItemPriceCoeff0("egs","ItemPriceCoeff0", "polynom coeff of degree 0 in the price formula", 1.0f, 0, true );
 CVariable<float> ItemPriceCoeff1("egs","ItemPriceCoeff1", "polynom coeff of degree 1 in the price formula", 1.0f, 0, true );

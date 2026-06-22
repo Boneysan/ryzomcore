@@ -851,26 +851,45 @@ void CPlayerManager::savePlayerCharRecurs( uint32 userId, sint32 idx, std::set<C
 		}
 		if (PDRSave)
 		{
-			// perform a 'pdr' save
-			static CPersistentDataRecordRyzomStore	pdr;
-			pdr.clear();
 			string pdrPathFileName = NLNET::IService::getInstance()->SaveFilesDirectory.get() + pdrFileName;
-			
-			try
+
+			// Task 4.2c Step 3 -- NOT YET SAFE TO ENABLE, see PROGRESS.md Task 4.2c.
+			// EgsCharacterPgsqlOnlyWrites exists so the cutover mechanics (skipping the
+			// binary save) can be exercised, but the PostgreSQL dual-write below
+			// (pgUpsertCharacterMetadata) only mirrors name/race/gender. Full character
+			// state -- inventory, stats, skills, position -- still lives ONLY in this
+			// PDR file. Leaving this flag true in production means that state is LOST,
+			// not migrated, on every save. It must stay false until 30 real calendar
+			// days of zero dual-write mismatches are confirmed (dual_write_diff_log)
+			// AND a full character-state PostgreSQL migration has been built.
+			if (EgsCharacterPgsqlOnlyWrites)
 			{
-				{
-					H_AUTO(SavePlayerPDRStore);
-					(*itPlayer).second.Player->storeCharacter(pdr,idx);
-				}
-				{
-					H_AUTO(SavePlayerPDRSave);
-					pdr.writeToFile(pdrPathFileName);
-				}
+				nlwarning("(EGS)<CPlayerManager::savePlayer>  :  EgsCharacterPgsqlOnlyWrites is TRUE -- skipping binary PDR save for %s. "
+					"PostgreSQL dual-write only mirrors name/race/gender; full character state is NOT being persisted. "
+					"This is UNSAFE for production use, see Task 4.2c in PROGRESS.md.", pdrPathFileName.c_str());
 			}
-			catch(const Exception &)
+			else
 			{
-				nlwarning("(EGS)<CPlayerManager::savePlayer>  :  Can't serial file %s (connection with BS service down ?)", pdrPathFileName.c_str());
-				return;
+				// perform a 'pdr' save
+				static CPersistentDataRecordRyzomStore	pdr;
+				pdr.clear();
+
+				try
+				{
+					{
+						H_AUTO(SavePlayerPDRStore);
+						(*itPlayer).second.Player->storeCharacter(pdr,idx);
+					}
+					{
+						H_AUTO(SavePlayerPDRSave);
+						pdr.writeToFile(pdrPathFileName);
+					}
+				}
+				catch(const Exception &)
+				{
+					nlwarning("(EGS)<CPlayerManager::savePlayer>  :  Can't serial file %s (connection with BS service down ?)", pdrPathFileName.c_str());
+					return;
+				}
 			}
 
 			SM_STATIC_PARAMS_1(params, STRING_MANAGER::player);

@@ -363,8 +363,9 @@ extern NLMISC::CVariable<bool>					XMLSave;
 extern NLMISC::CVariable<bool>					PDRSave;
 extern NLMISC::CVariable<bool>					PDRLoad;
 extern NLMISC::CVariable<bool>					SerialSave;
+extern NLMISC::CVariable<bool>					EgsCharacterPgsqlOnlyWrites;
 
-/// TRADE 
+/// TRADE
 extern NLMISC::CVariable<float>					ItemPriceCoeff0;
 extern NLMISC::CVariable<float>					ItemPriceCoeff1;
 extern NLMISC::CVariable<float>					ItemPriceCoeff2;
