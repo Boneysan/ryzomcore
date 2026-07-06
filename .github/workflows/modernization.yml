@@ -108,9 +108,9 @@ jobs:
           fi
 
           # Only fail on *new* modernize violations.
-          # baseline clang-tidy-baseline.txt generated in 0.2a (committed; ~1000 existing from headers/old code).
-          # CI runs on changed files (PR) or sample; use baseline locally to track progress.
-          if [ -f clang-tidy-baseline.txt ]; then cp clang-tidy-baseline.txt . ; fi
+          # baseline clang-tidy-baseline.txt generated in 0.2a (committed at repo root;
+          # ~1000 existing from headers/old code). CI runs on changed files (PR) or
+          # sample; use baseline locally to track progress.
           clang-tidy-17 \
             -p build/ryzom \
             --warnings-as-errors='modernize-*' \

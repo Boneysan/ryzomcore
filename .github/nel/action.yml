@@ -30,6 +30,12 @@ runs:
         cmakeVersion: "^3.31.11"
 
     - uses: lukka/run-vcpkg@v11
+      with:
+        # No vcpkg git submodule in this repo — pin the commit so the action
+        # clones vcpkg directly instead of assuming/checking out a submodule
+        # (that assumption fails with "pathspec 'vcpkg' did not match any
+        # file(s) known to git" since there's no .gitmodules entry for it).
+        vcpkgGitCommitId: "0a434205c521ca43d66921271ae2a1d051e718a5"
 
     - uses: actions/cache/restore@v5
       id: vcpkg-cache
