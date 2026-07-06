@@ -22,7 +22,7 @@ on:
   pull_request:
     branches: [ "core4", "main", "develop" ]
   schedule:
-    - cron: '0 3 * * *'   # 3am UTC daily — triggers ASAN job
+    - cron: '0 3 * * 0'   # 3am UTC weekly (Sundays) — triggers ASAN job
   workflow_dispatch:
 
 env:
